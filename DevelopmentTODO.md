@@ -56,28 +56,28 @@
 
 **前置条件**
 
-- [ ] 阶段 0 已完成。
-- [ ] Toki 主模型 prefab 能在当前 Unity 工程中正常打开。
-- [ ] 当前场景中已有可用于观察角色的基础相机、灯光和场景环境。
+- [x] 阶段 0 已完成。
+- [x] Toki 主模型 prefab 能在当前 Unity 工程中正常打开。
+- [x] 当前场景中已有可用于观察角色的基础相机、灯光和场景环境。
 
 **开发任务**
 
-- [ ] 接入 Toki 主模型入口。
-- [ ] 在 Play 后自动采集已登记骨骼的 BaseRotation。
-- [ ] 建立最低层 Idle 姿态来源。
-- [ ] 建立最终写入骨骼姿态的最小流程。
-- [ ] 保持本阶段写入流程只服务 Idle / BaseRotation 跑通，不提前实现完整 ActionCoordinator。
+- [x] 接入 Toki 主模型入口。
+- [x] 在 Play 后自动采集已登记骨骼的 BaseRotation。
+- [x] 建立最低层 Idle 姿态来源。
+- [x] 建立最终写入骨骼姿态的最小流程。
+- [x] 保持本阶段写入流程只服务 Idle / BaseRotation 跑通，不提前实现完整 ActionCoordinator。
 
 **手动验收标准**
 
-- [ ] 进入 Play 后，Toki 能正常显示。
-- [ ] 进入 Play 后，Idle 能持续播放或持续提供稳定姿态。
-- [ ] BaseRotation 采集结果可通过日志或 Inspector 确认。
-- [ ] 角色未出现明显骨骼错位、爆姿态或材质丢失。
+- [x] 进入 Play 后，Toki 能正常显示。
+- [x] 进入 Play 后，Idle 能持续播放或持续提供稳定姿态。
+- [x] BaseRotation 采集结果可通过日志或 Inspector 确认。
+- [x] 角色未出现明显骨骼错位、爆姿态或材质丢失。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2：BoneMap 与 Debug 单骨骼控制
 
