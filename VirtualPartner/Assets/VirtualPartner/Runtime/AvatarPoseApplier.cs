@@ -63,5 +63,39 @@ namespace VirtualPartner.Runtime
             lastSampleTime = sampleTime;
             isApplying = true;
         }
+
+        public bool TryGetBaseRotation(Transform bone, out Quaternion baseRotation)
+        {
+            baseRotation = Quaternion.identity;
+
+            if (!hasBaseRotation || bone == null || registeredBones == null || baseLocalRotations == null)
+                return false;
+
+            for (var i = 0; i < registeredBones.Length; i++)
+            {
+                if (registeredBones[i] != bone)
+                    continue;
+
+                baseRotation = baseLocalRotations[i];
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool ApplySemanticBoneRotation(Transform bone, Vector3 semanticRotation, Vector3 mirrorSign)
+        {
+            if (!TryGetBaseRotation(bone, out var baseRotation))
+                return false;
+
+            var mirroredRotation = new Vector3(
+                semanticRotation.x * mirrorSign.x,
+                semanticRotation.y * mirrorSign.y,
+                semanticRotation.z * mirrorSign.z);
+
+            bone.localRotation = baseRotation * Quaternion.Euler(mirroredRotation);
+            isApplying = true;
+            return true;
+        }
     }
 }

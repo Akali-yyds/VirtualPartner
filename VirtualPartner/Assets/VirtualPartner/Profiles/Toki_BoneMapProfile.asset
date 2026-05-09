@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f4a4d5e6b774cf2a1c2d3e4f5061728, type: 3}
+  m_Name: Toki_BoneMapProfile
+  m_EditorClassIdentifier: 
+  entries:
+  - semanticBone: 0
+    hasSide: 0
+    path: Bip001 Pelvis
+    leftPath: 
+    rightPath: 
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -45, y: 45}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
+  - semanticBone: 1
+    hasSide: 0
+    path: Bip001 Spine
+    leftPath: 
+    rightPath: 
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -45, y: 45}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
+  - semanticBone: 2
+    hasSide: 0
+    path: Bip001 Spine1
+    leftPath: 
+    rightPath: 
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -45, y: 45}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
+  - semanticBone: 3
+    hasSide: 0
+    path: Bip001 Neck
+    leftPath: 
+    rightPath: 
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -45, y: 45}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
+  - semanticBone: 4
+    hasSide: 0
+    path: Bip001 Head
+    leftPath: 
+    rightPath: 
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -45, y: 45}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
+  - semanticBone: 5
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Clavicle
+    rightPath: Bip001 R Clavicle
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 6
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L UpperArm
+    rightPath: Bip001 R UpperArm
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 7
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Forearm
+    rightPath: Bip001 R Forearm
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 8
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Hand
+    rightPath: Bip001 R Hand
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 9
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Thigh
+    rightPath: Bip001 R Thigh
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 10
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Calf
+    rightPath: Bip001 R Calf
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 11
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Foot
+    rightPath: Bip001 R Foot
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 12
+    hasSide: 1
+    path: 
+    leftPath: Bip001 L Toe0
+    rightPath: Bip001 R Toe0
+    axes: {x: 1, y: 1, z: 1}
+    range: {x: -90, y: 90}
+    rightMirrorSign: {x: -1, y: -1, z: 1}
