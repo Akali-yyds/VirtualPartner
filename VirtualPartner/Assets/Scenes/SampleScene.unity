@@ -376,13 +376,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -717,6 +717,55 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5812685c1b6cfc84e9fe7b3ce6b08922, type: 3}
+--- !u!114 &1195117183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3c06f1a7c634d6dba17e762e3b2d912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.ActionCoordinator
+  avatarPoseApplier: {fileID: 1195117187}
+  handoffDuration: 0.25
+  debugOwnedBoneCount: 0
+  activeTransitionCount: 0
+  activeBoneName: 
+  activeOwner: 0
+--- !u!114 &1195117184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e72d0466d7948bfa32d930df13bf9c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.VirtualPartnerBoneDebugPanel
+  boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  boneRoot: {fileID: 1274239515}
+  actionCoordinator: {fileID: 1195117183}
+  apply: 0
+  minimized: 0
+  rotation: {x: 0, y: 0, z: 0}
+  selectedIndex: 0
+  exportedJson: 
+  semanticConfigCount: 0
+  controlInstanceCount: 0
+  missingInstanceCount: 0
+  debugOverlayActive: 0
+  activeDebugBone: 
+  windowRect:
+    serializedVersion: 2
+    x: 20
+    y: 20
+    width: 360
+    height: 560
 --- !u!1 &1195117185
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,6 +779,7 @@ GameObject:
   - component: {fileID: 1195117187}
   - component: {fileID: 1195117186}
   - component: {fileID: 1195117184}
+  - component: {fileID: 1195117183}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -754,42 +804,12 @@ MonoBehaviour:
   idleClip: {fileID: 7400000, guid: 8deafc5e7fb5f1a48bea3b763259be4f, type: 2}
   idleBaseProvider: {fileID: 1195117188}
   avatarPoseApplier: {fileID: 1195117187}
+  actionCoordinator: {fileID: 1195117183}
   initialized: 0
   baseRotationCaptured: 0
   registeredBoneCount: 0
   idlePlaying: 0
   currentIdleTime: 0
---- !u!114 &1195117184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195117185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e72d0466d7948bfa32d930df13bf9c2, type: 3}
-  m_Name: ''
-  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.VirtualPartnerBoneDebugPanel
-  boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
-  boneRoot: {fileID: 1274239515}
-  avatarPoseApplier: {fileID: 1195117187}
-  apply: 0
-  minimized: 0
-  rotation: {x: 0, y: 0, z: 0}
-  selectedIndex: 0
-  exportedJson: ''
-  semanticConfigCount: 0
-  controlInstanceCount: 0
-  missingInstanceCount: 0
-  debugOverlayActive: 0
-  activeDebugBone: ''
-  windowRect:
-    serializedVersion: 2
-    x: 20
-    y: 20
-    width: 360
-    height: 560
 --- !u!114 &1195117187
 MonoBehaviour:
   m_ObjectHideFlags: 0

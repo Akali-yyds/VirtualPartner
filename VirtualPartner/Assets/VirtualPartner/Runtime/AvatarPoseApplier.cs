@@ -83,8 +83,14 @@ namespace VirtualPartner.Runtime
             return false;
         }
 
-        public bool ApplySemanticBoneRotation(Transform bone, Vector3 semanticRotation, Vector3 mirrorSign)
+        public bool TryBuildSemanticBoneRotation(
+            Transform bone,
+            Vector3 semanticRotation,
+            Vector3 mirrorSign,
+            out Quaternion localRotation)
         {
+            localRotation = Quaternion.identity;
+
             if (!TryGetBaseRotation(bone, out var baseRotation))
                 return false;
 
@@ -93,7 +99,16 @@ namespace VirtualPartner.Runtime
                 semanticRotation.y * mirrorSign.y,
                 semanticRotation.z * mirrorSign.z);
 
-            bone.localRotation = baseRotation * Quaternion.Euler(mirroredRotation);
+            localRotation = baseRotation * Quaternion.Euler(mirroredRotation);
+            return true;
+        }
+
+        public bool ApplyBoneLocalRotation(Transform bone, Quaternion localRotation)
+        {
+            if (!TryGetBaseRotation(bone, out _))
+                return false;
+
+            bone.localRotation = localRotation;
             isApplying = true;
             return true;
         }

@@ -12,6 +12,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private AnimationClip idleClip;
         [SerializeField] private IdleBaseProvider idleBaseProvider;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
+        [SerializeField] private ActionCoordinator actionCoordinator;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -33,6 +34,7 @@ namespace VirtualPartner.Runtime
 
             idleBaseProvider.Configure(idleClip);
             avatarPoseApplier.Configure(characterRoot, boneRoot);
+            actionCoordinator.Configure(avatarPoseApplier);
 
             yield return null;
 
@@ -49,8 +51,8 @@ namespace VirtualPartner.Runtime
             }
 
             idleBaseProvider.Play();
-            currentIdleTime = idleBaseProvider.CurrentTime;
-            avatarPoseApplier.ApplyIdle(idleBaseProvider.Clip, currentIdleTime);
+            ApplyIdleFrame(0f);
+            actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
             initialized = true;
 
@@ -64,15 +66,23 @@ namespace VirtualPartner.Runtime
             if (!initialized)
                 return;
 
-            currentIdleTime = idleBaseProvider.Advance(Time.deltaTime);
-            idlePlaying = idleBaseProvider.IsPlaying;
-            avatarPoseApplier.ApplyIdle(idleBaseProvider.Clip, currentIdleTime);
+            ApplyIdleFrame(Time.deltaTime);
+            actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
         private void OnDisable()
         {
+            if (actionCoordinator != null)
+                actionCoordinator.ReleaseAllDebug();
             if (idleBaseProvider != null)
                 idleBaseProvider.Stop();
+        }
+
+        private void ApplyIdleFrame(float deltaTime)
+        {
+            currentIdleTime = idleBaseProvider.Advance(deltaTime);
+            idlePlaying = idleBaseProvider.IsPlaying;
+            avatarPoseApplier.ApplyIdle(idleBaseProvider.Clip, currentIdleTime);
         }
 
         private bool ValidateReferences()
@@ -87,6 +97,8 @@ namespace VirtualPartner.Runtime
                 return Fail("IdleBaseProvider reference is missing.");
             if (avatarPoseApplier == null)
                 return Fail("AvatarPoseApplier reference is missing.");
+            if (actionCoordinator == null)
+                return Fail("ActionCoordinator reference is missing.");
             if (!boneRoot.IsChildOf(characterRoot.transform))
                 return Fail("Bone root must be inside the character root hierarchy.");
 

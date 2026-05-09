@@ -118,28 +118,28 @@
 
 **前置条件**
 
-- [ ] 阶段 2 已完成。
-- [ ] Debug 单骨骼参数控制和姿态导出可用。
-- [ ] Idle 姿态可以持续作为最低层姿态来源。
+- [x] 阶段 2 已完成。
+- [x] Debug 单骨骼参数控制和姿态导出可用。
+- [x] Idle 姿态可以持续作为最低层姿态来源。
 
 **开发任务**
 
-- [ ] 建立骨骼 owner 管理规则。
-- [ ] 支持动作源申请、占用、抢占和释放骨骼。
-- [ ] 支持 owner 变化时创建统一的骨骼交接过渡。
-- [ ] 正式接入 Debug 占用和 Release。
-- [ ] 先打通 Debug 与 Idle 之间通过 ActionCoordinator 的占用和释放流程。
+- [x] 建立骨骼 owner 管理规则。
+- [x] 支持动作源申请、占用、抢占和释放骨骼。
+- [x] 支持 owner 变化时创建统一的骨骼交接过渡。
+- [x] 正式接入 Debug 占用和 Release。
+- [x] 先打通 Debug 与 Idle 之间通过 ActionCoordinator 的占用和释放流程。
 
 **手动验收标准**
 
-- [ ] Debug 占用骨骼时，该骨骼不再被 Idle 覆盖。
-- [ ] Debug 释放骨骼时，骨骼能通过 ActionCoordinator 平滑回到当前 Idle 姿态。
-- [ ] 多次占用和释放后，角色姿态不累计漂移。
-- [ ] 日志或 Inspector 能辅助确认当前骨骼 owner。
+- [x] Debug 占用骨骼时，该骨骼不再被 Idle 覆盖。
+- [x] Debug 释放骨骼时，骨骼能通过 ActionCoordinator 平滑回到当前 Idle 姿态。
+- [x] 多次占用和释放后，角色姿态不累计漂移。
+- [x] 日志或 Inspector 能辅助确认当前骨骼 owner。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 4：本地 JSON TimelinePlayer
 

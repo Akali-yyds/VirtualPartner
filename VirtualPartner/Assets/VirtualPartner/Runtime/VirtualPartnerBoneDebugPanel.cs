@@ -11,7 +11,7 @@ namespace VirtualPartner.Runtime
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
         [SerializeField] private Transform boneRoot;
-        [SerializeField] private AvatarPoseApplier avatarPoseApplier;
+        [SerializeField] private ActionCoordinator actionCoordinator;
 
         [Header("Runtime Status")]
         [SerializeField] private bool apply;
@@ -29,6 +29,7 @@ namespace VirtualPartner.Runtime
         private readonly List<BoneMapInstance> controlInstances = new List<BoneMapInstance>();
         private Vector2 boneListScroll;
         private Vector2 expandedWindowSize = new Vector2(360f, 560f);
+        private BoneMapInstance appliedInstance;
 
         private void Start()
         {
@@ -42,28 +43,58 @@ namespace VirtualPartner.Runtime
             RefreshControlInstances();
         }
 
-        private void LateUpdate()
+        private void Update()
+        {
+            SyncDebugRequest();
+            RefreshSelectedStatus();
+        }
+
+        private void OnDisable()
+        {
+            ReleaseAppliedInstance();
+        }
+
+        private void SyncDebugRequest()
         {
             if (!apply)
             {
-                EndDebugOverlay();
+                ReleaseAppliedInstance();
                 return;
             }
 
-            if (selectedIndex < 0 || selectedIndex >= controlInstances.Count)
+            var selectedInstance = GetSelectedInstance();
+            if (selectedInstance == null || actionCoordinator == null)
                 return;
 
-            var instance = controlInstances[selectedIndex];
-            var clampedRotation = instance.Entry.ClampRotation(rotation);
-            var mirrorSign = instance.Entry.GetMirrorSign(instance.Side);
+            if (appliedInstance != null && appliedInstance.Transform != selectedInstance.Transform)
+                actionCoordinator.ReleaseDebug(appliedInstance);
 
-            if (!avatarPoseApplier.HasBaseRotation)
+            appliedInstance = selectedInstance;
+            if (actionCoordinator.RequestDebug(selectedInstance, rotation))
+                BeginDebugOverlay(selectedInstance.DisplayName);
+        }
+
+        private void ReleaseAppliedInstance()
+        {
+            if (appliedInstance != null && actionCoordinator != null)
+                actionCoordinator.ReleaseDebug(appliedInstance);
+
+            appliedInstance = null;
+            EndDebugOverlay();
+        }
+
+        private void RefreshSelectedStatus()
+        {
+            var selectedInstance = GetSelectedInstance();
+            if (selectedInstance == null || actionCoordinator == null)
+            {
+                debugOverlayActive = false;
+                activeDebugBone = string.Empty;
                 return;
+            }
 
-            if (!avatarPoseApplier.ApplySemanticBoneRotation(instance.Transform, clampedRotation, mirrorSign))
-                return;
-
-            BeginDebugOverlay(instance.DisplayName);
+            debugOverlayActive = actionCoordinator.GetOwner(selectedInstance.Transform) == BoneOwner.Debug;
+            activeDebugBone = $"{selectedInstance.DisplayName} ({actionCoordinator.GetStatus(selectedInstance.Transform)})";
         }
 
         private void OnGUI()
@@ -78,12 +109,7 @@ namespace VirtualPartner.Runtime
                 minimized ? "VP Bone Debug" : "VirtualPartner Bone Debug");
         }
 
-        public void BeginDebugOverlay()
-        {
-            debugOverlayActive = true;
-        }
-
-        public void EndDebugOverlay()
+        private void EndDebugOverlay()
         {
             debugOverlayActive = false;
             activeDebugBone = string.Empty;
@@ -93,6 +119,14 @@ namespace VirtualPartner.Runtime
         {
             debugOverlayActive = true;
             activeDebugBone = boneName;
+        }
+
+        private BoneMapInstance GetSelectedInstance()
+        {
+            if (selectedIndex < 0 || selectedIndex >= controlInstances.Count)
+                return null;
+
+            return controlInstances[selectedIndex];
         }
 
         private void DrawWindow(int windowId)
@@ -108,7 +142,7 @@ namespace VirtualPartner.Runtime
             }
 
             GUILayout.Label($"Configs: {semanticConfigCount}  Instances: {controlInstanceCount}  Missing: {missingInstanceCount}");
-            GUILayout.Label($"BaseRotation: {(avatarPoseApplier != null && avatarPoseApplier.HasBaseRotation ? "Ready" : "Waiting")}");
+            GUILayout.Label($"Coordinator: {(actionCoordinator != null ? "Ready" : "Missing")}");
             GUILayout.Label($"Overlay: {(debugOverlayActive ? "On" : "Off")}  Active: {(string.IsNullOrEmpty(activeDebugBone) ? "-" : activeDebugBone)}");
 
             var nextApply = GUILayout.Toggle(apply, "Apply Debug Overlay");
@@ -241,8 +275,8 @@ namespace VirtualPartner.Runtime
                 return Fail("BoneMapProfile reference is missing.");
             if (boneRoot == null)
                 return Fail("Bone root reference is missing.");
-            if (avatarPoseApplier == null)
-                return Fail("AvatarPoseApplier reference is missing.");
+            if (actionCoordinator == null)
+                return Fail("ActionCoordinator reference is missing.");
 
             return true;
         }
