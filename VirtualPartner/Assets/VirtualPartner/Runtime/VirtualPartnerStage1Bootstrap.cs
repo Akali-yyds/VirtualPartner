@@ -13,6 +13,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private IdleBaseProvider idleBaseProvider;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private ActionCoordinator actionCoordinator;
+        [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private SpeechBubbleView speechBubbleView;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -35,6 +38,9 @@ namespace VirtualPartner.Runtime
             idleBaseProvider.Configure(idleClip);
             avatarPoseApplier.Configure(characterRoot, boneRoot);
             actionCoordinator.Configure(avatarPoseApplier);
+            if (speechBubbleView != null)
+                speechBubbleView.Configure(characterRoot.transform);
+            timelinePlayer.Configure(boneMapProfile, boneRoot, actionCoordinator, speechBubbleView);
 
             yield return null;
 
@@ -52,6 +58,7 @@ namespace VirtualPartner.Runtime
 
             idleBaseProvider.Play();
             ApplyIdleFrame(0f);
+            timelinePlayer.ManualUpdate(0f);
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
             initialized = true;
@@ -67,11 +74,14 @@ namespace VirtualPartner.Runtime
                 return;
 
             ApplyIdleFrame(Time.deltaTime);
+            timelinePlayer.ManualUpdate(Time.deltaTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
         private void OnDisable()
         {
+            if (timelinePlayer != null)
+                timelinePlayer.StopTimeline();
             if (actionCoordinator != null)
                 actionCoordinator.ReleaseAllDebug();
             if (idleBaseProvider != null)
@@ -99,6 +109,12 @@ namespace VirtualPartner.Runtime
                 return Fail("AvatarPoseApplier reference is missing.");
             if (actionCoordinator == null)
                 return Fail("ActionCoordinator reference is missing.");
+            if (boneMapProfile == null)
+                return Fail("BoneMapProfile reference is missing.");
+            if (timelinePlayer == null)
+                return Fail("TimelinePlayer reference is missing.");
+            if (speechBubbleView == null)
+                return Fail("SpeechBubbleView reference is missing.");
             if (!boneRoot.IsChildOf(characterRoot.transform))
                 return Fail("Bone root must be inside the character root hierarchy.");
 

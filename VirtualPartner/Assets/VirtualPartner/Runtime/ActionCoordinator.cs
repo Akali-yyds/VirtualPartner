@@ -6,6 +6,7 @@ namespace VirtualPartner.Runtime
     public enum BoneOwner
     {
         Idle,
+        Timeline,
         Debug
     }
 
@@ -45,6 +46,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Runtime Status")]
         [SerializeField] private int debugOwnedBoneCount;
+        [SerializeField] private int timelineOwnedBoneCount;
         [SerializeField] private int activeTransitionCount;
         [SerializeField] private string activeBoneName;
         [SerializeField] private BoneOwner activeOwner;
@@ -53,6 +55,7 @@ namespace VirtualPartner.Runtime
         private readonly List<Transform> removeBuffer = new List<Transform>();
 
         public int DebugOwnedBoneCount => debugOwnedBoneCount;
+        public int TimelineOwnedBoneCount => timelineOwnedBoneCount;
         public int ActiveTransitionCount => activeTransitionCount;
 
         public void Configure(AvatarPoseApplier applier)
@@ -83,7 +86,7 @@ namespace VirtualPartner.Runtime
 
             if (state.Owner != BoneOwner.Debug)
             {
-                StartTransition(state, BoneOwner.Debug, instance.Transform.localRotation);
+                StartTransition(state, BoneOwner.Debug, GetCurrentOwnedPose(state));
                 UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> Debug.", this);
             }
 
@@ -107,7 +110,7 @@ namespace VirtualPartner.Runtime
             if (state.Owner != BoneOwner.Debug)
                 return;
 
-            StartTransition(state, BoneOwner.Idle, bone.localRotation);
+            StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
             UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} Debug -> Idle.", this);
             RefreshStatus();
         }
@@ -117,7 +120,90 @@ namespace VirtualPartner.Runtime
             foreach (var state in states.Values)
             {
                 if (state.Owner == BoneOwner.Debug)
-                    StartTransition(state, BoneOwner.Idle, state.Bone.localRotation);
+                    StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
+            }
+
+            RefreshStatus();
+        }
+
+        public bool RequestTimeline(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
+        {
+            failureReason = string.Empty;
+
+            if (instance == null || instance.Transform == null)
+            {
+                failureReason = "Timeline bone instance is missing.";
+                return false;
+            }
+
+            if (avatarPoseApplier == null)
+            {
+                failureReason = "AvatarPoseApplier reference is missing.";
+                return false;
+            }
+
+            var state = GetOrCreateState(instance);
+            if (state.Owner == BoneOwner.Debug)
+            {
+                failureReason = $"{state.DisplayName} is owned by Debug.";
+                return false;
+            }
+
+            var clampedRotation = instance.Entry.ClampRotation(semanticRotation);
+            var mirrorSign = instance.Entry.GetMirrorSign(instance.Side);
+            if (!avatarPoseApplier.TryBuildSemanticBoneRotation(
+                    instance.Transform,
+                    clampedRotation,
+                    mirrorSign,
+                    out var timelineTarget))
+            {
+                failureReason = $"Could not build timeline pose for {instance.DisplayName}.";
+                return false;
+            }
+
+            state.TimelineTarget = timelineTarget;
+
+            if (state.Owner != BoneOwner.Timeline)
+            {
+                StartTransition(state, BoneOwner.Timeline, GetCurrentOwnedPose(state));
+                UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> Timeline.", this);
+            }
+            else
+            {
+                StartTransition(state, BoneOwner.Timeline, GetCurrentOwnedPose(state));
+            }
+
+            RefreshStatus();
+            return true;
+        }
+
+        public void ReleaseTimeline(BoneMapInstance instance)
+        {
+            if (instance == null)
+                return;
+
+            ReleaseTimeline(instance.Transform);
+        }
+
+        public void ReleaseTimeline(Transform bone)
+        {
+            if (bone == null || !states.TryGetValue(bone, out var state))
+                return;
+
+            if (state.Owner != BoneOwner.Timeline)
+                return;
+
+            StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
+            UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} Timeline -> Idle.", this);
+            RefreshStatus();
+        }
+
+        public void ReleaseAllTimeline()
+        {
+            foreach (var state in states.Values)
+            {
+                if (state.Owner == BoneOwner.Timeline)
+                    StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
             }
 
             RefreshStatus();
@@ -141,7 +227,7 @@ namespace VirtualPartner.Runtime
                 {
                     state.Transition.Advance(deltaTime);
                     var smoothProgress = Mathf.SmoothStep(0f, 1f, state.Transition.Progress);
-                    var targetPose = state.Transition.ToOwner == BoneOwner.Debug ? state.DebugTarget : idlePoseNow;
+                    var targetPose = GetTargetPose(state, idlePoseNow);
                     finalPose = Quaternion.Slerp(state.Transition.FromPose, targetPose, smoothProgress);
                     shouldWrite = true;
 
@@ -153,9 +239,18 @@ namespace VirtualPartner.Runtime
                     finalPose = state.DebugTarget;
                     shouldWrite = true;
                 }
+                else if (state.Owner == BoneOwner.Timeline)
+                {
+                    finalPose = state.TimelineTarget;
+                    shouldWrite = true;
+                }
 
                 if (shouldWrite)
+                {
                     avatarPoseApplier.ApplyBoneLocalRotation(state.Bone, finalPose);
+                    state.LastAppliedPose = finalPose;
+                    state.HasLastAppliedPose = true;
+                }
 
                 if (state.Owner == BoneOwner.Idle && state.Transition == null)
                     removeBuffer.Add(pair.Key);
@@ -203,9 +298,28 @@ namespace VirtualPartner.Runtime
             state.Transition = new BoneHandoffTransition(fromOwner, toOwner, fromPose, handoffDuration);
         }
 
+        private Quaternion GetCurrentOwnedPose(BoneControlState state)
+        {
+            if (state.HasLastAppliedPose && (state.Owner != BoneOwner.Idle || state.Transition != null))
+                return state.LastAppliedPose;
+
+            return state.Bone.localRotation;
+        }
+
+        private static Quaternion GetTargetPose(BoneControlState state, Quaternion idlePoseNow)
+        {
+            if (state.Transition.ToOwner == BoneOwner.Debug)
+                return state.DebugTarget;
+            if (state.Transition.ToOwner == BoneOwner.Timeline)
+                return state.TimelineTarget;
+
+            return idlePoseNow;
+        }
+
         private void RefreshStatus()
         {
             debugOwnedBoneCount = 0;
+            timelineOwnedBoneCount = 0;
             activeTransitionCount = 0;
             activeBoneName = string.Empty;
             activeOwner = BoneOwner.Idle;
@@ -214,6 +328,8 @@ namespace VirtualPartner.Runtime
             {
                 if (state.Owner == BoneOwner.Debug)
                     debugOwnedBoneCount++;
+                if (state.Owner == BoneOwner.Timeline)
+                    timelineOwnedBoneCount++;
                 if (state.Transition != null)
                     activeTransitionCount++;
 
@@ -233,13 +349,18 @@ namespace VirtualPartner.Runtime
                 DisplayName = displayName;
                 Owner = BoneOwner.Idle;
                 DebugTarget = bone.localRotation;
+                TimelineTarget = bone.localRotation;
+                LastAppliedPose = bone.localRotation;
             }
 
             public Transform Bone { get; }
             public string DisplayName { get; }
             public BoneOwner Owner { get; set; }
             public Quaternion DebugTarget { get; set; }
+            public Quaternion TimelineTarget { get; set; }
             public BoneHandoffTransition Transition { get; set; }
+            public Quaternion LastAppliedPose { get; set; }
+            public bool HasLastAppliedPose { get; set; }
         }
     }
 }

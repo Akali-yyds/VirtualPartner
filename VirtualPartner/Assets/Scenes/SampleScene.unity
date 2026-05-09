@@ -393,7 +393,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: 
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -732,9 +732,77 @@ MonoBehaviour:
   avatarPoseApplier: {fileID: 1195117187}
   handoffDuration: 0.25
   debugOwnedBoneCount: 0
+  timelineOwnedBoneCount: 0
   activeTransitionCount: 0
   activeBoneName: 
   activeOwner: 0
+--- !u!114 &1195117190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb48420bed31447e9734a3d71a597b6c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelinePlayer
+  boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  boneRoot: {fileID: 1274239515}
+  actionCoordinator: {fileID: 1195117183}
+  speechBubbleView: {fileID: 1195117192}
+  initialized: 0
+  playing: 0
+  currentTime: 0
+  activeSegmentIndex: -1
+  validationErrorCount: 0
+  validationWarningCount: 0
+  runtimeWarningCount: 0
+  currentSegmentStatus: '-'
+  statusText: Idle
+  lastMessage:
+--- !u!114 &1195117191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5401247f74d4348ae4c3ff1c5921521, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelineDebugPanel
+  timelinePlayer: {fileID: 1195117190}
+  sampleTimeline: {fileID: 4900000, guid: 2ffaa4a48838449fa710a7f67ba2d4af, type: 3}
+  minimized: 0
+  timelineJson:
+  windowRect:
+    serializedVersion: 2
+    x: 400
+    y: 20
+    width: 440
+    height: 560
+--- !u!114 &1195117192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89c704317fda4332b5e28403a816a7b2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.SpeechBubbleView
+  anchorRoot: {fileID: 1274239516}
+  worldCamera: {fileID: 330585545}
+  anchorBoneName: Bip001 Head
+  worldOffset: {x: 0, y: 0.28, z: 0}
+  bubbleSize: {x: 320, y: 86}
+  visible: 0
+  currentText:
 --- !u!114 &1195117184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -780,6 +848,9 @@ GameObject:
   - component: {fileID: 1195117186}
   - component: {fileID: 1195117184}
   - component: {fileID: 1195117183}
+  - component: {fileID: 1195117190}
+  - component: {fileID: 1195117191}
+  - component: {fileID: 1195117192}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -805,6 +876,9 @@ MonoBehaviour:
   idleBaseProvider: {fileID: 1195117188}
   avatarPoseApplier: {fileID: 1195117187}
   actionCoordinator: {fileID: 1195117183}
+  boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  timelinePlayer: {fileID: 1195117190}
+  speechBubbleView: {fileID: 1195117192}
   initialized: 0
   baseRotationCaptured: 0
   registeredBoneCount: 0

@@ -149,28 +149,33 @@
 
 **前置条件**
 
-- [ ] 阶段 3 已完成。
-- [ ] 骨骼控制权和交接过渡可以稳定工作。
-- [ ] 已明确本阶段只验证本地 JSON，不请求 LLM。
+- [x] 阶段 3 已完成。
+- [x] 骨骼控制权和交接过渡可以稳定工作。
+- [x] 已明确本阶段只验证本地 JSON，不请求 LLM。
 
 **开发任务**
 
-- [ ] 支持读取或输入本地 JSON timeline。
-- [ ] 支持校验 timeline 的基础结构和 action 类型。
-- [ ] 支持按 start / end 播放 timeline 段。
-- [ ] 支持 speech 显示和 bonePose 骨骼动作。
-- [ ] 支持新 timeline 替换旧 timeline 的最小流程。
+- [x] 支持读取或输入本地 JSON timeline。
+- [x] 支持校验 timeline 的基础结构和 action 类型。
+- [x] 支持按 start / end 播放 timeline 段。
+- [x] 支持 speech 显示和 bonePose 骨骼动作。
+- [x] 支持新 timeline 替换旧 timeline 的最小流程。
 
 **手动验收标准**
 
-- [ ] 合法本地 JSON 能驱动文字气泡显示。
-- [ ] 合法本地 JSON 能驱动指定骨骼动作。
-- [ ] 非法 action 局部失败时，不影响合法 action 继续执行。
-- [ ] 新 timeline 准备好后能替换旧 timeline，旧 speech 被清理。
+- [x] 合法本地 JSON 能驱动文字气泡显示。
+- [x] 合法本地 JSON 能驱动指定骨骼动作。
+- [x] 非法 action 局部失败时，不影响合法 action 继续执行。
+- [x] 新 timeline 准备好后能替换旧 timeline，旧 speech 被清理。
+
+**验收记录**
+
+- 用户已确认阶段 4 手动验收通过。
+- 已确认本阶段只验证本地 JSON timeline，不接 LLM。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 5：预设动画接入
 
