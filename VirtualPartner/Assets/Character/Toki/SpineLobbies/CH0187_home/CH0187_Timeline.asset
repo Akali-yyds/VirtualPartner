@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0000000deadbeef15deadf00d0000000, type: 2}
+  m_Name: CH0187_Timeline
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: 0975c1cc9bee12b4bbebacc09d077ac7, type: 2}
+  - {fileID: 11400000, guid: 6bc8ea79de1f1e74a89f7b82c6e6c553, type: 2}
+  - {fileID: 11400000, guid: 7c7e046df29c5e148a108c2ccb9ff480, type: 2}
+  - {fileID: 11400000, guid: 6214b51ea7d68ab4ab67b659b3571346, type: 2}
+  - {fileID: 11400000, guid: c5f8dccca8d72bf4bbef308995ebc091, type: 2}
+  - {fileID: 11400000, guid: dcb27f86aea41394994954ada82d3443, type: 2}
+  - {fileID: 11400000, guid: 10d123b6af119014d9c936890e749576, type: 2}
+  - {fileID: 11400000, guid: cbf264b5ebfad88489f24e1226c3dfd2, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 11400000, guid: ae62dbfa99296bc45931314df534d383, type: 2}

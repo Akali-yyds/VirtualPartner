@@ -1,0 +1,406 @@
+# Repair Report
+
+- Role: `Toki`
+- Character Id: `CH0187`
+- Generated At: `2026-05-08 18:44:46`
+- Source Project: `F:\Project\ModelRepairTool\NeedRepairedModel\Toki\ExportedProject`
+- Output: `F:\Project\ModelRepairTool\FinishedRepairedModel\Toki`
+
+## Copied Categories
+
+- Addressable/CafeAnimations: 1
+- Addressable/Character: 22
+- Animations: 49
+- Audio: 16
+- Effects: 310
+- Materials: 12
+- Models: 10
+- Models/SourceAssets: 11
+- Prefabs: 2
+- Prefabs/SourceParts: 3
+- RootMotion: 2
+- SpineCharacters: 17
+- SpineLobbies: 35
+- Textures: 12
+- Timelines: 7
+
+## Generated Private Shaders
+
+- MX/C-General/Layer4 -> ModelRepair/Toki/CH0187/MX_C-General_Layer4
+- MX/C-Eyebrow -> ModelRepair/Toki/CH0187/MX_C-Eyebrow
+- MX/C-EyesMouth -> ModelRepair/Toki/CH0187/MX_C-EyesMouth
+- MX/C-Face -> ModelRepair/Toki/CH0187/MX_C-Face
+- MX/C-Hair -> ModelRepair/Toki/CH0187/MX_C-Hair
+- MX/C-Halo/UnlitTextured -> ModelRepair/Toki/CH0187/MX_C-Halo_UnlitTextured
+- MX/C-General/Single-Inline -> ModelRepair/Toki/CH0187/MX_C-General_Single-Inline
+- FX/General Unlit Texture -> ModelRepair/Toki/CH0187/FX_General Unlit Texture
+- MX/C-Weapon -> ModelRepair/Toki/CH0187/MX_C-Weapon
+
+## Repaired Materials
+
+- CH0187_Body -> MX/C-General/Layer4
+- CH0187_Eyebrow -> MX/C-Eyebrow
+- CH0187_EyeMouth -> MX/C-EyesMouth
+- CH0187_Face -> MX/C-Face
+- CH0187_Face_Cutin -> MX/C-Face
+- CH0187_Hair -> MX/C-Hair
+- CH0187_Halo -> MX/C-Halo/UnlitTextured
+- CH0187_Machine -> MX/C-General/Single-Inline
+- CH0187_Machine_0 -> FX/General Unlit Texture
+- CH0187_Machine_FX -> MX/C-General/Single-Inline
+- CH0187_Weapon -> MX/C-Weapon
+- Effects\Material\FX_MAT_Aura_19.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Aura_Distort_122.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Bullet_03.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_01.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Body.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Box.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Machine_01.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Mask_01.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Mask_02.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_CH0187_Mask_03.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Circle_Glow_01z5.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Fade_CH0187.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Fire_11.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Flare_15b_Always.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Flare_30a_Always.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Flare_42b.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Font_05a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_L_27.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_L_28.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_36.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_38.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_38a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_39.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_39a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Gra_W_40.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hit_16.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hit_17.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hologram_09.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hologram_10.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hologram_11.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hologram_11a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hologram_11b.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_09.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_10.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_11.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_12.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_13.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_14.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_15.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_16.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_17.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_18.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_19.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_20.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_21.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_22.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_23.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_24.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Hud_25.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Img_Stone_04a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Mask_42.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Mask_43.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Mirror_03.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Ring_12.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Shadow_04.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Smoke_02d.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Smoke_37.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Smoke_38.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Smoke_RGB_78.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Smoke_Scroll_49.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Speed_Line_60.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Speed_Line_61.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Speed_Line_62.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Line_110.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Line_112.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Line_113.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Step_02a.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Step_141.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Stretch_Step_2Side_36.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_63.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_64.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_65.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_66.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_67.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_68.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_69.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Trail_70.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Wave_13.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Wave_14.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Wave_15.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_Wave_17.mat -> fallback FX/General Unlit Texture
+- Effects\Material\FX_MAT_White_01d.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_alpha 1.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_alpha 2.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_alpha.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_back 1.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_back.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_beem 1.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_beem 2.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_beem.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_halo.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_light 1.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_light 2.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_light 3.mat -> fallback FX/General Unlit Texture
+- Effects\Materials\sb_ch0187_light.mat -> fallback FX/General Unlit Texture
+- SpineCharacters\CH0187_spr\CH0187_spr_Material.mat -> fallback FX/General Unlit Texture
+- SpineLobbies\CH0187_home\CH0187_home_CH0187_home.mat -> fallback FX/General Unlit Texture
+- SpineLobbies\CH0187_home\CH0187_home_CH0187_home2.mat -> fallback FX/General Unlit Texture
+- SpineLobbies\CH0187_home\CH0187_home_CH0187_home3.mat -> fallback FX/General Unlit Texture
+
+## Patched Prefabs
+
+- CH0187_Mesh.prefab -> renderer 137870947366518887, material index 3
+- CH0187_CafeOnly_Mesh.prefab -> renderer 137096597530611644, material index 3
+- CH0187_Mesh.prefab -> embedded CH0187_Halo
+- CH0187_CafeOnly_Mesh.prefab -> embedded CH0187_Halo
+
+## Unresolved Materials
+
+- None
+
+## Core Missing Material References
+
+- None
+
+## Core Missing GUID References
+
+- None
+
+## Output Deadbeef References
+
+- 1: Timelines\CH0187_EX1_Box.asset
+- 1: Timelines\CH0187_FormRelease.asset
+- 1: Timelines\CH0187_FormRelease_Machine.asset
+- 1: Timelines\CH0187_Vital_Dying_ing02_Machine.asset
+- 52: Addressable\Character\CH0187.prefab
+- 28: Addressable\Character\CH0187_01.overrideController
+- 27: Addressable\Character\CH0187_02.overrideController
+- 15: Addressable\Character\CH0187_CafeOnly.prefab
+- 27: Addressable\Character\CH0187_CafeOnly_Controller.overrideController
+- 1: Addressable\Character\CH0187_EX1.asset
+- 1: Addressable\Character\CH0187_EX1_Cutin.asset
+- 1: Addressable\Character\CH0187_EX2.asset
+- 1: Addressable\Character\CH0187_EX2_Cutin.asset
+- 1: Addressable\Character\CH0187_GearPublic1.asset
+- 1: Addressable\Character\CH0187_GearPublic2.asset
+- 1: Addressable\Character\CH0187_Public1.asset
+- 1: Addressable\Character\CH0187_Public2.asset
+- 3: Addressable\Character\Recorded_0.anim
+- 3: Addressable\Character\Recorded_1.anim
+- 23: Effects\FBX\sb_ch0187.prefab
+- 2: Effects\Material\FX_MAT_Aura_19.mat
+- 3: Effects\Material\FX_MAT_Aura_Distort_122.mat
+- 1: Effects\Material\FX_MAT_Bullet_03.mat
+- 1: Effects\Material\FX_MAT_CH0187_Mask_01.mat
+- 1: Effects\Material\FX_MAT_CH0187_Mask_02.mat
+- 1: Effects\Material\FX_MAT_Circle_Glow_01z5.mat
+- 1: Effects\Material\FX_MAT_Fade_CH0187.mat
+- 1: Effects\Material\FX_MAT_Flare_15b_Always.mat
+- 1: Effects\Material\FX_MAT_Flare_30a_Always.mat
+- 1: Effects\Material\FX_MAT_Flare_42b.mat
+- 1: Effects\Material\FX_MAT_Font_05a.mat
+- 1: Effects\Material\FX_MAT_Gra_L_27.mat
+- 1: Effects\Material\FX_MAT_Gra_L_28.mat
+- 1: Effects\Material\FX_MAT_Gra_W_36.mat
+- 1: Effects\Material\FX_MAT_Gra_W_38.mat
+- 1: Effects\Material\FX_MAT_Gra_W_38a.mat
+- 1: Effects\Material\FX_MAT_Gra_W_39.mat
+- 1: Effects\Material\FX_MAT_Gra_W_39a.mat
+- 1: Effects\Material\FX_MAT_Gra_W_40.mat
+- 1: Effects\Material\FX_MAT_Hologram_11a.mat
+- 2: Effects\Material\FX_MAT_Hud_11.mat
+- 1: Effects\Material\FX_MAT_Hud_21.mat
+- 1: Effects\Material\FX_MAT_Hud_22.mat
+- 1: Effects\Material\FX_MAT_Mask_43.mat
+- 1: Effects\Material\FX_MAT_Mirror_03.mat
+- 1: Effects\Material\FX_MAT_Ring_12.mat
+- 1: Effects\Material\FX_MAT_Shadow_04.mat
+- 3: Effects\Material\FX_MAT_Smoke_Scroll_49.mat
+- 3: Effects\Material\FX_MAT_Speed_Line_60.mat
+- 1: Effects\Material\FX_MAT_Speed_Line_61.mat
+- 1: Effects\Material\FX_MAT_Speed_Line_62.mat
+- 2: Effects\Material\FX_MAT_Stretch_Line_110.mat
+- 1: Effects\Material\FX_MAT_Stretch_Line_112.mat
+- 2: Effects\Material\FX_MAT_Stretch_Line_113.mat
+- 3: Effects\Material\FX_MAT_Stretch_Step_02a.mat
+- 3: Effects\Material\FX_MAT_Stretch_Step_141.mat
+- 2: Effects\Material\FX_MAT_Stretch_Step_2Side_36.mat
+- 3: Effects\Material\FX_MAT_Trail_63.mat
+- 2: Effects\Material\FX_MAT_Trail_64.mat
+- 2: Effects\Material\FX_MAT_Trail_65.mat
+- 3: Effects\Material\FX_MAT_Trail_66.mat
+- 3: Effects\Material\FX_MAT_Trail_67.mat
+- 3: Effects\Material\FX_MAT_Trail_68.mat
+- 3: Effects\Material\FX_MAT_Trail_69.mat
+- 3: Effects\Material\FX_MAT_Trail_70.mat
+- 2: Effects\Material\FX_MAT_Wave_13.mat
+- 2: Effects\Material\FX_MAT_Wave_14.mat
+- 2: Effects\Material\FX_MAT_Wave_15.mat
+- 1: Effects\Material\FX_MAT_Wave_17.mat
+- 1: Effects\Material\FX_MAT_White_01d.mat
+- 1: Effects\Materials\sb_ch0187_alpha 1.mat
+- 1: Effects\Materials\sb_ch0187_alpha 2.mat
+- 1: Effects\Materials\sb_ch0187_alpha.mat
+- 1: Effects\Mesh\FX_MESH_CH0187_Box.prefab
+- 1: Effects\Mesh\FX_MESH_CH0187_Circle_Ring_01.prefab
+- 26: Effects\Mesh\FX_MESH_CH0187_Hud_01.prefab
+- 3: Effects\Mesh\FX_MESH_CH0187_Hud_02.prefab
+- 13: Effects\Mesh\FX_MESH_CH0187_Hud_03.prefab
+- 1: Effects\Mesh\FX_MESH_CH0187_Machine.prefab
+- 2: Effects\Mesh\FX_MESH_CH0187_Mask_01.prefab
+- 1: Effects\Mesh\FX_MESH_Half_Sphere_04.prefab
+- 2: Effects\Mesh\FX_MESH_Plane_V_01.prefab
+- 1: Effects\PPV\PPV_CH0187_CA.asset
+- 1: Effects\PPV\PPV_CH0187_DOF_01.asset
+- 1: Effects\PPV\PPV_CH0187_DOF_02.asset
+- 1: Effects\PPV\PPV_CH0187_DOF_03.asset
+- 1: Effects\PPV\PPV_CH0187_ETC.asset
+- 1: Effects\PPV\PPV_CH0187_MB.asset
+- 1: Effects\PPV\PPV_CH0187_MB_02.asset
+- 12: Effects\Prefab\FX_CH0187_Callsign_Random_Hud.prefab
+- 20: Effects\Prefab\FX_CH0187_Death_Start.prefab
+- 18: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_BG_Prop.prefab
+- 17: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_BG_Smoke.prefab
+- 19: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Box.prefab
+- 8: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Bullet.prefab
+- 10: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_End_Flare.prefab
+- 6: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_End_Hud.prefab
+- 7: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Focus_Glow.prefab
+- 11: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Focus_Shot.prefab
+- 6: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Focus_Smoke.prefab
+- 14: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Shot.prefab
+- 5: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Sky_Speedline.prefab
+- 10: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Spark.prefab
+- 4: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Star.prefab
+- 34: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Start.prefab
+- 7: Effects\Prefab\FX_CH0187_EX01_Motion_Cam_Star_Shot.prefab
+- 9: Effects\Prefab\FX_CH0187_EX01_Motion_Hud.prefab
+- 12: Effects\Prefab\FX_CH0187_EX01_Motion_Ready.prefab
+- 24: Effects\Prefab\FX_CH0187_EX01_Motion_Shot.prefab
+- 14: Effects\Prefab\FX_CH0187_EX01_Motion_Spark.prefab
+- 3: Effects\Prefab\FX_CH0187_EX02_Beam_Big_Hit.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_Beam_Small_Hit.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_GaugeBar_01.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_GaugeBar_02.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_GaugeBar_03.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_GaugeBar_04.prefab
+- 31: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_01.prefab
+- 32: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_02.prefab
+- 49: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_03.prefab
+- 15: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_Ready.prefab
+- 26: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_Shot.prefab
+- 21: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_Small_L.prefab
+- 21: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_Small_R.prefab
+- 47: Effects\Prefab\FX_CH0187_EX02_Motion_Beam_Start.prefab
+- 20: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_BG.prefab
+- 15: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_BG_Prop.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Bullet.prefab
+- 58: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_End_Shot.prefab
+- 16: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_End_Smoke.prefab
+- 5: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_End_Speedline.prefab
+- 28: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Flare.prefab
+- 1: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Focus_Glow.prefab
+- 6: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Focus_Ing.prefab
+- 2: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Gra.prefab
+- 15: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Hud.prefab
+- 3: Effects\Prefab\FX_CH0187_EX02_Motion_Cam_Spark.prefab
+- 12: Effects\Prefab\FX_CH0187_EX02_Motion_Spark_01.prefab
+- 12: Effects\Prefab\FX_CH0187_EX02_Motion_Spark_02.prefab
+- 7: Effects\Prefab\FX_CH0187_EX02_Motion_TargetMark.prefab
+- 14: Effects\Prefab\FX_CH0187_Formation_Pickup_Emotion_01.prefab
+- 1: Effects\Prefab\FX_CH0187_FormRelease_Machine.prefab
+- 15: Effects\Prefab\FX_CH0187_FormRelease_Start.prefab
+- 4: Effects\Prefab\FX_CH0187_Normal_Attack_Delay02_Start.prefab
+- 22: Effects\Prefab\FX_CH0187_Panic_Start.prefab
+- 4: Effects\Prefab\FX_CH0187_Public01_Hit.prefab
+- 9: Effects\Prefab\FX_CH0187_Public01_Motion_Hud.prefab
+- 14: Effects\Prefab\FX_CH0187_Public01_Motion_Muzzle_End.prefab
+- 6: Effects\Prefab\FX_CH0187_Public01_Motion_Muzzle_Start.prefab
+- 8: Effects\Prefab\FX_CH0187_Public01_Projectile.prefab
+- 5: Effects\Prefab\FX_CH0187_Public02_Hit.prefab
+- 10: Effects\Prefab\FX_CH0187_Public02_Motion_Bullet.prefab
+- 6: Effects\Prefab\FX_CH0187_Public02_Motion_HeadFlare.prefab
+- 6: Effects\Prefab\FX_CH0187_Public02_Motion_Muzzle_L.prefab
+- 6: Effects\Prefab\FX_CH0187_Public02_Motion_Muzzle_R.prefab
+- 2: Effects\Prefab\FX_CH0187_Public02_Motion_Overheat_L.prefab
+- 2: Effects\Prefab\FX_CH0187_Public02_Motion_Overheat_R.prefab
+- 6: Effects\Prefab\FX_CH0187_Public02_Motion_Smoke.prefab
+- 2: Effects\Prefab\FX_CH0187_Public02_Motion_Spark.prefab
+- 14: Effects\Prefab\FX_CH0187_Public02_Motion_TargetMark.prefab
+- 4: Effects\Prefab\FX_CH0187_Reload02_Overheat.prefab
+- 7: Effects\Prefab\FX_CH0187_Reload02_Random.prefab
+- 4: Effects\Prefab\FX_CH0187_Reload02_Start.prefab
+- 7: Effects\Prefab\FX_CH0187_Victory_01.prefab
+- 4: Effects\Prefab\FX_CH0187_Victory_02.prefab
+- 19: Effects\Prefab\FX_CH0187_Vital_Dying_ing02_Start.prefab
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-00.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-01.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-02.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-03.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-04.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-05.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-06.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-07.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-99.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-Eye_Close_01.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr-Idle_01.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr_Atlas.asset
+- 1: SpineCharacters\CH0187_spr\CH0187_spr_SkeletonData.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Idle_01.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-LookEnd_01_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-LookEnd_01_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Look_01_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-PatEnd_01_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-PatEnd_01_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Pat_01_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Pat_01_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Start_Idle_01.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_01_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_01_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_02_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_02_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_03_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_03_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_04_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_04_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_05_A.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home-Talk_05_M.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home_Atlas.asset
+- 1: SpineLobbies\CH0187_home\CH0187_home_SkeletonData.asset
+- 1: SpineLobbies\CH0187_home\CH0187_Timeline.asset
+- 1: SpineLobbies\CH0187_home\PPPV_Lobby_CH0187.asset
+- 1: SpineLobbies\CH0187_home\PPPV_Lobby_CH0187_C.asset
+- 1: SpineLobbies\CH0187_home\PPPV_Lobby_CH0187_D.asset
+- 2: SpineLobbies\CH0187_home\Recorded.anim
+- 52: Addressable\Character\Echelon\Echelon_CH0187.prefab
+- 3: Addressable\Character\Echelon\Echelon_CH0187_01.overrideController
+- 51: Addressable\Character\Strategy\Strategy_CH0187.prefab
+- 5: Addressable\Character\Strategy\Strategy_CH0187_01.overrideController
+
+## Output Custom Repair Property Leaks
+
+- None
+
+## Warnings
+
+- External character references were found, but no matching source model directory exists: Bip001, bone, bone_root, CH0187_A, CH0187_B, CH0187_C, CH0187_FormRelease, CH0187_Vital_Dying_ing02, FX, FX_CH0187_EX01_Motion_Cam, FX_CH0187_EX02_Motion_Cam, FX_CH0187_FormRelease, FX_MAT_CH0187, FX_MESH_CH0187, OL_CH0187, OL_CH0187_A, OL_CH0187_B, OL_CH0187_C
+- Skipped duplicate output target and reused existing GUID: Materials\CH0187_Machine.mat
+
+## Info
+
+- Existing output was backed up to: F:\Project\ModelRepairTool\FinishedRepairedModel\CH0187_Backup_20260508_184418
+- Copied core assets: 34
+- Copied organized non-core assets: 475
+- Copied mouth texture variants: 5
+- Copied required official default textures: mouth textures, tex_green_128.png
+- Discovered mouth binding from Assets/_MX/AddressableAsset/Character/CH0187/CH0187.prefab: material index 3, default UV 0.125, 0.5
+- Generated private mouth receiver: Toki_CH0187_CharacterMouthEventReceiver
+
+## Target Project Notes
+
+- Copy this role folder under the target project's `Assets` folder.
+- Use `Prefabs/SourceParts/<CHxxxx>_Mesh.prefab` as the main LLM bone-control entry.
+- `Addressable`, `Animations`, `Audio`, `Effects`, `SpineCharacters`, `SpineLobbies`, and `Timelines` are organized for later use.

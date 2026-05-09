@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0000000deadbeef15deadf00d0000000, type: 2}
+  m_Name: CH0187_spr-Eye_Close_01
+  m_EditorClassIdentifier:
+  skeletonDataAsset: {fileID: 11400000, guid: 0840583124d463641ba71c5b4a97e5c9, type: 2}
+  animationName:
+  PlayMode: 2
+  FinishMode: 2
+  ClipName: Eye_Close_01
+  IsTrackMainIdle: 0
+  UseDefaultIntroMix: 0
+  IntroMix: 0
+  Loop: 1
+  Track: 2
+  BlockInteractionOnPlay: 0
+  UseDefaultOutroMix: 0
+  OutroMix: 0
+  OutroStartOffset: 0
+  RandomTimingIntroDelayMode: 1
+  IntroDelayDuration: 3
+  RandomDelayMin: 2.5
+  RandomDelayMax: 4.5
+  AddRandomLoopMin: 0
+  AddRandomLoopMax: 1
+  NextClipObject: {fileID: 0}
+  SyncPlayClipObjects: []
+  SoundKeys: []

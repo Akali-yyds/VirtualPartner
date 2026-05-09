@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0000000deadbeef15deadf00d0000000, type: 2}
+  m_Name: CH0187_EX2
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: 29bdd85828daa294a83621b3a2b08f07, type: 2}
+  - {fileID: 11400000, guid: ae5cd0ccea6a0784cbe5aaafdecad230, type: 2}
+  - {fileID: 11400000, guid: a9b140b6fd944cf44991ff78a8b80026, type: 2}
+  - {fileID: 11400000, guid: 6497232493f1e174a85f02766eeb0a98, type: 2}
+  - {fileID: 11400000, guid: 54005bfe729f61744b5c1b03ab97197b, type: 2}
+  - {fileID: 11400000, guid: b485ff8607da48241b1e17d0976dae4d, type: 2}
+  - {fileID: 11400000, guid: c53ea633358cd014d838ee0b2061a0fc, type: 2}
+  - {fileID: 11400000, guid: 211bd25afbc0fa141834c09b3102a970, type: 2}
+  - {fileID: 11400000, guid: 8601ec54927b88a469bf10731d904209, type: 2}
+  - {fileID: 11400000, guid: 4b109a70c6bfcf347a466f5b5c50ab2b, type: 2}
+  - {fileID: 11400000, guid: 1af8c58534bbb78468ccf8abb3e0ce64, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 11400000, guid: ebadf48efed71cd4699913c1c406ecbd, type: 2}

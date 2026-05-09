@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0000000deadbeef15deadf00d0000000, type: 2}
+  m_Name: CH0187_EX2_Cutin
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: c12d3487551df784f81f650e4a3b9e7b, type: 2}
+  - {fileID: 11400000, guid: 9cd7af4455e579f429dfcf859fa07cb2, type: 2}
+  - {fileID: 11400000, guid: cdfd804f6545b454e9c5a9c6b050ef49, type: 2}
+  - {fileID: 11400000, guid: 129f622e0091bce4094ff1aaae69c4ea, type: 2}
+  - {fileID: 11400000, guid: 4eacb9a9276f8ba489aa8833563618d5, type: 2}
+  - {fileID: 11400000, guid: 2979385f53037f94dad764dd90c6671e, type: 2}
+  - {fileID: 11400000, guid: 4621d4e9d42099349b84029cefeead74, type: 2}
+  - {fileID: 11400000, guid: f49ce9529f7a81c41a7137a589d52aa1, type: 2}
+  - {fileID: 11400000, guid: 5ab25bd766d3d014abeefbfc7a34a73c, type: 2}
+  - {fileID: 11400000, guid: a0673ca2aab857e4596e89a1740c5b4d, type: 2}
+  - {fileID: 11400000, guid: 9752d576c9f20044da45e252ae8cd9b5, type: 2}
+  - {fileID: 11400000, guid: 2e85a6b72363f7241b136c4779ecb4ae, type: 2}
+  - {fileID: 11400000, guid: 2d5426f7399d56a45bfbad461511f673, type: 2}
+  - {fileID: 11400000, guid: 98831fc768bab76418f0672ba3816045, type: 2}
+  - {fileID: 11400000, guid: 4c07288e16bb7ee41896943175e9c363, type: 2}
+  - {fileID: 11400000, guid: 71b5c28b3b7747f488f88520196921f3, type: 2}
+  - {fileID: 11400000, guid: 0e4596645745dd245be1e6e97c67f1ef, type: 2}
+  - {fileID: 11400000, guid: 2bc23fd0d49cdd347b1705daadbb7be3, type: 2}
+  - {fileID: 11400000, guid: af6c383347ce98446b6f20c642a6794b, type: 2}
+  - {fileID: 11400000, guid: 07dc0c5462dd3f547af9f400d47c7cb1, type: 2}
+  - {fileID: 11400000, guid: 7a71e1b0762c73a478671e46331bec2d, type: 2}
+  - {fileID: 11400000, guid: b22f675509952de44abdaf3c11a5cfb5, type: 2}
+  - {fileID: 11400000, guid: 8f0057dc40522254eb059710476f07b7, type: 2}
+  - {fileID: 11400000, guid: 53a05f62b7791a64a83cb88df12e1eaf, type: 2}
+  - {fileID: 11400000, guid: fd9541bc0b2eb834da2a39f74e1f9e2e, type: 2}
+  - {fileID: 11400000, guid: a9da70fc15dd8ab498431a54300ee214, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 11400000, guid: a770f079b33f91342bac1b0148309df2, type: 2}

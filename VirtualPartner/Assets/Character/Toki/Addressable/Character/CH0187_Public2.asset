@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0000000deadbeef15deadf00d0000000, type: 2}
+  m_Name: CH0187_Public2
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: 20e5fc406f2746d4381f9695a27edf3f, type: 2}
+  - {fileID: 11400000, guid: 8a91b43c49f7e684293c89e952b65b53, type: 2}
+  - {fileID: 11400000, guid: 28f8c7dcc271a4d4fbbc3c12246395b2, type: 2}
+  - {fileID: 11400000, guid: 2dbf18de7c2ff8a48aa69545d416011c, type: 2}
+  - {fileID: 11400000, guid: bddf2eac0e5c63845b2f3766b0dacbed, type: 2}
+  - {fileID: 11400000, guid: 7782cdd8a1d848b48b892125895e85b1, type: 2}
+  - {fileID: 11400000, guid: d0d521b7b5b7cb34ba95b26b9104f092, type: 2}
+  - {fileID: 11400000, guid: 8074aa5408ed0a44fbbfbb5e65881764, type: 2}
+  - {fileID: 11400000, guid: 3e7615db87bdb034b9bc7d5510f3924d, type: 2}
+  - {fileID: 11400000, guid: e44fc5a7ecd5b3b479e3a5f653e0e4c9, type: 2}
+  - {fileID: 11400000, guid: 44ae3ab0b40428f4f827a79c64ee9488, type: 2}
+  - {fileID: 11400000, guid: a20576ee00bf6084681a318dd84510d9, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 11400000, guid: 2ca0c9ce7007db34f88ff072448ec90a, type: 2}
