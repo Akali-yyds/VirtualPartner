@@ -14,6 +14,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
 
@@ -40,7 +41,14 @@ namespace VirtualPartner.Runtime
             actionCoordinator.Configure(avatarPoseApplier);
             if (speechBubbleView != null)
                 speechBubbleView.Configure(characterRoot.transform);
-            timelinePlayer.Configure(boneMapProfile, boneRoot, actionCoordinator, speechBubbleView);
+            timelinePlayer.Configure(
+                boneMapProfile,
+                presetAnimationProfile,
+                characterRoot,
+                boneRoot,
+                avatarPoseApplier,
+                actionCoordinator,
+                speechBubbleView);
 
             yield return null;
 
@@ -58,7 +66,7 @@ namespace VirtualPartner.Runtime
 
             idleBaseProvider.Play();
             ApplyIdleFrame(0f);
-            timelinePlayer.ManualUpdate(0f);
+            timelinePlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
             initialized = true;
@@ -74,7 +82,7 @@ namespace VirtualPartner.Runtime
                 return;
 
             ApplyIdleFrame(Time.deltaTime);
-            timelinePlayer.ManualUpdate(Time.deltaTime);
+            timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
@@ -111,6 +119,8 @@ namespace VirtualPartner.Runtime
                 return Fail("ActionCoordinator reference is missing.");
             if (boneMapProfile == null)
                 return Fail("BoneMapProfile reference is missing.");
+            if (presetAnimationProfile == null)
+                return Fail("PresetAnimationProfile reference is missing.");
             if (timelinePlayer == null)
                 return Fail("TimelinePlayer reference is missing.");
             if (speechBubbleView == null)

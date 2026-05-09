@@ -732,7 +732,8 @@ MonoBehaviour:
   avatarPoseApplier: {fileID: 1195117187}
   handoffDuration: 0.25
   debugOwnedBoneCount: 0
-  timelineOwnedBoneCount: 0
+  timelineBonePoseOwnedBoneCount: 0
+  presetAnimationOwnedBoneCount: 0
   activeTransitionCount: 0
   activeBoneName: 
   activeOwner: 0
@@ -749,7 +750,10 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelinePlayer
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
+  characterRoot: {fileID: 1274239516}
   boneRoot: {fileID: 1274239515}
+  avatarPoseApplier: {fileID: 1195117187}
   actionCoordinator: {fileID: 1195117183}
   speechBubbleView: {fileID: 1195117192}
   initialized: 0
@@ -759,6 +763,7 @@ MonoBehaviour:
   validationErrorCount: 0
   validationWarningCount: 0
   runtimeWarningCount: 0
+  activePresetAnimationCount: 0
   currentSegmentStatus: '-'
   statusText: Idle
   lastMessage:
@@ -775,7 +780,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelineDebugPanel
   timelinePlayer: {fileID: 1195117190}
-  sampleTimeline: {fileID: 4900000, guid: 2ffaa4a48838449fa710a7f67ba2d4af, type: 3}
+  sampleTimeline: {fileID: 4900000, guid: 0c162e881d384428b06a4d7019fc218d, type: 3}
   minimized: 0
   timelineJson:
   windowRect:
@@ -877,6 +882,7 @@ MonoBehaviour:
   avatarPoseApplier: {fileID: 1195117187}
   actionCoordinator: {fileID: 1195117183}
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
   timelinePlayer: {fileID: 1195117190}
   speechBubbleView: {fileID: 1195117192}
   initialized: 0

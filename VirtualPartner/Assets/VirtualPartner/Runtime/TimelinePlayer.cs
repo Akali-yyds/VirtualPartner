@@ -9,7 +9,10 @@ namespace VirtualPartner.Runtime
     {
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private PresetAnimationProfile presetAnimationProfile;
+        [SerializeField] private GameObject characterRoot;
         [SerializeField] private Transform boneRoot;
+        [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private SpeechBubbleView speechBubbleView;
 
@@ -21,6 +24,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private int validationErrorCount;
         [SerializeField] private int validationWarningCount;
         [SerializeField] private int runtimeWarningCount;
+        [SerializeField] private int activePresetAnimationCount;
         [SerializeField] private string currentSegmentStatus = "-";
         [SerializeField] private string statusText = "Idle";
         [SerializeField] private string lastMessage;
@@ -28,9 +32,13 @@ namespace VirtualPartner.Runtime
         private readonly List<BoneMapInstance> controlInstances = new List<BoneMapInstance>();
         private readonly Dictionary<Transform, ActiveTimelineBone> activeBones = new Dictionary<Transform, ActiveTimelineBone>();
         private readonly List<Transform> releaseBuffer = new List<Transform>();
+        private readonly List<ActivePresetAnimation> activePresetAnimations = new List<ActivePresetAnimation>();
+        private readonly List<PresetAnimationBonePose> sampledPresetPoses = new List<PresetAnimationBonePose>();
+        private readonly List<string> displacedPresetIds = new List<string>();
 
         private TimelineSegmentDto[] activeTimeline;
         private float timelineEnd;
+        private int presetSequence;
 
         public bool IsPlaying => playing;
         public float CurrentTime => currentTime;
@@ -43,12 +51,18 @@ namespace VirtualPartner.Runtime
 
         public void Configure(
             BoneMapProfile profile,
+            PresetAnimationProfile presetProfile,
+            GameObject character,
             Transform root,
+            AvatarPoseApplier poseApplier,
             ActionCoordinator coordinator,
             SpeechBubbleView speechView)
         {
             boneMapProfile = profile;
+            presetAnimationProfile = presetProfile;
+            characterRoot = character;
             boneRoot = root;
+            avatarPoseApplier = poseApplier;
             actionCoordinator = coordinator;
             speechBubbleView = speechView;
             initialized = ValidateReferences();
@@ -61,6 +75,15 @@ namespace VirtualPartner.Runtime
                 RecordWarning($"Timeline BoneMap resolved with {missingCount} missing bone instance(s).");
 
             statusText = "Ready";
+        }
+
+        public void Configure(
+            BoneMapProfile profile,
+            Transform root,
+            ActionCoordinator coordinator,
+            SpeechBubbleView speechView)
+        {
+            Configure(profile, presetAnimationProfile, characterRoot, root, avatarPoseApplier, coordinator, speechView);
         }
 
         public TimelineValidationResult ValidateTimelineJson(string json)
@@ -95,6 +118,11 @@ namespace VirtualPartner.Runtime
 
         public void ManualUpdate(float deltaTime)
         {
+            ManualUpdate(deltaTime, null, 0f);
+        }
+
+        public void ManualUpdate(float deltaTime, AnimationClip idleClip, float idleTime)
+        {
             if (!playing || activeTimeline == null)
                 return;
 
@@ -102,6 +130,9 @@ namespace VirtualPartner.Runtime
             var nextSegmentIndex = FindActiveSegmentIndex(currentTime);
             if (nextSegmentIndex != activeSegmentIndex)
                 EnterSegment(nextSegmentIndex);
+
+            UpdateActivePresetAnimations(idleClip, idleTime);
+            StopPresetAnimationsThatLostOwnership();
 
             if (currentTime >= timelineEnd && nextSegmentIndex < 0)
             {
@@ -133,8 +164,6 @@ namespace VirtualPartner.Runtime
             runtimeWarningCount = 0;
             statusText = "Playing";
             lastMessage = "Timeline started.";
-
-            EnterSegment(FindActiveSegmentIndex(currentTime));
             return true;
         }
 
@@ -143,6 +172,7 @@ namespace VirtualPartner.Runtime
             playing = false;
             currentTime = 0f;
             activeSegmentIndex = -1;
+            activePresetAnimationCount = 0;
             currentSegmentStatus = "-";
             activeTimeline = null;
             timelineEnd = 0f;
@@ -153,12 +183,17 @@ namespace VirtualPartner.Runtime
             if (releaseTimelineBones)
             {
                 ReleaseActiveBones();
+                ReleaseActivePresetAnimations();
                 if (actionCoordinator != null)
+                {
                     actionCoordinator.ReleaseAllTimeline();
+                    actionCoordinator.ReleaseAllPresetAnimations();
+                }
             }
             else
             {
                 activeBones.Clear();
+                activePresetAnimations.Clear();
             }
         }
 
@@ -172,13 +207,16 @@ namespace VirtualPartner.Runtime
                 if (speechBubbleView != null)
                     speechBubbleView.Clear();
                 ReleaseActiveBones();
+                ReleaseActivePresetAnimations();
                 return;
             }
 
             var segment = activeTimeline[segmentIndex];
             currentSegmentStatus = $"{segmentIndex}: {segment.start:0.###}-{segment.end:0.###}";
+            ReleaseActivePresetAnimations();
             ApplySpeech(segment, segmentIndex);
             ApplyDesiredBones(BuildDesiredBones(segment, segmentIndex));
+            BuildActivePresetAnimations(segment, segmentIndex);
         }
 
         private void ApplySpeech(TimelineSegmentDto segment, int segmentIndex)
@@ -241,6 +279,213 @@ namespace VirtualPartner.Runtime
             return desiredBones;
         }
 
+        private void BuildActivePresetAnimations(TimelineSegmentDto segment, int segmentIndex)
+        {
+            for (var actionIndex = 0; actionIndex < segment.actions.Length; actionIndex++)
+            {
+                var action = segment.actions[actionIndex];
+                if (action == null || NormalizeType(action.type) != "animation")
+                    continue;
+
+                if (!presetAnimationProfile.TryBuildClipBinding(action.name, boneRoot, out var binding, out var reason))
+                {
+                    RecordWarning($"Segment {segmentIndex} animation skipped: {reason}");
+                    continue;
+                }
+
+                presetSequence++;
+                var instanceId = $"{segmentIndex}:{actionIndex}:{binding.ActionName}:{presetSequence}";
+                activePresetAnimations.Add(new ActivePresetAnimation(instanceId, binding, segment.start, segment.end));
+            }
+
+            activePresetAnimationCount = activePresetAnimations.Count;
+        }
+
+        private void UpdateActivePresetAnimations(AnimationClip idleClip, float idleTime)
+        {
+            for (var i = 0; i < activePresetAnimations.Count; i++)
+            {
+                var activePreset = activePresetAnimations[i];
+                if (currentTime >= activePreset.SegmentEnd)
+                {
+                    StopActivePresetAnimationAt(i, true);
+                    i--;
+                    continue;
+                }
+
+                var clipTime = activePreset.GetClipTime(currentTime);
+                if (!TrySamplePresetAnimation(activePreset.Binding, clipTime, idleClip, idleTime, sampledPresetPoses, out var sampleFailure))
+                {
+                    RecordWarning($"Preset animation '{activePreset.Binding.ActionName}' stopped: {sampleFailure}");
+                    StopActivePresetAnimationAt(i, true);
+                    i--;
+                    continue;
+                }
+
+                displacedPresetIds.Clear();
+                if (!actionCoordinator.RequestPresetAnimation(
+                        activePreset.InstanceId,
+                        activePreset.Binding.ActionName,
+                        sampledPresetPoses,
+                        displacedPresetIds,
+                        out var requestFailure))
+                {
+                    RecordWarning($"Preset animation '{activePreset.Binding.ActionName}' stopped: {requestFailure}");
+                    StopActivePresetAnimationAt(i, true);
+                    i--;
+                    continue;
+                }
+
+                activePreset.Started = true;
+                RemoveDisplacedPresetAnimations(displacedPresetIds);
+                var currentIndex = IndexOfPresetAnimation(activePreset.InstanceId);
+                if (currentIndex >= 0)
+                    i = currentIndex;
+                activePresetAnimationCount = activePresetAnimations.Count;
+            }
+        }
+
+        private bool TrySamplePresetAnimation(
+            PresetAnimationClipBinding binding,
+            float clipTime,
+            AnimationClip idleClip,
+            float idleTime,
+            List<PresetAnimationBonePose> poses,
+            out string failureReason)
+        {
+            poses.Clear();
+            failureReason = string.Empty;
+
+            if (binding == null || binding.Clip == null)
+            {
+                failureReason = "Clip binding is missing.";
+                return false;
+            }
+
+            if (characterRoot == null)
+            {
+                failureReason = "Character root reference is missing.";
+                return false;
+            }
+
+            if (avatarPoseApplier == null || idleClip == null)
+            {
+                failureReason = "Idle restore reference is missing.";
+                return false;
+            }
+
+            try
+            {
+                binding.Clip.SampleAnimation(characterRoot, clipTime);
+
+                var targets = binding.Targets;
+                for (var i = 0; i < targets.Length; i++)
+                {
+                    var target = targets[i];
+                    if (target == null || target.Transform == null)
+                    {
+                        failureReason = $"Preset animation '{binding.ActionName}' has a missing target transform.";
+                        return false;
+                    }
+
+                    poses.Add(new PresetAnimationBonePose(target.Transform, target.DisplayName, target.Transform.localRotation));
+                }
+            }
+            catch (Exception exception)
+            {
+                failureReason = exception.Message;
+                return false;
+            }
+            finally
+            {
+                avatarPoseApplier.ApplyIdle(idleClip, idleTime);
+            }
+
+            return poses.Count > 0;
+        }
+
+        private void StopPresetAnimationsThatLostOwnership()
+        {
+            for (var i = 0; i < activePresetAnimations.Count; i++)
+            {
+                var activePreset = activePresetAnimations[i];
+                if (!activePreset.Started)
+                    continue;
+
+                if (StillOwnsAllPresetBones(activePreset))
+                    continue;
+
+                RecordWarning($"Preset animation '{activePreset.Binding.ActionName}' stopped because a required bone was taken by a higher priority owner.");
+                StopActivePresetAnimationAt(i, true);
+                i--;
+            }
+        }
+
+        private bool StillOwnsAllPresetBones(ActivePresetAnimation activePreset)
+        {
+            var targets = activePreset.Binding.Targets;
+            for (var i = 0; i < targets.Length; i++)
+            {
+                var target = targets[i];
+                if (target == null || !actionCoordinator.IsPresetAnimationOwner(target.Transform, activePreset.InstanceId))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void RemoveDisplacedPresetAnimations(List<string> presetIds)
+        {
+            for (var idIndex = 0; idIndex < presetIds.Count; idIndex++)
+            {
+                var presetId = presetIds[idIndex];
+                for (var i = activePresetAnimations.Count - 1; i >= 0; i--)
+                {
+                    if (activePresetAnimations[i].InstanceId != presetId)
+                        continue;
+
+                    RecordWarning($"Preset animation '{activePresetAnimations[i].Binding.ActionName}' stopped because a later preset animation took one of its bones.");
+                    activePresetAnimations.RemoveAt(i);
+                }
+            }
+        }
+
+        private int IndexOfPresetAnimation(string presetId)
+        {
+            for (var i = 0; i < activePresetAnimations.Count; i++)
+            {
+                if (activePresetAnimations[i].InstanceId == presetId)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void StopActivePresetAnimationAt(int index, bool releaseOwner)
+        {
+            if (index < 0 || index >= activePresetAnimations.Count)
+                return;
+
+            var activePreset = activePresetAnimations[index];
+            if (releaseOwner && actionCoordinator != null)
+                actionCoordinator.ReleasePresetAnimation(activePreset.InstanceId);
+
+            activePresetAnimations.RemoveAt(index);
+            activePresetAnimationCount = activePresetAnimations.Count;
+        }
+
+        private void ReleaseActivePresetAnimations()
+        {
+            if (actionCoordinator != null)
+            {
+                for (var i = 0; i < activePresetAnimations.Count; i++)
+                    actionCoordinator.ReleasePresetAnimation(activePresetAnimations[i].InstanceId);
+            }
+
+            activePresetAnimations.Clear();
+            activePresetAnimationCount = 0;
+        }
+
         private bool TryBuildDesiredBone(
             int segmentIndex,
             TimelineBonePoseDto bonePose,
@@ -299,7 +544,7 @@ namespace VirtualPartner.Runtime
                 if (activeBone != null && activeBone.SameTarget(desiredBone))
                     continue;
 
-                if (actionCoordinator.RequestTimeline(desiredBone.Instance, desiredBone.Rotation, out var failureReason))
+                if (actionCoordinator.RequestTimelineBonePose(desiredBone.Instance, desiredBone.Rotation, out var failureReason))
                 {
                     activeBones[desiredBone.Instance.Transform] = new ActiveTimelineBone(desiredBone.Instance, desiredBone.Rotation, false);
                     continue;
@@ -414,8 +659,14 @@ namespace VirtualPartner.Runtime
         {
             if (boneMapProfile == null)
                 return Fail("BoneMapProfile reference is missing.");
+            if (presetAnimationProfile == null)
+                return Fail("PresetAnimationProfile reference is missing.");
+            if (characterRoot == null)
+                return Fail("Character root reference is missing.");
             if (boneRoot == null)
                 return Fail("Bone root reference is missing.");
+            if (avatarPoseApplier == null)
+                return Fail("AvatarPoseApplier reference is missing.");
             if (actionCoordinator == null)
                 return Fail("ActionCoordinator reference is missing.");
             if (speechBubbleView == null)
@@ -498,6 +749,39 @@ namespace VirtualPartner.Runtime
                 return Instance.Transform == desired.Instance.Transform
                     && !Blocked
                     && Approximately(Rotation, desired.Rotation);
+            }
+        }
+
+        private sealed class ActivePresetAnimation
+        {
+            public ActivePresetAnimation(
+                string instanceId,
+                PresetAnimationClipBinding binding,
+                float segmentStart,
+                float segmentEnd)
+            {
+                InstanceId = instanceId;
+                Binding = binding;
+                SegmentStart = segmentStart;
+                SegmentEnd = segmentEnd;
+            }
+
+            public string InstanceId { get; }
+            public PresetAnimationClipBinding Binding { get; }
+            public float SegmentStart { get; }
+            public float SegmentEnd { get; }
+            public bool Started { get; set; }
+
+            public float GetClipTime(float timelineTime)
+            {
+                var clip = Binding.Clip;
+                var elapsed = Mathf.Max(0f, timelineTime - SegmentStart);
+                if (clip == null || clip.length <= 0f)
+                    return 0f;
+
+                return Binding.Loop
+                    ? Mathf.Repeat(elapsed, clip.length)
+                    : Mathf.Min(elapsed, clip.length);
             }
         }
     }

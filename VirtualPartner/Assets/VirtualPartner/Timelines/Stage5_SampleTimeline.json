@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0",
+  "timeline": [
+    {
+      "start": 0.0,
+      "end": 2.4,
+      "actions": [
+        {
+          "type": "speech",
+          "text": "Preset animation: CafeReaction."
+        },
+        {
+          "type": "animation",
+          "name": "CafeReaction"
+        }
+      ]
+    },
+    {
+      "start": 2.4,
+      "end": 3.6,
+      "actions": [
+        {
+          "type": "speech",
+          "text": "Unknown preset should warn and skip."
+        },
+        {
+          "type": "animation",
+          "name": "MissingPreset"
+        }
+      ]
+    },
+    {
+      "start": 3.6,
+      "end": 5.2,
+      "actions": [
+        {
+          "type": "speech",
+          "text": "bonePose has higher priority than preset."
+        },
+        {
+          "type": "animation",
+          "name": "CafeReaction"
+        },
+        {
+          "type": "bonePose",
+          "bones": [
+            {
+              "bone": "Head",
+              "rotation": { "x": 0, "y": 24, "z": 0 }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

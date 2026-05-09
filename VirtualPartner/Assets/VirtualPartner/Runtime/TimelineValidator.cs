@@ -126,9 +126,16 @@ namespace VirtualPartner.Runtime
                     continue;
                 }
 
-                if (actionType == "animation" || actionType == "facing" || actionType == "locomotion")
+                if (actionType == "animation")
                 {
-                    warnings.Add($"Segment {segmentIndex} action '{action.type}' is recognized but unsupported in stage 4.");
+                    if (string.IsNullOrWhiteSpace(action.name))
+                        warnings.Add($"Segment {segmentIndex} animation action is missing name and will be skipped.");
+                    continue;
+                }
+
+                if (actionType == "facing" || actionType == "locomotion")
+                {
+                    warnings.Add($"Segment {segmentIndex} action '{action.type}' is recognized but unsupported in stage 5.");
                     continue;
                 }
 
