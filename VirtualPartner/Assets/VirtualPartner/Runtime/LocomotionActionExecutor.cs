@@ -13,6 +13,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private Transform boneRoot;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private ActionCoordinator actionCoordinator;
+        [SerializeField] private MovementConstraintController movementConstraintController;
 
         [Header("Runtime Status")]
         [SerializeField] private bool active;
@@ -28,6 +29,7 @@ namespace VirtualPartner.Runtime
         private string activeId;
         private int sequence;
         private bool ownersAcquired;
+        private bool missingConstraintWarningLogged;
 
         public bool IsActive => active;
         public string ActiveMode => activeMode;
@@ -44,7 +46,8 @@ namespace VirtualPartner.Runtime
             Transform rootTransform,
             Transform boneRootTransform,
             AvatarPoseApplier poseApplier,
-            ActionCoordinator coordinator)
+            ActionCoordinator coordinator,
+            MovementConstraintController constraintController)
         {
             locomotionProfile = profile;
             characterRoot = character;
@@ -52,6 +55,8 @@ namespace VirtualPartner.Runtime
             boneRoot = boneRootTransform;
             avatarPoseApplier = poseApplier;
             actionCoordinator = coordinator;
+            movementConstraintController = constraintController;
+            missingConstraintWarningLogged = false;
             StopLocomotion();
         }
 
@@ -147,11 +152,44 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            root.position += root.forward * speed * frameDelta;
+            var proposedPosition = root.position + root.forward * speed * frameDelta;
+            if (!CanMoveTo(proposedPosition, out var constraintFailure))
+            {
+                lastMessage = constraintFailure;
+                Debug.LogWarning($"[VirtualPartner] Locomotion stopped: {constraintFailure}", this);
+                StopLocomotion();
+                return;
+            }
+
+            root.position = proposedPosition;
             elapsed = nextElapsed;
 
             if (elapsed >= duration)
                 StopLocomotion();
+        }
+
+        private bool CanMoveTo(Vector3 proposedPosition, out string failureReason)
+        {
+            failureReason = string.Empty;
+
+            if (movementConstraintController == null)
+            {
+                if (!missingConstraintWarningLogged)
+                {
+                    Debug.LogWarning("[VirtualPartner] MovementConstraint disabled: controller reference is missing.", this);
+                    missingConstraintWarningLogged = true;
+                }
+
+                return true;
+            }
+
+            if (movementConstraintController.CanMoveTo(proposedPosition, out failureReason))
+                return true;
+
+            if (string.IsNullOrWhiteSpace(failureReason))
+                failureReason = "Movement constraint rejected locomotion.";
+
+            return false;
         }
 
         private float GetClipTime(float sampleElapsed)

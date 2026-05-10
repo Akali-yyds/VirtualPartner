@@ -39,6 +39,7 @@ namespace VirtualPartner.Runtime
         private readonly List<ActivePresetAnimation> activePresetAnimations = new List<ActivePresetAnimation>();
         private readonly List<PresetAnimationBonePose> sampledPresetPoses = new List<PresetAnimationBonePose>();
         private readonly List<string> displacedPresetIds = new List<string>();
+        private readonly List<PresetTransformSnapshot> presetTransformSnapshots = new List<PresetTransformSnapshot>();
 
         private TimelineSegmentDto[] activeTimeline;
         private float timelineEnd;
@@ -453,15 +454,17 @@ namespace VirtualPartner.Runtime
                 return false;
             }
 
-            if (avatarPoseApplier == null || idleClip == null)
+            if (boneRoot == null)
             {
-                failureReason = "Idle restore reference is missing.";
+                failureReason = "Bone root reference is missing.";
                 return false;
             }
 
             var rootTransform = characterRoot.transform;
             var rootPosition = rootTransform.position;
             var rootRotation = rootTransform.rotation;
+            var rootLocalScale = rootTransform.localScale;
+            CapturePresetTransformSnapshot();
 
             try
             {
@@ -487,12 +490,33 @@ namespace VirtualPartner.Runtime
             }
             finally
             {
-                avatarPoseApplier.ApplyIdle(idleClip, idleTime);
+                RestorePresetTransformSnapshot();
                 rootTransform.position = rootPosition;
                 rootTransform.rotation = rootRotation;
+                rootTransform.localScale = rootLocalScale;
             }
 
             return poses.Count > 0;
+        }
+
+        private void CapturePresetTransformSnapshot()
+        {
+            presetTransformSnapshots.Clear();
+
+            if (boneRoot == null)
+                return;
+
+            var transforms = boneRoot.GetComponentsInChildren<Transform>(true);
+            for (var i = 0; i < transforms.Length; i++)
+                presetTransformSnapshots.Add(new PresetTransformSnapshot(transforms[i]));
+        }
+
+        private void RestorePresetTransformSnapshot()
+        {
+            for (var i = 0; i < presetTransformSnapshots.Count; i++)
+                presetTransformSnapshots[i].Restore();
+
+            presetTransformSnapshots.Clear();
         }
 
         private void StopPresetAnimationsThatLostOwnership()
@@ -879,6 +903,32 @@ namespace VirtualPartner.Runtime
                 return Binding.Loop
                     ? Mathf.Repeat(elapsed, clip.length)
                     : Mathf.Min(elapsed, clip.length);
+            }
+        }
+
+        private readonly struct PresetTransformSnapshot
+        {
+            public PresetTransformSnapshot(Transform transform)
+            {
+                Transform = transform;
+                LocalPosition = transform.localPosition;
+                LocalRotation = transform.localRotation;
+                LocalScale = transform.localScale;
+            }
+
+            public Transform Transform { get; }
+            public Vector3 LocalPosition { get; }
+            public Quaternion LocalRotation { get; }
+            public Vector3 LocalScale { get; }
+
+            public void Restore()
+            {
+                if (Transform == null)
+                    return;
+
+                Transform.localPosition = LocalPosition;
+                Transform.localRotation = LocalRotation;
+                Transform.localScale = LocalScale;
             }
         }
     }

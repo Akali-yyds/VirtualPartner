@@ -18,6 +18,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
+        [SerializeField] private MovementConstraintController movementConstraintController;
         [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
 
@@ -43,13 +44,16 @@ namespace VirtualPartner.Runtime
             avatarPoseApplier.Configure(characterRoot, boneRoot);
             actionCoordinator.Configure(avatarPoseApplier);
             rootOrientationController.Configure(characterRoot.transform, Camera.main);
+            if (movementConstraintController != null)
+                movementConstraintController.Configure(characterRoot.transform);
             locomotionActionExecutor.Configure(
                 locomotionProfile,
                 characterRoot,
                 characterRoot.transform,
                 boneRoot,
                 avatarPoseApplier,
-                actionCoordinator);
+                actionCoordinator,
+                movementConstraintController);
             if (speechBubbleView != null)
                 speechBubbleView.Configure(characterRoot.transform);
             timelinePlayer.Configure(

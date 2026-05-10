@@ -9,12 +9,13 @@ namespace VirtualPartner.Runtime
         [SerializeField] private Transform root;
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
+        [SerializeField] private MovementConstraintController movementConstraintController;
 
         [Header("Runtime Status")]
         [SerializeField] private bool minimized;
-        [SerializeField] private Rect windowRect = new Rect(860f, 20f, 300f, 190f);
+        [SerializeField] private Rect windowRect = new Rect(860f, 20f, 320f, 230f);
 
-        private Vector2 expandedWindowSize = new Vector2(300f, 190f);
+        private Vector2 expandedWindowSize = new Vector2(320f, 230f);
 
         private void OnGUI()
         {
@@ -69,6 +70,17 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Move: {(locomotionActionExecutor.IsActive ? locomotionActionExecutor.ActiveMode : "-")}");
                 GUILayout.Label($"Move Time: {locomotionActionExecutor.Elapsed:0.00}/{locomotionActionExecutor.Duration:0.00}");
             }
+
+            if (movementConstraintController == null)
+            {
+                GUILayout.Label("Constraint: Missing");
+                return;
+            }
+
+            GUILayout.Label($"Constraint: {(movementConstraintController.IsConstraintActive ? "Active" : "Disabled")}");
+            GUILayout.Label($"Constraint Result: {(movementConstraintController.LastResult ? "Allowed" : "Blocked")}");
+            if (!string.IsNullOrWhiteSpace(movementConstraintController.LastReason))
+                GUILayout.Label($"Constraint Last: {movementConstraintController.LastReason}");
         }
 
         private void DrawControls()

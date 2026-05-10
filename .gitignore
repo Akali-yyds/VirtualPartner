@@ -7,6 +7,13 @@
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 
+# MCP for Unity local runtime/cache artifacts
+VirtualPartner/[Ll]ibrary/MCPForUnity/
+VirtualPartner/[Ll]ibrary/PackageCache/com.coplaydev.unity-mcp*/
+VirtualPartner/[Ll]ibrary/AI.MCP/
+VirtualPartner/[Ll]ogs/traces.jsonl
+VirtualPartner/[Ll]ogs/trace-config.json
+
 # Unity generated files
 *.csproj
 *.sln

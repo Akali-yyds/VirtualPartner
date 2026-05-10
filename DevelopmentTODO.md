@@ -258,26 +258,31 @@
 **前置条件**
 
 - [x] 阶段 6 已完成。
-- [ ] walk / run 位移已经能稳定运行。
-- [ ] 已明确本阶段不做 NavMesh、寻路或复杂避障。
+- [x] walk / run 位移已经能稳定运行。
+- [x] 已明确本阶段不做 NavMesh、寻路或复杂避障。
 
 **开发任务**
 
-- [ ] 支持配置角色活动安全区域。
-- [ ] 支持配置障碍安全区域。
-- [ ] 在 locomotion 过程中检测根节点位置是否合法。
-- [ ] 非法时请求停止 locomotion。
+- [x] 支持配置角色活动安全区域。
+- [x] 支持配置障碍安全区域。
+- [x] 在 locomotion 过程中检测根节点位置是否合法。
+- [x] 非法时请求停止 locomotion。
 
 **手动验收标准**
 
-- [ ] 角色接近活动区域边界时，locomotion 能停止。
-- [ ] 角色接近障碍区域时，locomotion 能停止。
-- [ ] 停止后角色留在当前位置，不自动回退、不重新规划。
-- [ ] 用户交互 locomotion 和 FSM locomotion 使用同一套停止逻辑。
+- [x] 角色接近活动区域边界时，locomotion 能停止。
+- [x] 角色接近障碍区域时，locomotion 能停止。
+- [x] 停止后角色留在当前位置，不自动回退、不重新规划。
+- [x] 用户交互 locomotion 和 FSM locomotion 使用同一套停止逻辑。
+
+**验收记录**
+
+- 用户已确认阶段 7 手动验收通过。
+- 已确认 RoomMoveArea / ObstacleArea 能限制 locomotion，非法移动时 Root 保持在上一合法位置。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 8：FSM 自主行为
 
@@ -287,9 +292,9 @@
 
 **前置条件**
 
-- [ ] 阶段 7 已完成。
+- [x] 阶段 7 已完成。
 - [ ] 预设动画和 locomotion 都能通过统一入口执行。
-- [ ] MovementConstraint 能停止非法 locomotion。
+- [x] MovementConstraint 能停止非法 locomotion。
 
 **开发任务**
 
