@@ -7,7 +7,12 @@ namespace VirtualPartner.Runtime
     {
         public bool ContainsWorldPoint(Vector3 worldPoint)
         {
-            return MovementConstraintBoxUtility.ContainsWorldPoint(transform, worldPoint);
+            return MovementConstraintBoxUtility.ContainsWorldPointXZ(transform, worldPoint);
+        }
+
+        public bool IntersectsWorldCircle(Vector3 worldCenter, float radius)
+        {
+            return MovementConstraintBoxUtility.IntersectsWorldCircleXZ(transform, worldCenter, radius);
         }
 
         private void OnDrawGizmos()

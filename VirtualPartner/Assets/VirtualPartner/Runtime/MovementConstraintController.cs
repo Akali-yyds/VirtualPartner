@@ -11,6 +11,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private RoomMoveArea roomMoveArea;
         [SerializeField] private ObstacleArea[] obstacleAreas = Array.Empty<ObstacleArea>();
 
+        [Header("Settings")]
+        [SerializeField] private float rootClearanceRadius = 0.3f;
+
         [Header("Runtime Status")]
         [SerializeField] private bool constraintActive;
         [SerializeField] private bool lastResult = true;
@@ -23,6 +26,7 @@ namespace VirtualPartner.Runtime
         public bool LastResult => lastResult;
         public string LastReason => lastReason;
         public int ObstacleAreaCount => obstacleAreaCount;
+        public float RootClearanceRadius => Mathf.Max(0f, rootClearanceRadius);
 
         public void Configure(Transform rootTransform)
         {
@@ -56,9 +60,11 @@ namespace VirtualPartner.Runtime
 
             constraintActive = true;
 
-            if (!roomMoveArea.ContainsWorldPoint(proposedPosition))
+            var clearanceRadius = RootClearanceRadius;
+
+            if (!roomMoveArea.ContainsWorldCircle(proposedPosition, clearanceRadius))
             {
-                reason = "Root would leave RoomMoveArea.";
+                reason = "Root clearance would leave RoomMoveArea.";
                 lastResult = false;
                 lastReason = reason;
                 return false;
@@ -73,10 +79,10 @@ namespace VirtualPartner.Runtime
                 if (obstacleArea == null || !obstacleArea.isActiveAndEnabled)
                     continue;
 
-                if (!obstacleArea.ContainsWorldPoint(proposedPosition))
+                if (!obstacleArea.IntersectsWorldCircle(proposedPosition, clearanceRadius))
                     continue;
 
-                reason = $"Root would enter ObstacleArea '{obstacleArea.name}'.";
+                reason = $"Root clearance would overlap ObstacleArea '{obstacleArea.name}'.";
                 lastResult = false;
                 lastReason = reason;
                 return false;
@@ -104,15 +110,49 @@ namespace VirtualPartner.Runtime
 
     internal static class MovementConstraintBoxUtility
     {
-        public static bool ContainsWorldPoint(Transform areaTransform, Vector3 worldPoint)
+        public static bool ContainsWorldPointXZ(Transform areaTransform, Vector3 worldPoint)
         {
             if (areaTransform == null)
                 return false;
 
             var localPoint = areaTransform.InverseTransformPoint(worldPoint);
             return Mathf.Abs(localPoint.x) <= 0.5f
-                && Mathf.Abs(localPoint.y) <= 0.5f
                 && Mathf.Abs(localPoint.z) <= 0.5f;
+        }
+
+        public static bool ContainsWorldCircleXZ(Transform areaTransform, Vector3 worldCenter, float radius)
+        {
+            if (areaTransform == null)
+                return false;
+
+            radius = Mathf.Max(0f, radius);
+            if (radius <= 0f)
+                return ContainsWorldPointXZ(areaTransform, worldCenter);
+
+            var localPoint = areaTransform.InverseTransformPoint(worldCenter);
+            var scale = areaTransform.lossyScale;
+            var marginX = radius / Mathf.Max(0.0001f, Mathf.Abs(scale.x));
+            var marginZ = radius / Mathf.Max(0.0001f, Mathf.Abs(scale.z));
+
+            return Mathf.Abs(localPoint.x) <= 0.5f - marginX
+                && Mathf.Abs(localPoint.z) <= 0.5f - marginZ;
+        }
+
+        public static bool IntersectsWorldCircleXZ(Transform areaTransform, Vector3 worldCenter, float radius)
+        {
+            if (areaTransform == null)
+                return false;
+
+            radius = Mathf.Max(0f, radius);
+            if (radius <= 0f)
+                return ContainsWorldPointXZ(areaTransform, worldCenter);
+
+            var localPoint = areaTransform.InverseTransformPoint(worldCenter);
+            var scale = areaTransform.lossyScale;
+            var outsideX = Mathf.Max(0f, Mathf.Abs(localPoint.x) - 0.5f) * Mathf.Abs(scale.x);
+            var outsideZ = Mathf.Max(0f, Mathf.Abs(localPoint.z) - 0.5f) * Mathf.Abs(scale.z);
+
+            return outsideX * outsideX + outsideZ * outsideZ <= radius * radius;
         }
 
         public static void DrawLocalBox(Transform areaTransform, Color color)

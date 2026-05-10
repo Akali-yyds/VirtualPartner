@@ -878,6 +878,8 @@ GameObject:
   - component: {fileID: 1195117194}
   - component: {fileID: 1195117195}
   - component: {fileID: 1195117196}
+  - component: {fileID: 1195117198}
+  - component: {fileID: 1195117197}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -906,11 +908,13 @@ MonoBehaviour:
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
   presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
   locomotionProfile: {fileID: 11400000, guid: 890ff2ca7f984cbcb8033f4308eda132, type: 2}
+  fsmProfile: {fileID: 11400000, guid: f8e651c8bb9f4e50a3a9c190b64f1529, type: 2}
   rootOrientationController: {fileID: 1195117193}
   locomotionActionExecutor: {fileID: 1195117194}
   movementConstraintController: {fileID: 1195117196}
   timelinePlayer: {fileID: 1195117190}
   speechBubbleView: {fileID: 1195117192}
+  autonomousBehaviorScheduler: {fileID: 1195117198}
   initialized: 0
   baseRotationCaptured: 0
   registeredBoneCount: 0
@@ -999,6 +1003,7 @@ MonoBehaviour:
   currentSegmentStatus: '-'
   statusText: Idle
   lastMessage: 
+  activeOwnerId: 
 --- !u!114 &1195117191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1127,10 +1132,55 @@ MonoBehaviour:
   - {fileID: 1055530845}
   - {fileID: 2207000006}
   - {fileID: 1312565776}
+  - {fileID: 324159579}
   constraintActive: 0
   lastResult: 1
   lastReason: Not checked.
   obstacleAreaCount: 0
+--- !u!114 &1195117197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9d4159a5d5a4149a7b11c36bc3a010, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.AutonomousBehaviorDebugPanel
+  scheduler: {fileID: 1195117198}
+  minimized: 0
+  windowRect:
+    serializedVersion: 2
+    x: 20
+    y: 420
+    width: 320
+    height: 210
+--- !u!114 &1195117198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d752226fd3fb501448371414dfcd7a8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.AutonomousBehaviorScheduler
+  fsmProfile: {fileID: 11400000, guid: f8e651c8bb9f4e50a3a9c190b64f1529, type: 2}
+  timelinePlayer: {fileID: 1195117190}
+  rootOrientationController: {fileID: 1195117193}
+  userInteractionTimeout: 10
+  initialized: 0
+  schedulerActive: 0
+  state: 0
+  waitRemaining: 0
+  inUserInteraction: 0
+  interactionRemaining: 0
+  currentActionName: 
+  lastMessage: 
 --- !u!1001 &1274239514
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1190,6 +1240,14 @@ PrefabInstance:
     - target: {fileID: 137291547872775986, guid: d01601dea30f94e4a9716782c0699452, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 137934287144746640, guid: d01601dea30f94e4a9716782c0699452, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 756311381796069744, guid: d01601dea30f94e4a9716782c0699452, type: 3}
+      propertyPath: MouthIndex
+      value: -1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

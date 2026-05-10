@@ -32,6 +32,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string currentSegmentStatus = "-";
         [SerializeField] private string statusText = "Idle";
         [SerializeField] private string lastMessage;
+        [SerializeField] private string activeOwnerId;
 
         private readonly List<BoneMapInstance> controlInstances = new List<BoneMapInstance>();
         private readonly Dictionary<Transform, ActiveTimelineBone> activeBones = new Dictionary<Transform, ActiveTimelineBone>();
@@ -53,6 +54,8 @@ namespace VirtualPartner.Runtime
         public string CurrentSegmentStatus => currentSegmentStatus;
         public string StatusText => statusText;
         public string LastMessage => lastMessage;
+        public string ActiveOwnerId => activeOwnerId;
+        public bool LocomotionActive => locomotionActive;
 
         public void Configure(
             BoneMapProfile profile,
@@ -122,12 +125,31 @@ namespace VirtualPartner.Runtime
 
         public bool PlayJson(string json)
         {
-            return StartTimeline(json);
+            return StartTimeline(json, string.Empty);
         }
 
         public bool ReplaceJson(string json)
         {
-            return StartTimeline(json);
+            return StartTimeline(json, string.Empty);
+        }
+
+        public bool PlayJsonForOwner(string json, string ownerId)
+        {
+            return StartTimeline(json, ownerId);
+        }
+
+        public bool IsOwnerPlaying(string ownerId)
+        {
+            return playing && SameOwner(activeOwnerId, ownerId);
+        }
+
+        public bool StopTimelineForOwner(string ownerId)
+        {
+            if (!IsOwnerPlaying(ownerId))
+                return false;
+
+            StopTimeline();
+            return true;
         }
 
         public void StopTimeline()
@@ -165,12 +187,13 @@ namespace VirtualPartner.Runtime
             if (currentTime >= timelineEnd && nextSegmentIndex < 0)
             {
                 playing = false;
+                activeOwnerId = string.Empty;
                 statusText = "Finished";
                 lastMessage = "Timeline finished.";
             }
         }
 
-        private bool StartTimeline(string json)
+        private bool StartTimeline(string json, string ownerId)
         {
             if (!initialized && !ValidateReferences())
                 return false;
@@ -190,6 +213,7 @@ namespace VirtualPartner.Runtime
             activeSegmentIndex = -2;
             playing = true;
             runtimeWarningCount = 0;
+            activeOwnerId = NormalizeOwnerId(ownerId);
             statusText = "Playing";
             lastMessage = "Timeline started.";
 
@@ -207,6 +231,7 @@ namespace VirtualPartner.Runtime
             currentSegmentStatus = "-";
             activeTimeline = null;
             timelineEnd = 0f;
+            activeOwnerId = string.Empty;
 
             if (clearSpeech && speechBubbleView != null)
                 speechBubbleView.Clear();
@@ -826,6 +851,21 @@ namespace VirtualPartner.Runtime
             return string.IsNullOrWhiteSpace(actionType)
                 ? string.Empty
                 : actionType.Trim().ToLowerInvariant();
+        }
+
+        private static string NormalizeOwnerId(string ownerId)
+        {
+            return string.IsNullOrWhiteSpace(ownerId)
+                ? string.Empty
+                : ownerId.Trim();
+        }
+
+        private static bool SameOwner(string left, string right)
+        {
+            return string.Equals(
+                NormalizeOwnerId(left),
+                NormalizeOwnerId(right),
+                StringComparison.Ordinal);
         }
 
         private static bool Approximately(Vector3 left, Vector3 right)

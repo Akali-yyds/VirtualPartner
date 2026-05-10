@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eac891889f5887345bfbdca7da33f3d3, type: 3}
+  m_Name: Toki_FSMProfile
+  m_EditorClassIdentifier: 
+  idleWaitMin: 10
+  idleWaitMax: 20
+  actions:
+  - actionName: Greet
+    enabled: 1
+    weight: 0.1
+    duration: 6.67
+    durationMin: 0
+    durationMax: 0
+    actionType: 0
+    animationName: Greet
+    locomotionMode: 
+  - actionName: WalkAround
+    enabled: 1
+    weight: 2
+    duration: 3
+    durationMin: 0
+    durationMax: 0
+    actionType: 1
+    animationName: 
+    locomotionMode: walk
+  - actionName: RunAround
+    enabled: 1
+    weight: 0.2
+    duration: 1
+    durationMin: 0
+    durationMax: 0
+    actionType: 1
+    animationName: 
+    locomotionMode: run
+  - actionName: ArmedIdle
+    enabled: 1
+    weight: 1
+    duration: 8.655
+    durationMin: 0
+    durationMax: 0
+    actionType: 0
+    animationName: ArmedIdle
+    locomotionMode: 

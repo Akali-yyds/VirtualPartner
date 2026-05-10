@@ -16,11 +16,13 @@ namespace VirtualPartner.Runtime
         [SerializeField] private BoneMapProfile boneMapProfile;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private LocomotionProfile locomotionProfile;
+        [SerializeField] private FSMProfile fsmProfile;
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private MovementConstraintController movementConstraintController;
         [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
+        [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -67,6 +69,10 @@ namespace VirtualPartner.Runtime
                 rootOrientationController,
                 locomotionActionExecutor,
                 speechBubbleView);
+            autonomousBehaviorScheduler.Configure(
+                fsmProfile,
+                timelinePlayer,
+                rootOrientationController);
 
             yield return null;
 
@@ -88,6 +94,7 @@ namespace VirtualPartner.Runtime
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
             initialized = true;
+            autonomousBehaviorScheduler.StartScheduler();
 
             Debug.Log(
                 $"[VirtualPartner] Stage 1 initialized. BaseRotation bones: {registeredBoneCount}, Idle clip: {idleClip.name}.",
@@ -104,11 +111,14 @@ namespace VirtualPartner.Runtime
             timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             if (!wasTimelinePlaying && rootOrientationController != null)
                 rootOrientationController.ManualUpdate(Time.deltaTime);
+            autonomousBehaviorScheduler.ManualUpdate(Time.deltaTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
         private void OnDisable()
         {
+            if (autonomousBehaviorScheduler != null)
+                autonomousBehaviorScheduler.StopScheduler();
             if (timelinePlayer != null)
                 timelinePlayer.StopTimeline();
             if (actionCoordinator != null)
@@ -146,6 +156,8 @@ namespace VirtualPartner.Runtime
                 return Fail("PresetAnimationProfile reference is missing.");
             if (locomotionProfile == null)
                 return Fail("LocomotionProfile reference is missing.");
+            if (fsmProfile == null)
+                return Fail("FSMProfile reference is missing.");
             if (rootOrientationController == null)
                 return Fail("RootOrientationController reference is missing.");
             if (locomotionActionExecutor == null)
@@ -154,6 +166,8 @@ namespace VirtualPartner.Runtime
                 return Fail("TimelinePlayer reference is missing.");
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.");
+            if (autonomousBehaviorScheduler == null)
+                return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (!boneRoot.IsChildOf(characterRoot.transform))
                 return Fail("Bone root must be inside the character root hierarchy.");
 

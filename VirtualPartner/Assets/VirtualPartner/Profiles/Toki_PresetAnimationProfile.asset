@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Toki_PresetAnimationProfile
   m_EditorClassIdentifier: 
   entries:
-  - actionName: CafeReaction
+  - actionName: Greet
     clip: {fileID: 7400000, guid: 52dd395e690d167458464ef65dcffcd9, type: 2}
     loop: 0
     allowCall: 1
@@ -39,41 +39,73 @@ MonoBehaviour:
     - Bip001/Bip001 Pelvis/Bip001 Spine
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L UpperArm/Bip001_B_L UpperArm Twist
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_L
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_L/Bip001 bone_eye_D_L_01
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_L/Bip001 bone_eye_D_L_02
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_R
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_R/Bip001 bone_eye_D_R_01
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 bone_eye_D_R/Bip001 bone_eye_D_R_02
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_L
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_L/Bip001 eye_L_1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_L/Bip001 eye_L_2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_R
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_R/Bip001 eye_R_1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 eye_R/Bip001 eye_R_2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeblowL1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeblowL2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeblowR1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeblowR2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeL
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001 Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
@@ -105,20 +137,34 @@ MonoBehaviour:
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R UpperArm/Bip001_B_R UpperArm Twist
-    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
     - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
@@ -184,3 +230,2555 @@ MonoBehaviour:
     - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
     - Bip001/Bip001_Weapon/bone_Magazine_01
     - Bip001/Bip001_Weapon/bone_Magazine_02
+  - actionName: PickUp
+    clip: {fileID: 7400000, guid: dc0292f4dbf2af840aa2e27538592869, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: ScissorsHandDouble
+    clip: {fileID: 7400000, guid: 18294c343bb92b44597b829064fb1f35, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: AdvanceForward
+    clip: {fileID: 7400000, guid: 41c85368589ef234395c9b5269b94727, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03/ bone_Machine_L_Hand_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03/ bone_Machine_L_Hand_02/ bone_Machine_L_Hand_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03/ bone_Machine_R_Hand_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03/ bone_Machine_R_Hand_02/ bone_Machine_R_Hand_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot/bone_Machine_L_Foot_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_l_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_l_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_r_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_r_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00/bone_Machine_L_ThighAcc_l_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00/bone_Machine_L_ThighAcc_r_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00/bone_Machine_R_ThighAcc_l_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00/bone_Machine_R_ThighAcc_r_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot/bone_Machine_R_Foot_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_l_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_l_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_r_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_r_02
+  - actionName: ReceiveCommand
+    clip: {fileID: 7400000, guid: 2b1f2a16d5954e545803804188e8027a, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: ChangeBullets
+    clip: {fileID: 7400000, guid: 52af659e66f664f488ff257a84d13172, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: SquatDownToRest
+    clip: {fileID: 7400000, guid: 44f1587e4163fdf47aa8691117cc624d, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: ScissorsHandSingle
+    clip: {fileID: 7400000, guid: db6fb8e193daca94a9486bd1fb1f18c9, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03/ bone_Machine_L_Hand_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_L_Hand_03/ bone_Machine_L_Hand_02/ bone_Machine_L_Hand_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03/ bone_Machine_R_Hand_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/
+      bone_Machine_R_Hand_03/ bone_Machine_R_Hand_02/ bone_Machine_R_Hand_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/bone_Machine_Arm_L_06
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/bone_Machine_Arm_L_07
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/bone_Machine_Arm_L_07/bone_Machine_Arm_L_010
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/bone_Machine_Arm_L_07/bone_Machine_Arm_L_08
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/bone_Machine_Arm_L_07/bone_Machine_Arm_L_09
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Arm_L_02/bone_Machine_Arm_L_04/bone_Machine_Arm_L_05/fire_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Shoulder_LB_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Shoulder_LB_01/bone_Machine_Shoulder_LB_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Shoulder_LF_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_L_00/bone_Machine_Arm_L_01/bone_Machine_Shoulder_LF_01/bone_Machine_Shoulder_LF_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/bone_Machine_Arm_R_06
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/bone_Machine_Arm_R_07
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/bone_Machine_Arm_R_07/bone_Machine_Arm_R_010
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/bone_Machine_Arm_R_07/bone_Machine_Arm_R_08
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/bone_Machine_Arm_R_07/bone_Machine_Arm_R_09
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Arm_R_02/bone_Machine_Arm_R_04/bone_Machine_Arm_R_05/fire_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Shoulder_RB_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Shoulder_RB_01/bone_Machine_Shoulder_RB_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Shoulder_RF_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_Arm_r_00/bone_Machine_Arm_R_01/bone_Machine_Shoulder_RF_01/bone_Machine_Shoulder_RF_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_L
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_L/bone_LR_L_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_L/fire_04
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_R_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_R_00/bone_LR_R_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_body_02/bone_Machine_body_03/bone_LR_R_00/fire_05
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00/bone_Machine_L_Calf_Acc_f_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00/bone_Machine_L_Calf_Acc_f_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00/bone_Machine_L_Calf_Acc_f_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00/bone_Machine_L_Calf_Acc_l
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Calf_Acc_00/bone_Machine_L_Calf_Acc_r
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot/bone_Machine_L_Foot_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot/bone_Machine_L_Foot_00/bone_Machine_L_Foot_B
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_Thigh/bone_Machine_L_Calf/bone_Machine_L_Foot/bone_Machine_L_Foot_00/bone_Machine_L_Foot_F
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_l_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_l_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_r_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_L_ThighAcc_r_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00/bone_Machine_L_ThighAcc_l_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/bone_Machine_L_ThighAcc_l_00/bone_Machine_L_ThighAcc_r_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_L/Point006
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00/bone_Machine_R_ThighAcc_l_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_Pelvis_R/bone_Machine_R_ThighAcc_l_00/bone_Machine_R_ThighAcc_r_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00/bone_Machine_R_Calf_Acc_f_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00/bone_Machine_R_Calf_Acc_f_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00/bone_Machine_R_Calf_Acc_f_03
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00/bone_Machine_R_Calf_Acc_l
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Calf_Acc_00/bone_Machine_R_Calf_Acc_r
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot/bone_Machine_R_Foot_00
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot/bone_Machine_R_Foot_00/bone_Machine_R_Foot_B
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_Thigh/bone_Machine_R_Calf/bone_Machine_R_Foot/bone_Machine_R_Foot_00/bone_Machine_R_Foot_F
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_l_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_l_02
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_r_01
+    - bone_root_Machine/bone_Machine_bip01/bone_Machine_body_00/bone_Machine_R_ThighAcc_r_02
+  - actionName: Shoot
+    clip: {fileID: 7400000, guid: c1e41b67454c16e409099a80237f53ce, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: SquatShoot
+    clip: {fileID: 7400000, guid: 6a8e4cd854eb93f49af9b2a6e6ae7f5f, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: ArmedIdle
+    clip: {fileID: 7400000, guid: 253eeff318d0e49428ad4bb414550acb, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01
+  - actionName: ArmedIdle
+    clip: {fileID: 7400000, guid: 253eeff318d0e49428ad4bb414550acb, type: 2}
+    loop: 0
+    allowCall: 1
+    bonePaths:
+    - Bip001
+    - Bip001/Bip001 Pelvis
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001 L Foot/Bip001 L Toe0
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001 L Calf/Bip001_B_L Knee
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Hip
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/Bip001_B_L Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket
+    - Bip001/Bip001 Pelvis/Bip001 L Thigh/bone_Gunpocket/bone_Handgun
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001 R Foot/Bip001 R Toe0
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001 R Calf/Bip001_B_R Knee
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Hip
+    - Bip001/Bip001 Pelvis/Bip001 R Thigh/Bip001_B_R Thigh Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger0/Bip001 L Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger1/Bip001 L Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger2/Bip001 L Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bip001 L Hand/Bip001 L Finger3/Bip001 L Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001 L Forearm/Bone L ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001 L
+      UpperArm/Bip001_B_L UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/Bip001_B_L
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 L Clavicle/bone_Frill_F_lt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_L/Bip001 bone_eye_D_L_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      bone_eye_D_R/Bip001 bone_eye_D_R_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_L/Bip001 eye_L_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      eye_R/Bip001 eye_R_2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowL2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeblowR2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeL
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/Bip001
+      Xtra_eyeR
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_dr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_m_01/bone_B_Headdress_m_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_B_Headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_b_m_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_f_01/bone_hair_f_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_l_01/bone_hair_l_02/bone_hair_l_03/bone_hair_l_04
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_l_01/bone_hair_m_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_m_r_01/bone_hair_m_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_hair_r_01/bone_hair_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Halo
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_l_01/bone_headdress_Acc_l_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_Acc_r_01/bone_headdress_Acc_r_02
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_l_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_r_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_t_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tl_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_headdress_tr_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head/bone_Mouth
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger0/Bip001 R Finger01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger1/Bip001 R Finger11
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger2/Bip001 R Finger21
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bip001 R Hand/Bip001 R Finger3/Bip001 R Finger31
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001 R Forearm/Bone R ForeArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001 R
+      UpperArm/Bip001_B_R UpperArm Twist
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/Bip001_B_R
+      Deltoid
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 R Clavicle/bone_Frill_F_rt
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_L_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bone_Breast_R_01
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_B_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Frill_F_r
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_l
+    - Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/bone_Ribbon_F_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_B_r
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_l
+    - Bip001/Bip001 Pelvis/bone_Acc_Pocket_F_r
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_l
+    - Bip001/Bip001 Pelvis/bone_Ribbon_B_r
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_L_00/bone_skirtB_L_01/bone_skirtB_L_02/bone_skirtB_L_03/bone_skirtB_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtB_R_00/bone_skirtB_R_01/bone_skirtB_R_02/bone_skirtB_R_03/bone_skirtB_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtB00
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03
+    - Bip001/Bip001 Pelvis/bone_skirtB00/bone_skirtB01/bone_skirtB02/bone_skirtB03/bone_skirtB04
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_L_01/bone_skirtBD_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtBD_R_01/bone_skirtBD_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_L_00/bone_skirtF_L_01/bone_skirtF_L_02/bone_skirtF_L_03/bone_skirtF_L_04
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03
+    - Bip001/Bip001 Pelvis/bone_skirtF_R_00/bone_skirtF_R_01/bone_skirtF_R_02/bone_skirtF_R_03/bone_skirtF_R_04
+    - Bip001/Bip001 Pelvis/bone_skirtF00
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03
+    - Bip001/Bip001 Pelvis/bone_skirtF00/bone_skirtF01/bone_skirtF02/bone_skirtF03/bone_skirtF04
+    - Bip001/Bip001 Pelvis/bone_skirtL00
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03
+    - Bip001/Bip001 Pelvis/bone_skirtL00/bone_skirtL01/bone_skirtL02/bone_skirtL03/bone_skirtL04
+    - Bip001/Bip001 Pelvis/bone_skirtR00
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03
+    - Bip001/Bip001 Pelvis/bone_skirtR00/bone_skirtR01/bone_skirtR02/bone_skirtR03/bone_skirtR04
+    - Bip001/Bip001_Weapon
+    - Bip001/Bip001_Weapon/bone_Buttstock
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00
+    - Bip001/Bip001_Weapon/bone_Buttstock/boen_Bolt_00/boen_Bolt_01
+    - Bip001/Bip001_Weapon/bone_Magazine_01
+    - Bip001/Bip001_Weapon/bone_Magazine_02
+    - Bip001/Bip001_Weapon/fire_01
+    - bone_root_Machine
+    - bone_root_Machine/bone_Machine_bip01

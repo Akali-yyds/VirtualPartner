@@ -46,6 +46,35 @@ namespace VirtualPartner.Runtime
             return BeginTurn(target, duration, false, out failureReason);
         }
 
+        public bool RequestWorldYawFacing(float yawDegrees, float duration, out string failureReason)
+        {
+            failureReason = string.Empty;
+
+            if (root == null)
+            {
+                failureReason = "Root reference is missing.";
+                return false;
+            }
+
+            turnFrom = root.rotation;
+            turnTo = Quaternion.Euler(0f, Mathf.Repeat(yawDegrees, 360f), 0f);
+            activeDuration = Mathf.Max(0f, duration);
+            turnElapsed = 0f;
+            activeTarget = $"WorldYaw {Mathf.Repeat(yawDegrees, 360f):0.#}";
+
+            if (activeDuration <= 0f)
+            {
+                root.rotation = turnTo;
+                turning = false;
+                RefreshYaw();
+                return true;
+            }
+
+            turning = true;
+            RefreshYaw();
+            return true;
+        }
+
         public bool EnterUserInteraction()
         {
             if (inUserInteraction)
@@ -61,6 +90,11 @@ namespace VirtualPartner.Runtime
         }
 
         public void StopTimelineFacing()
+        {
+            StopCurrentTurn();
+        }
+
+        public void StopCurrentTurn()
         {
             turning = false;
             activeTarget = string.Empty;
