@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "timeline": [
+    {
+      "start": 0.0,
+      "end": 0.6,
+      "actions": [
+        {
+          "type": "facing",
+          "target": "screenLeft"
+        }
+      ]
+    },
+    {
+      "start": 0.6,
+      "end": 2.4,
+      "actions": [
+        {
+          "type": "speech",
+          "text": "Walking this way."
+        },
+        {
+          "type": "locomotion",
+          "mode": "walk"
+        }
+      ]
+    },
+    {
+      "start": 2.4,
+      "end": 3.0,
+      "actions": [
+        {
+          "type": "facing",
+          "target": "camera"
+        }
+      ]
+    },
+    {
+      "start": 3.0,
+      "end": 4.2,
+      "actions": [
+        {
+          "type": "speech",
+          "text": "Now I can move faster."
+        },
+        {
+          "type": "locomotion",
+          "mode": "run"
+        }
+      ]
+    }
+  ]
+}

@@ -10,10 +10,13 @@ namespace VirtualPartner.Runtime
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
+        [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private GameObject characterRoot;
         [SerializeField] private Transform boneRoot;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private ActionCoordinator actionCoordinator;
+        [SerializeField] private RootOrientationController rootOrientationController;
+        [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private SpeechBubbleView speechBubbleView;
 
         [Header("Runtime Status")]
@@ -25,6 +28,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private int validationWarningCount;
         [SerializeField] private int runtimeWarningCount;
         [SerializeField] private int activePresetAnimationCount;
+        [SerializeField] private bool locomotionActive;
         [SerializeField] private string currentSegmentStatus = "-";
         [SerializeField] private string statusText = "Idle";
         [SerializeField] private string lastMessage;
@@ -52,18 +56,24 @@ namespace VirtualPartner.Runtime
         public void Configure(
             BoneMapProfile profile,
             PresetAnimationProfile presetProfile,
+            LocomotionProfile locomotion,
             GameObject character,
             Transform root,
             AvatarPoseApplier poseApplier,
             ActionCoordinator coordinator,
+            RootOrientationController orientationController,
+            LocomotionActionExecutor locomotionExecutor,
             SpeechBubbleView speechView)
         {
             boneMapProfile = profile;
             presetAnimationProfile = presetProfile;
+            locomotionProfile = locomotion;
             characterRoot = character;
             boneRoot = root;
             avatarPoseApplier = poseApplier;
             actionCoordinator = coordinator;
+            rootOrientationController = orientationController;
+            locomotionActionExecutor = locomotionExecutor;
             speechBubbleView = speechView;
             initialized = ValidateReferences();
 
@@ -83,7 +93,17 @@ namespace VirtualPartner.Runtime
             ActionCoordinator coordinator,
             SpeechBubbleView speechView)
         {
-            Configure(profile, presetAnimationProfile, characterRoot, root, avatarPoseApplier, coordinator, speechView);
+            Configure(
+                profile,
+                presetAnimationProfile,
+                locomotionProfile,
+                characterRoot,
+                root,
+                avatarPoseApplier,
+                coordinator,
+                rootOrientationController,
+                locomotionActionExecutor,
+                speechView);
         }
 
         public TimelineValidationResult ValidateTimelineJson(string json)
@@ -131,6 +151,13 @@ namespace VirtualPartner.Runtime
             if (nextSegmentIndex != activeSegmentIndex)
                 EnterSegment(nextSegmentIndex);
 
+            if (rootOrientationController != null)
+                rootOrientationController.ManualUpdate(deltaTime);
+            if (locomotionActionExecutor != null)
+            {
+                locomotionActionExecutor.ManualUpdate(deltaTime, idleClip, idleTime);
+                locomotionActive = locomotionActionExecutor.IsActive;
+            }
             UpdateActivePresetAnimations(idleClip, idleTime);
             StopPresetAnimationsThatLostOwnership();
 
@@ -164,6 +191,8 @@ namespace VirtualPartner.Runtime
             runtimeWarningCount = 0;
             statusText = "Playing";
             lastMessage = "Timeline started.";
+
+            EnterSegment(FindActiveSegmentIndex(currentTime));
             return true;
         }
 
@@ -173,6 +202,7 @@ namespace VirtualPartner.Runtime
             currentTime = 0f;
             activeSegmentIndex = -1;
             activePresetAnimationCount = 0;
+            locomotionActive = false;
             currentSegmentStatus = "-";
             activeTimeline = null;
             timelineEnd = 0f;
@@ -184,22 +214,33 @@ namespace VirtualPartner.Runtime
             {
                 ReleaseActiveBones();
                 ReleaseActivePresetAnimations();
+                if (locomotionActionExecutor != null)
+                    locomotionActionExecutor.StopLocomotion();
+                if (rootOrientationController != null)
+                    rootOrientationController.StopTimelineFacing();
                 if (actionCoordinator != null)
                 {
                     actionCoordinator.ReleaseAllTimeline();
                     actionCoordinator.ReleaseAllPresetAnimations();
+                    actionCoordinator.ReleaseAllLocomotion();
                 }
             }
             else
             {
                 activeBones.Clear();
                 activePresetAnimations.Clear();
+                locomotionActive = false;
             }
         }
 
         private void EnterSegment(int segmentIndex)
         {
             activeSegmentIndex = segmentIndex;
+            if (locomotionActionExecutor != null)
+                locomotionActionExecutor.StopLocomotion();
+            if (rootOrientationController != null)
+                rootOrientationController.CompleteTimelineFacing();
+            locomotionActive = false;
 
             if (segmentIndex < 0 || activeTimeline == null || segmentIndex >= activeTimeline.Length)
             {
@@ -217,6 +258,8 @@ namespace VirtualPartner.Runtime
             ApplySpeech(segment, segmentIndex);
             ApplyDesiredBones(BuildDesiredBones(segment, segmentIndex));
             BuildActivePresetAnimations(segment, segmentIndex);
+            ApplyFacing(segment, segmentIndex);
+            StartLocomotion(segment, segmentIndex);
         }
 
         private void ApplySpeech(TimelineSegmentDto segment, int segmentIndex)
@@ -245,6 +288,48 @@ namespace VirtualPartner.Runtime
                 speechBubbleView.Clear();
             else
                 speechBubbleView.Show(speechText);
+        }
+
+        private void ApplyFacing(TimelineSegmentDto segment, int segmentIndex)
+        {
+            if (rootOrientationController == null)
+                return;
+
+            for (var i = 0; i < segment.actions.Length; i++)
+            {
+                var action = segment.actions[i];
+                if (action == null || NormalizeType(action.type) != "facing")
+                    continue;
+
+                var duration = Mathf.Max(0f, segment.end - segment.start);
+                if (!rootOrientationController.RequestTimelineFacing(action.target, duration, out var failureReason))
+                    RecordWarning($"Segment {segmentIndex} facing skipped: {failureReason}");
+                return;
+            }
+        }
+
+        private void StartLocomotion(TimelineSegmentDto segment, int segmentIndex)
+        {
+            if (locomotionActionExecutor == null)
+                return;
+
+            for (var i = 0; i < segment.actions.Length; i++)
+            {
+                var action = segment.actions[i];
+                if (action == null || NormalizeType(action.type) != "locomotion")
+                    continue;
+
+                var duration = Mathf.Max(0f, segment.end - segment.start);
+                if (!locomotionActionExecutor.StartLocomotion(action.mode, duration, out var failureReason))
+                {
+                    RecordWarning($"Segment {segmentIndex} locomotion skipped: {failureReason}");
+                    locomotionActive = false;
+                    return;
+                }
+
+                locomotionActive = true;
+                return;
+            }
         }
 
         private Dictionary<Transform, DesiredTimelineBone> BuildDesiredBones(TimelineSegmentDto segment, int segmentIndex)
@@ -374,6 +459,10 @@ namespace VirtualPartner.Runtime
                 return false;
             }
 
+            var rootTransform = characterRoot.transform;
+            var rootPosition = rootTransform.position;
+            var rootRotation = rootTransform.rotation;
+
             try
             {
                 binding.Clip.SampleAnimation(characterRoot, clipTime);
@@ -399,6 +488,8 @@ namespace VirtualPartner.Runtime
             finally
             {
                 avatarPoseApplier.ApplyIdle(idleClip, idleTime);
+                rootTransform.position = rootPosition;
+                rootTransform.rotation = rootRotation;
             }
 
             return poses.Count > 0;
@@ -661,6 +752,8 @@ namespace VirtualPartner.Runtime
                 return Fail("BoneMapProfile reference is missing.");
             if (presetAnimationProfile == null)
                 return Fail("PresetAnimationProfile reference is missing.");
+            if (locomotionProfile == null)
+                return Fail("LocomotionProfile reference is missing.");
             if (characterRoot == null)
                 return Fail("Character root reference is missing.");
             if (boneRoot == null)
@@ -669,6 +762,10 @@ namespace VirtualPartner.Runtime
                 return Fail("AvatarPoseApplier reference is missing.");
             if (actionCoordinator == null)
                 return Fail("ActionCoordinator reference is missing.");
+            if (rootOrientationController == null)
+                return Fail("RootOrientationController reference is missing.");
+            if (locomotionActionExecutor == null)
+                return Fail("LocomotionActionExecutor reference is missing.");
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.");
 

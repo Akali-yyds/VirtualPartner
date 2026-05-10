@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace VirtualPartner.Runtime
@@ -23,6 +24,10 @@ namespace VirtualPartner.Runtime
                 errors.Add("Timeline JSON must contain schemaVersion.");
             if (!json.Contains("\"timeline\""))
                 errors.Add("Timeline JSON must contain timeline.");
+            if (ContainsForbiddenKey(json, "steps"))
+                errors.Add("Timeline JSON must not contain steps.");
+            if (ContainsForbiddenKey(json, "direction"))
+                errors.Add("Timeline JSON must not contain direction.");
 
             TimelineRootDto root = null;
             try
@@ -76,7 +81,7 @@ namespace VirtualPartner.Runtime
                 if (segment.actions == null)
                     errors.Add($"Segment {i} must contain actions.");
                 else
-                    ValidateActions(i, segment.actions, warnings);
+                    ValidateActions(i, segment.actions, errors, warnings);
             }
 
             for (var i = 1; i < orderedSegments.Count; i++)
@@ -94,8 +99,13 @@ namespace VirtualPartner.Runtime
         private static void ValidateActions(
             int segmentIndex,
             TimelineActionDto[] actions,
+            List<string> errors,
             List<string> warnings)
         {
+            var facingCount = 0;
+            var locomotionCount = 0;
+            var nonSpeechLocomotionPeerCount = 0;
+
             for (var i = 0; i < actions.Length; i++)
             {
                 var action = actions[i];
@@ -133,13 +143,47 @@ namespace VirtualPartner.Runtime
                     continue;
                 }
 
-                if (actionType == "facing" || actionType == "locomotion")
+                if (actionType == "facing")
                 {
-                    warnings.Add($"Segment {segmentIndex} action '{action.type}' is recognized but unsupported in stage 5.");
+                    facingCount++;
+                    if (string.IsNullOrWhiteSpace(action.target))
+                        errors.Add($"Segment {segmentIndex} facing action is missing target.");
+                    else if (!IsSupportedFacingTarget(action.target))
+                        errors.Add($"Segment {segmentIndex} facing target '{action.target}' is unsupported.");
+                    continue;
+                }
+
+                if (actionType == "locomotion")
+                {
+                    locomotionCount++;
+                    if (string.IsNullOrWhiteSpace(action.mode))
+                        errors.Add($"Segment {segmentIndex} locomotion action is missing mode.");
+                    else if (!IsSupportedLocomotionMode(action.mode))
+                        errors.Add($"Segment {segmentIndex} locomotion mode '{action.mode}' is unsupported.");
                     continue;
                 }
 
                 warnings.Add($"Segment {segmentIndex} action '{action.type}' is unknown and will be skipped.");
+            }
+
+            if (facingCount > 0 && actions.Length != 1)
+                errors.Add($"Segment {segmentIndex} facing must be the only action in its segment.");
+            if (facingCount > 1)
+                errors.Add($"Segment {segmentIndex} has multiple facing actions.");
+            if (locomotionCount > 1)
+                errors.Add($"Segment {segmentIndex} has multiple locomotion actions.");
+
+            if (locomotionCount > 0)
+            {
+                for (var i = 0; i < actions.Length; i++)
+                {
+                    var actionType = actions[i] == null ? string.Empty : NormalizeType(actions[i].type);
+                    if (actionType != "speech" && actionType != "locomotion")
+                        nonSpeechLocomotionPeerCount++;
+                }
+
+                if (nonSpeechLocomotionPeerCount > 0)
+                    errors.Add($"Segment {segmentIndex} locomotion can only be mixed with speech in stage 6.");
             }
         }
 
@@ -148,6 +192,27 @@ namespace VirtualPartner.Runtime
             return string.IsNullOrWhiteSpace(actionType)
                 ? string.Empty
                 : actionType.Trim().ToLowerInvariant();
+        }
+
+        private static bool ContainsForbiddenKey(string json, string key)
+        {
+            return Regex.IsMatch(json, $"\"{Regex.Escape(key)}\"\\s*:", RegexOptions.IgnoreCase);
+        }
+
+        private static bool IsSupportedFacingTarget(string target)
+        {
+            var normalizedTarget = NormalizeType(target);
+            return normalizedTarget == "camera"
+                || normalizedTarget == "screenleft"
+                || normalizedTarget == "screenright"
+                || normalizedTarget == "screenforward"
+                || normalizedTarget == "screenbackward";
+        }
+
+        private static bool IsSupportedLocomotionMode(string mode)
+        {
+            var normalizedMode = NormalizeType(mode);
+            return normalizedMode == "walk" || normalizedMode == "run";
         }
     }
 }

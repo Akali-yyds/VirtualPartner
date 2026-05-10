@@ -59,7 +59,14 @@ namespace VirtualPartner.Runtime
             if (!hasBaseRotation || targetRoot == null || clip == null)
                 return;
 
+            var rootTransform = targetRoot.transform;
+            var rootPosition = rootTransform.position;
+            var rootRotation = rootTransform.rotation;
+
             clip.SampleAnimation(targetRoot, sampleTime);
+            rootTransform.position = rootPosition;
+            rootTransform.rotation = rootRotation;
+
             lastSampleTime = sampleTime;
             isApplying = true;
         }

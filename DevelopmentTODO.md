@@ -220,29 +220,34 @@
 
 **前置条件**
 
-- [ ] 阶段 5 已完成。
-- [ ] timeline 已能播放 speech、bonePose 和 animation。
-- [ ] 已确认本阶段只做简单 Root 转向和位移，不做复杂路径规划。
+- [x] 阶段 5 已完成。
+- [x] timeline 已能播放 speech、bonePose 和 animation。
+- [x] 已确认本阶段只做简单 Root 转向和位移，不做复杂路径规划。
 
 **开发任务**
 
-- [ ] 支持 facing action 改变 Root Y 轴朝向。
-- [ ] 支持进入用户交互状态时自动 TurnToCamera。
-- [ ] 支持 walk / run 位移动作。
-- [ ] 明确 locomotion 不包含 steps / direction，只沿当前 forward 按速度和时间移动。
-- [ ] 支持位移时采样对应动作姿态。
-- [ ] 支持按配置速度计算位移距离。
+- [x] 支持 facing action 改变 Root Y 轴朝向。
+- [x] 支持进入用户交互状态时自动 TurnToCamera。
+- [x] 支持 walk / run 位移动作。
+- [x] 明确 locomotion 不包含 steps / direction，只沿当前 forward 按速度和时间移动。
+- [x] 支持位移时采样对应动作姿态。
+- [x] 支持按配置速度计算位移距离。
 
 **手动验收标准**
 
-- [ ] facing 能让角色转向 camera、screenLeft、screenRight 等目标。
-- [ ] locomotion 能让角色沿当前 forward 移动，且不依赖 steps / direction 字段。
-- [ ] 需要改变移动方向时，先 facing 再 locomotion 的 timeline 能正确表现。
-- [ ] 用户交互入口只在从非交互进入交互时自动转向一次。
+- [x] facing 能让角色转向 camera、screenLeft、screenRight 等目标。
+- [x] locomotion 能让角色沿当前 forward 移动，且不依赖 steps / direction 字段。
+- [x] 需要改变移动方向时，先 facing 再 locomotion 的 timeline 能正确表现。
+- [x] 用户交互入口只在从非交互进入交互时自动转向一次。
+
+**验收记录**
+
+- 用户已确认阶段 6 手动验收通过。
+- 已确认 Root 转向、walk / run 位移、Root 保护、非法 timeline 校验和 Debug 抢占 locomotion 均符合阶段 6 目标。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 7：MovementConstraint
 
@@ -252,7 +257,7 @@
 
 **前置条件**
 
-- [ ] 阶段 6 已完成。
+- [x] 阶段 6 已完成。
 - [ ] walk / run 位移已经能稳定运行。
 - [ ] 已明确本阶段不做 NavMesh、寻路或复杂避障。
 

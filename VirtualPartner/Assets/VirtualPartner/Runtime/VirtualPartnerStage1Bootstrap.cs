@@ -15,6 +15,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private BoneMapProfile boneMapProfile;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
+        [SerializeField] private LocomotionProfile locomotionProfile;
+        [SerializeField] private RootOrientationController rootOrientationController;
+        [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
 
@@ -39,15 +42,26 @@ namespace VirtualPartner.Runtime
             idleBaseProvider.Configure(idleClip);
             avatarPoseApplier.Configure(characterRoot, boneRoot);
             actionCoordinator.Configure(avatarPoseApplier);
+            rootOrientationController.Configure(characterRoot.transform, Camera.main);
+            locomotionActionExecutor.Configure(
+                locomotionProfile,
+                characterRoot,
+                characterRoot.transform,
+                boneRoot,
+                avatarPoseApplier,
+                actionCoordinator);
             if (speechBubbleView != null)
                 speechBubbleView.Configure(characterRoot.transform);
             timelinePlayer.Configure(
                 boneMapProfile,
                 presetAnimationProfile,
+                locomotionProfile,
                 characterRoot,
                 boneRoot,
                 avatarPoseApplier,
                 actionCoordinator,
+                rootOrientationController,
+                locomotionActionExecutor,
                 speechBubbleView);
 
             yield return null;
@@ -82,7 +96,10 @@ namespace VirtualPartner.Runtime
                 return;
 
             ApplyIdleFrame(Time.deltaTime);
+            var wasTimelinePlaying = timelinePlayer.IsPlaying;
             timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
+            if (!wasTimelinePlaying && rootOrientationController != null)
+                rootOrientationController.ManualUpdate(Time.deltaTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
@@ -92,6 +109,8 @@ namespace VirtualPartner.Runtime
                 timelinePlayer.StopTimeline();
             if (actionCoordinator != null)
                 actionCoordinator.ReleaseAllDebug();
+            if (locomotionActionExecutor != null)
+                locomotionActionExecutor.StopLocomotion();
             if (idleBaseProvider != null)
                 idleBaseProvider.Stop();
         }
@@ -121,6 +140,12 @@ namespace VirtualPartner.Runtime
                 return Fail("BoneMapProfile reference is missing.");
             if (presetAnimationProfile == null)
                 return Fail("PresetAnimationProfile reference is missing.");
+            if (locomotionProfile == null)
+                return Fail("LocomotionProfile reference is missing.");
+            if (rootOrientationController == null)
+                return Fail("RootOrientationController reference is missing.");
+            if (locomotionActionExecutor == null)
+                return Fail("LocomotionActionExecutor reference is missing.");
             if (timelinePlayer == null)
                 return Fail("TimelinePlayer reference is missing.");
             if (speechBubbleView == null)
