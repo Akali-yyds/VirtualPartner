@@ -138,6 +138,11 @@ namespace VirtualPartner.Runtime
             return StartTimeline(json, ownerId);
         }
 
+        public bool ReplaceJsonForOwner(string json, string ownerId)
+        {
+            return StartTimeline(json, ownerId);
+        }
+
         public bool IsOwnerPlaying(string ownerId)
         {
             return playing && SameOwner(activeOwnerId, ownerId);

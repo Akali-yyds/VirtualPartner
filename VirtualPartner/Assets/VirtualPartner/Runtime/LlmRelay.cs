@@ -1,0 +1,888 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace VirtualPartner.Runtime
+{
+    [DisallowMultipleComponent]
+    public sealed class LlmRelay : MonoBehaviour
+    {
+        public const string LlmOwnerId = "LLM";
+
+        private const string ConfigRelativePath = "UserSettings/VirtualPartnerLlmConfig.json";
+        private const float DefaultInteractionTimeout = 10f;
+        private const int RequestTimeoutSeconds = 60;
+        private const string PromptFolderName = "Prompts";
+        private const string CharacterPromptFileName = "character.md";
+        private const string TimelineRulesPromptFileName = "timeline-rules.md";
+        private const string ParameterBonesPromptFileName = "parameter-bones.md";
+        private const string PresetActionsPromptFileName = "preset-actions.md";
+        private const string LocomotionPromptFileName = "locomotion.md";
+        private const string ExamplesPromptFileName = "examples.md";
+
+        [Header("References")]
+        [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private PresetAnimationProfile presetAnimationProfile;
+        [SerializeField] private LocomotionProfile locomotionProfile;
+        [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
+
+        [Header("Prompt TextAssets")]
+        [SerializeField] private TextAsset characterPrompt;
+        [SerializeField] private TextAsset timelineRulesPrompt;
+        [SerializeField] private TextAsset parameterBonesPrompt;
+        [SerializeField] private TextAsset presetActionsPrompt;
+        [SerializeField] private TextAsset locomotionPrompt;
+        [SerializeField] private TextAsset examplesPrompt;
+
+        [Header("Runtime Status")]
+        [SerializeField] private bool initialized;
+        [SerializeField] private bool configLoaded;
+        [SerializeField] private bool configReady;
+        [SerializeField] private bool requestPending;
+        [SerializeField] private int latestRequestId;
+        [SerializeField] private int pendingRequestId;
+        [SerializeField] private string statusText = "Not configured.";
+        [SerializeField] private string configStatus = "Not loaded.";
+        [SerializeField] private string lastError;
+        [SerializeField] private string lastPromptStatus;
+        [SerializeField, TextArea(4, 10)] private string lastRawResponse;
+        [SerializeField, TextArea(4, 10)] private string lastExtractedTimeline;
+
+        private LlmRelayConfig config = new LlmRelayConfig();
+        private UnityWebRequest activeRequest;
+        private Coroutine activeCoroutine;
+        private string configPath;
+
+        public bool Initialized => initialized;
+        public bool ConfigLoaded => configLoaded;
+        public bool ConfigReady => configReady;
+        public bool RequestPending => requestPending;
+        public int LatestRequestId => latestRequestId;
+        public int PendingRequestId => pendingRequestId;
+        public string StatusText => statusText;
+        public string ConfigStatus => configStatus;
+        public string LastError => lastError;
+        public string LastPromptStatus => lastPromptStatus;
+        public string LastRawResponse => lastRawResponse;
+        public string LastExtractedTimeline => lastExtractedTimeline;
+        public float InteractionTimeoutSeconds => config.InteractionTimeoutSeconds;
+        public string ConfigPath => configPath;
+        public bool IsLlmTimelinePlaying => timelinePlayer != null && timelinePlayer.IsOwnerPlaying(LlmOwnerId);
+
+        public void Configure(
+            BoneMapProfile boneProfile,
+            PresetAnimationProfile presetProfile,
+            LocomotionProfile locomotion,
+            TimelinePlayer player,
+            AutonomousBehaviorScheduler scheduler)
+        {
+            boneMapProfile = boneProfile;
+            presetAnimationProfile = presetProfile;
+            locomotionProfile = locomotion;
+            timelinePlayer = player;
+            autonomousBehaviorScheduler = scheduler;
+            configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
+            initialized = ValidateReferences();
+
+            if (initialized)
+                ReloadConfig();
+        }
+
+        public bool ReloadConfig()
+        {
+            configLoaded = false;
+            configReady = false;
+
+            if (string.IsNullOrWhiteSpace(configPath))
+                configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
+
+            var path = configPath;
+            if (!File.Exists(path))
+            {
+                config = new LlmRelayConfig();
+                configStatus = $"Missing config: {path}";
+                statusText = "Config missing.";
+                return false;
+            }
+
+            try
+            {
+                config = JsonUtility.FromJson<LlmRelayConfig>(File.ReadAllText(path, Encoding.UTF8)) ?? new LlmRelayConfig();
+            }
+            catch (Exception exception)
+            {
+                config = new LlmRelayConfig();
+                configStatus = $"Config parse failed: {exception.Message}";
+                statusText = "Config failed.";
+                return false;
+            }
+
+            config.Normalize();
+            configLoaded = true;
+            configReady = config.IsReady(out var reason);
+            configStatus = configReady ? "Ready." : reason;
+            statusText = configReady ? "Ready." : "Config incomplete.";
+
+            if (autonomousBehaviorScheduler != null)
+                autonomousBehaviorScheduler.SetUserInteractionTimeout(config.InteractionTimeoutSeconds);
+
+            return configReady;
+        }
+
+        public bool Submit(string userText)
+        {
+            lastError = string.Empty;
+
+            if (!initialized && !ValidateReferences())
+                return FailSubmit("LlmRelay references are missing.");
+
+            if (string.IsNullOrWhiteSpace(userText))
+                return FailSubmit("User text is empty.");
+
+            if (autonomousBehaviorScheduler != null)
+            {
+                autonomousBehaviorScheduler.SetUserInteractionTimeout(config.InteractionTimeoutSeconds);
+                autonomousBehaviorScheduler.EnterUserInteraction();
+            }
+
+            if (!configReady && !ReloadConfig())
+                return FailSubmit(configStatus);
+
+            latestRequestId++;
+            pendingRequestId = latestRequestId;
+            requestPending = true;
+            statusText = $"Request {latestRequestId} pending.";
+            lastRawResponse = string.Empty;
+            lastExtractedTimeline = string.Empty;
+
+            if (activeCoroutine != null)
+                StopCoroutine(activeCoroutine);
+            if (activeRequest != null)
+                activeRequest.Abort();
+
+            activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim()));
+            return true;
+        }
+
+        public bool StopLlmTimeline()
+        {
+            if (timelinePlayer == null)
+            {
+                lastError = "TimelinePlayer reference is missing.";
+                return false;
+            }
+
+            if (timelinePlayer.StopTimelineForOwner(LlmOwnerId))
+            {
+                if (autonomousBehaviorScheduler != null)
+                    autonomousBehaviorScheduler.EnterUserInteraction();
+
+                statusText = "LLM timeline stopped.";
+                lastError = string.Empty;
+                return true;
+            }
+
+            statusText = timelinePlayer.IsPlaying
+                ? $"Current timeline owner is '{FormatOwner(timelinePlayer.ActiveOwnerId)}', not '{LlmOwnerId}'."
+                : "No LLM timeline is playing.";
+            lastError = statusText;
+            return false;
+        }
+
+        public void ManualUpdate(float deltaTime)
+        {
+            if (autonomousBehaviorScheduler == null)
+                return;
+
+            if (requestPending || IsLlmTimelinePlaying)
+                autonomousBehaviorScheduler.KeepUserInteractionAlive();
+        }
+
+        public void StopPendingRequest()
+        {
+            latestRequestId++;
+            pendingRequestId = 0;
+            requestPending = false;
+
+            if (activeCoroutine != null)
+            {
+                StopCoroutine(activeCoroutine);
+                activeCoroutine = null;
+            }
+
+            if (activeRequest != null)
+            {
+                activeRequest.Abort();
+                activeRequest.Dispose();
+                activeRequest = null;
+            }
+        }
+
+        public bool CopyFinalPromptToClipboard()
+        {
+            var prompt = BuildPromptPreview();
+            if (string.IsNullOrWhiteSpace(prompt))
+            {
+                lastPromptStatus = "Prompt is empty.";
+                return false;
+            }
+
+            GUIUtility.systemCopyBuffer = prompt;
+            lastPromptStatus = $"Prompt copied: {prompt.Length.ToString(CultureInfo.InvariantCulture)} chars.";
+            statusText = lastPromptStatus;
+            return true;
+        }
+
+        public string BuildPromptPreview()
+        {
+            var systemPrompt = BuildSystemPrompt();
+            var developerPrompt = BuildDeveloperPrompt();
+            var builder = new StringBuilder(systemPrompt.Length + developerPrompt.Length + 64);
+            builder.AppendLine("[system]");
+            builder.AppendLine(systemPrompt);
+            builder.AppendLine();
+            builder.AppendLine("[developer]");
+            builder.Append(developerPrompt);
+            return builder.ToString();
+        }
+
+        private IEnumerator SendRequest(int requestId, string userText)
+        {
+            var requestJson = BuildRequestJson(userText);
+            var requestBytes = Encoding.UTF8.GetBytes(requestJson);
+
+            using (var request = new UnityWebRequest(config.GetChatCompletionsUrl(), "POST"))
+            {
+                activeRequest = request;
+                request.timeout = RequestTimeoutSeconds;
+                request.uploadHandler = new UploadHandlerRaw(requestBytes);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", "Bearer " + config.apiKey);
+
+                yield return request.SendWebRequest();
+
+                if (requestId != latestRequestId)
+                {
+                    if (activeRequest == request)
+                        activeRequest = null;
+                    yield break;
+                }
+
+                requestPending = false;
+                pendingRequestId = 0;
+                activeCoroutine = null;
+                activeRequest = null;
+
+                var responseText = request.downloadHandler != null ? request.downloadHandler.text : string.Empty;
+                lastRawResponse = responseText;
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    RecordError($"Request {requestId} failed: HTTP {request.responseCode} {request.error}");
+                    yield break;
+                }
+
+                if (!TryExtractAssistantContent(responseText, out var content, out var responseFailure))
+                {
+                    RecordError(responseFailure);
+                    yield break;
+                }
+
+                if (!TryExtractTimelineJson(content, out var timelineJson, out var timelineFailure))
+                {
+                    RecordError(timelineFailure);
+                    yield break;
+                }
+
+                lastExtractedTimeline = timelineJson;
+
+                if (timelinePlayer != null && timelinePlayer.IsOwnerPlaying(AutonomousBehaviorScheduler.FsmOwnerId))
+                    timelinePlayer.StopTimelineForOwner(AutonomousBehaviorScheduler.FsmOwnerId);
+
+                if (timelinePlayer == null || !timelinePlayer.ReplaceJsonForOwner(timelineJson, LlmOwnerId))
+                {
+                    RecordError(timelinePlayer != null ? timelinePlayer.LastMessage : "TimelinePlayer reference is missing.");
+                    yield break;
+                }
+
+                statusText = $"Request {requestId} timeline playing.";
+                lastError = string.Empty;
+            }
+        }
+
+        private string BuildRequestJson(string userText)
+        {
+            var systemPrompt = BuildSystemPrompt();
+            var developerPrompt = BuildDeveloperPrompt();
+            var combinedSystemPrompt = config.supportsDeveloperRole
+                ? systemPrompt
+                : systemPrompt + "\n\n" + developerPrompt;
+
+            var builder = new StringBuilder(4096);
+            builder.Append("{\"model\":\"").Append(EscapeJson(config.model)).Append("\",\"messages\":[");
+            AppendMessage(builder, "system", combinedSystemPrompt);
+
+            if (config.supportsDeveloperRole)
+            {
+                builder.Append(',');
+                AppendMessage(builder, "developer", developerPrompt);
+            }
+
+            builder.Append(',');
+            AppendMessage(builder, "user", userText);
+            builder.Append(']');
+
+            if (config.useJsonResponseFormat)
+                builder.Append(",\"response_format\":{\"type\":\"json_object\"}");
+
+            builder.Append('}');
+            return builder.ToString();
+        }
+
+        private string BuildSystemPrompt()
+        {
+            return "You control Toki in Unity. Return only one valid JSON timeline object. Do not use Markdown, comments, or explanation.";
+        }
+
+        private string BuildDeveloperPrompt()
+        {
+            var builder = new StringBuilder(8192);
+            AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
+            AppendPromptSection(builder, "Timeline Rules", LoadPromptText(timelineRulesPrompt, TimelineRulesPromptFileName), true);
+            AppendPromptSection(builder, "Parameter Bone Rules", LoadPromptText(parameterBonesPrompt, ParameterBonesPromptFileName), true);
+            AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
+            AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
+            AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
+            AppendRuntimeCapabilities(builder);
+            return builder.ToString();
+        }
+
+        private static void AppendPromptSection(StringBuilder builder, string title, string promptText, bool includeWhenEmpty)
+        {
+            var text = promptText == null ? string.Empty : promptText.Trim();
+            if (string.IsNullOrWhiteSpace(text) && !includeWhenEmpty)
+                return;
+
+            builder.AppendLine();
+            builder.Append("## ").AppendLine(title);
+            if (string.IsNullOrWhiteSpace(text))
+                builder.AppendLine("(empty)");
+            else
+                builder.AppendLine(text);
+        }
+
+        private void AppendRuntimeCapabilities(StringBuilder builder)
+        {
+            builder.AppendLine();
+            builder.AppendLine("## Runtime Generated Capabilities");
+            builder.AppendLine("Use this generated list as the source of truth for currently callable names, axes, ranges, durations, and scopes.");
+
+            builder.AppendLine();
+            builder.AppendLine("### Controllable Semantic Bones");
+            AppendBoneCapabilities(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Preset Animations");
+            AppendPresetAnimations(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Locomotion Modes");
+            AppendLocomotionModes(builder);
+        }
+
+        private void AppendLocomotionModes(StringBuilder builder)
+        {
+            if (locomotionProfile == null || locomotionProfile.Entries == null)
+            {
+                builder.AppendLine("- walk");
+                builder.AppendLine("- run");
+                return;
+            }
+
+            for (var i = 0; i < locomotionProfile.Entries.Count; i++)
+            {
+                var entry = locomotionProfile.Entries[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Mode))
+                    continue;
+
+                builder.AppendLine("- " + entry.Mode);
+            }
+        }
+
+        private void AppendPresetAnimations(StringBuilder builder)
+        {
+            if (presetAnimationProfile == null || presetAnimationProfile.Entries == null)
+                return;
+
+            var descriptions = ParsePresetDescriptions();
+            var totalSemanticConfigCount = boneMapProfile != null
+                ? Mathf.Max(1, boneMapProfile.SemanticConfigCount)
+                : 1;
+
+            for (var i = 0; i < presetAnimationProfile.Entries.Count; i++)
+            {
+                var entry = presetAnimationProfile.Entries[i];
+                if (entry == null || !entry.AllowCall || string.IsNullOrWhiteSpace(entry.ActionName))
+                    continue;
+
+                descriptions.TryGetValue(entry.ActionName, out var description);
+                var duration = entry.Clip != null ? entry.Clip.length : 0f;
+                var scope = GetPresetScope(entry, totalSemanticConfigCount);
+
+                builder.Append("- ")
+                    .Append(entry.ActionName)
+                    .Append(" | duration=")
+                    .Append(FormatFloat(duration))
+                    .Append("s | scope=")
+                    .Append(scope);
+
+                if (!string.IsNullOrWhiteSpace(description))
+                    builder.Append(" | description=").Append(description);
+
+                builder.AppendLine();
+            }
+        }
+
+        private void AppendBoneCapabilities(StringBuilder builder)
+        {
+            if (boneMapProfile == null || boneMapProfile.Entries == null)
+                return;
+
+            for (var i = 0; i < boneMapProfile.Entries.Count; i++)
+            {
+                var entry = boneMapProfile.Entries[i];
+                if (entry == null)
+                    continue;
+
+                builder.Append("- ").Append(entry.SemanticBone);
+                if (entry.HasSide)
+                    builder.Append(" side=L/R");
+                else
+                    builder.Append(" side=none");
+                builder.Append(" axes=");
+                var wroteAxis = false;
+                AppendAxis(builder, entry, 0, "x", ref wroteAxis);
+                AppendAxis(builder, entry, 1, "y", ref wroteAxis);
+                AppendAxis(builder, entry, 2, "z", ref wroteAxis);
+                if (!wroteAxis)
+                    builder.Append("none");
+                builder.Append(" range=")
+                    .Append(FormatFloat(entry.RangeMin))
+                    .Append("..")
+                    .Append(FormatFloat(entry.RangeMax));
+                builder.AppendLine();
+            }
+        }
+
+        private Dictionary<string, string> ParsePresetDescriptions()
+        {
+            var descriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var promptText = LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName);
+            if (string.IsNullOrWhiteSpace(promptText))
+                return descriptions;
+
+            var lines = promptText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i].Trim();
+                if (!line.StartsWith("|", StringComparison.Ordinal) || !line.EndsWith("|", StringComparison.Ordinal))
+                    continue;
+                if (line.Contains("---"))
+                    continue;
+
+                var cells = line.Trim('|').Split('|');
+                if (cells.Length < 2)
+                    continue;
+
+                var actionName = cells[0].Trim();
+                var description = cells[1].Trim();
+                if (string.Equals(actionName, "Action", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+
+                descriptions[actionName] = description;
+            }
+
+            return descriptions;
+        }
+
+        private string GetPresetScope(PresetAnimationEntry entry, int totalSemanticConfigCount)
+        {
+            var coveredCount = CountCoveredSemanticConfigs(entry);
+            return coveredCount >= Mathf.CeilToInt(totalSemanticConfigCount * 0.6f)
+                ? "fullBody"
+                : "partial";
+        }
+
+        private int CountCoveredSemanticConfigs(PresetAnimationEntry presetEntry)
+        {
+            if (boneMapProfile == null || boneMapProfile.Entries == null || presetEntry == null)
+                return 0;
+
+            var count = 0;
+            for (var i = 0; i < boneMapProfile.Entries.Count; i++)
+            {
+                var entry = boneMapProfile.Entries[i];
+                if (entry == null)
+                    continue;
+
+                if (PresetCoversEntry(presetEntry, entry))
+                    count++;
+            }
+
+            return count;
+        }
+
+        private static bool PresetCoversEntry(PresetAnimationEntry presetEntry, BoneMapEntry boneEntry)
+        {
+            if (presetEntry.BonePaths == null)
+                return false;
+
+            for (var i = 0; i < presetEntry.BonePaths.Count; i++)
+            {
+                var presetPath = presetEntry.BonePaths[i];
+                if (PathMatchesConfiguredBone(presetPath, boneEntry.Path))
+                    return true;
+                if (PathMatchesConfiguredBone(presetPath, boneEntry.LeftPath))
+                    return true;
+                if (PathMatchesConfiguredBone(presetPath, boneEntry.RightPath))
+                    return true;
+
+                var pairedPaths = boneEntry.PairedPaths;
+                for (var pairedIndex = 0; pairedIndex < pairedPaths.Count; pairedIndex++)
+                {
+                    if (PathMatchesConfiguredBone(presetPath, pairedPaths[pairedIndex]))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool PathMatchesConfiguredBone(string presetPath, string configuredPath)
+        {
+            if (string.IsNullOrWhiteSpace(presetPath) || string.IsNullOrWhiteSpace(configuredPath))
+                return false;
+
+            var normalizedPresetPath = presetPath.Replace("\\", "/").Trim();
+            var normalizedConfiguredPath = configuredPath.Replace("\\", "/").Trim();
+
+            return string.Equals(normalizedPresetPath, normalizedConfiguredPath, StringComparison.OrdinalIgnoreCase)
+                || normalizedPresetPath.EndsWith("/" + normalizedConfiguredPath, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void AppendAxis(StringBuilder builder, BoneMapEntry entry, int axis, string axisName, ref bool wroteAxis)
+        {
+            if (!entry.IsAxisEnabled(axis))
+                return;
+
+            if (wroteAxis)
+                builder.Append('/');
+            builder.Append(axisName);
+            wroteAxis = true;
+        }
+
+        private bool TryExtractAssistantContent(string responseText, out string content, out string failureReason)
+        {
+            content = string.Empty;
+            failureReason = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(responseText))
+            {
+                failureReason = "LLM response is empty.";
+                return false;
+            }
+
+            ChatCompletionResponse response = null;
+            try
+            {
+                response = JsonUtility.FromJson<ChatCompletionResponse>(responseText);
+            }
+            catch (Exception exception)
+            {
+                failureReason = $"LLM response parse failed: {exception.Message}";
+                return false;
+            }
+
+            if (response == null)
+            {
+                failureReason = "LLM response parse returned no object.";
+                return false;
+            }
+
+            if (response.error != null && !string.IsNullOrWhiteSpace(response.error.message))
+            {
+                failureReason = $"LLM error: {response.error.message}";
+                return false;
+            }
+
+            if (response.choices == null || response.choices.Length == 0 || response.choices[0] == null || response.choices[0].message == null)
+            {
+                failureReason = "LLM response has no assistant message.";
+                return false;
+            }
+
+            content = response.choices[0].message.content;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                failureReason = "LLM assistant message is empty.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryExtractTimelineJson(string content, out string timelineJson, out string failureReason)
+        {
+            timelineJson = string.Empty;
+            failureReason = string.Empty;
+
+            var trimmed = StripCodeFence(content);
+            if (string.IsNullOrWhiteSpace(trimmed))
+            {
+                failureReason = "LLM returned empty content.";
+                return false;
+            }
+
+            if (trimmed.StartsWith("{", StringComparison.Ordinal) && trimmed.EndsWith("}", StringComparison.Ordinal))
+            {
+                timelineJson = trimmed;
+                return true;
+            }
+
+            var start = trimmed.IndexOf('{');
+            var end = trimmed.LastIndexOf('}');
+            if (start >= 0 && end > start)
+            {
+                timelineJson = trimmed.Substring(start, end - start + 1);
+                return true;
+            }
+
+            failureReason = "LLM content does not contain a JSON object.";
+            return false;
+        }
+
+        private static string StripCodeFence(string content)
+        {
+            var trimmed = content == null ? string.Empty : content.Trim();
+            if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+                return trimmed;
+
+            var firstNewline = trimmed.IndexOf('\n');
+            var lastFence = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+            if (firstNewline < 0 || lastFence <= firstNewline)
+                return trimmed;
+
+            return trimmed.Substring(firstNewline + 1, lastFence - firstNewline - 1).Trim();
+        }
+
+        private void RecordError(string message)
+        {
+            lastError = string.IsNullOrWhiteSpace(message) ? "Unknown LLM error." : message;
+            statusText = "Error.";
+            Debug.LogWarning($"[VirtualPartner] LlmRelay: {lastError}", this);
+        }
+
+        private bool FailSubmit(string message)
+        {
+            RecordError(message);
+            return false;
+        }
+
+        private bool ValidateReferences()
+        {
+            if (boneMapProfile == null)
+                return Fail("BoneMapProfile reference is missing.");
+            if (presetAnimationProfile == null)
+                return Fail("PresetAnimationProfile reference is missing.");
+            if (locomotionProfile == null)
+                return Fail("LocomotionProfile reference is missing.");
+            if (timelinePlayer == null)
+                return Fail("TimelinePlayer reference is missing.");
+            if (autonomousBehaviorScheduler == null)
+                return Fail("AutonomousBehaviorScheduler reference is missing.");
+
+            initialized = true;
+            return true;
+        }
+
+        private bool Fail(string message)
+        {
+            initialized = false;
+            statusText = "Failed.";
+            lastError = message;
+            Debug.LogError($"[VirtualPartner] LlmRelay failed: {message}", this);
+            return false;
+        }
+
+        private static void AppendMessage(StringBuilder builder, string role, string content)
+        {
+            builder.Append("{\"role\":\"")
+                .Append(EscapeJson(role))
+                .Append("\",\"content\":\"")
+                .Append(EscapeJson(content))
+                .Append("\"}");
+        }
+
+        private static string FormatOwner(string ownerId)
+        {
+            return string.IsNullOrWhiteSpace(ownerId) ? "External" : ownerId;
+        }
+
+        private static string LoadPromptText(TextAsset promptAsset, string fileName)
+        {
+            if (promptAsset != null)
+                return promptAsset.text;
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return string.Empty;
+
+            var path = Path.Combine(Application.dataPath, "VirtualPartner", PromptFolderName, fileName);
+            if (!File.Exists(path))
+                return string.Empty;
+
+            try
+            {
+                return File.ReadAllText(path, Encoding.UTF8);
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        private static string FormatFloat(float value)
+        {
+            return value.ToString("0.###", CultureInfo.InvariantCulture);
+        }
+
+        private static string EscapeJson(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            var builder = new StringBuilder(value.Length + 16);
+            for (var i = 0; i < value.Length; i++)
+            {
+                var c = value[i];
+                switch (c)
+                {
+                    case '\\':
+                        builder.Append("\\\\");
+                        break;
+                    case '"':
+                        builder.Append("\\\"");
+                        break;
+                    case '\n':
+                        builder.Append("\\n");
+                        break;
+                    case '\r':
+                        builder.Append("\\r");
+                        break;
+                    case '\t':
+                        builder.Append("\\t");
+                        break;
+                    default:
+                        builder.Append(c);
+                        break;
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        [Serializable]
+        private sealed class LlmRelayConfig
+        {
+            public string apiKey;
+            public string model;
+            public string chatCompletionsUrl;
+            public string baseUrl;
+            public bool useJsonResponseFormat = true;
+            public bool supportsDeveloperRole;
+            public float interactionTimeoutSeconds = DefaultInteractionTimeout;
+
+            public float InteractionTimeoutSeconds => interactionTimeoutSeconds > 0f
+                ? interactionTimeoutSeconds
+                : DefaultInteractionTimeout;
+
+            public void Normalize()
+            {
+                apiKey = apiKey == null ? string.Empty : apiKey.Trim();
+                model = model == null ? string.Empty : model.Trim();
+                chatCompletionsUrl = chatCompletionsUrl == null ? string.Empty : chatCompletionsUrl.Trim();
+                baseUrl = baseUrl == null ? string.Empty : baseUrl.Trim();
+                if (interactionTimeoutSeconds <= 0f)
+                    interactionTimeoutSeconds = DefaultInteractionTimeout;
+            }
+
+            public bool IsReady(out string reason)
+            {
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    reason = "apiKey is missing.";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(model))
+                {
+                    reason = "model is missing.";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(GetChatCompletionsUrl()))
+                {
+                    reason = "chatCompletionsUrl or baseUrl is missing.";
+                    return false;
+                }
+
+                reason = string.Empty;
+                return true;
+            }
+
+            public string GetChatCompletionsUrl()
+            {
+                if (!string.IsNullOrWhiteSpace(chatCompletionsUrl))
+                    return chatCompletionsUrl;
+
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    return string.Empty;
+
+                return baseUrl.TrimEnd('/') + "/v1/chat/completions";
+            }
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionResponse
+        {
+            public ChatCompletionChoice[] choices;
+            public ChatCompletionError error;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionChoice
+        {
+            public ChatCompletionMessage message;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionMessage
+        {
+            public string content;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionError
+        {
+            public string message;
+        }
+    }
+}

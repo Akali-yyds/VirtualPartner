@@ -1,0 +1,9 @@
+{
+  "apiKey": "sk-FTYptYbbkVsODROAl",
+  "model": "gpt-5.5",
+  "chatCompletionsUrl": "",
+  "baseUrl": "https://api.openai.com",
+  "useJsonResponseFormat": true,
+  "supportsDeveloperRole": false,
+  "interactionTimeoutSeconds": 10
+}

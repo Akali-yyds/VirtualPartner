@@ -9,6 +9,8 @@ namespace VirtualPartner.Runtime
     {
         [SerializeField] private LocomotionEntry[] entries = Array.Empty<LocomotionEntry>();
 
+        public IReadOnlyList<LocomotionEntry> Entries => entries;
+
         public bool TryBuildClipBinding(
             string mode,
             Transform boneRoot,

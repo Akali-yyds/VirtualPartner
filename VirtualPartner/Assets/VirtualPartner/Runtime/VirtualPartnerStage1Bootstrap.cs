@@ -23,6 +23,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
+        [SerializeField] private LlmRelay llmRelay;
+        [SerializeField] private LlmInteractionDebugPanel llmInteractionDebugPanel;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -73,6 +75,14 @@ namespace VirtualPartner.Runtime
                 fsmProfile,
                 timelinePlayer,
                 rootOrientationController);
+            llmRelay.Configure(
+                boneMapProfile,
+                presetAnimationProfile,
+                locomotionProfile,
+                timelinePlayer,
+                autonomousBehaviorScheduler);
+            if (llmInteractionDebugPanel != null)
+                llmInteractionDebugPanel.Configure(llmRelay);
 
             yield return null;
 
@@ -111,12 +121,15 @@ namespace VirtualPartner.Runtime
             timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             if (!wasTimelinePlaying && rootOrientationController != null)
                 rootOrientationController.ManualUpdate(Time.deltaTime);
+            llmRelay.ManualUpdate(Time.deltaTime);
             autonomousBehaviorScheduler.ManualUpdate(Time.deltaTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 
         private void OnDisable()
         {
+            if (llmRelay != null)
+                llmRelay.StopPendingRequest();
             if (autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.StopScheduler();
             if (timelinePlayer != null)
@@ -168,6 +181,10 @@ namespace VirtualPartner.Runtime
                 return Fail("SpeechBubbleView reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
+            if (llmRelay == null)
+                return Fail("LlmRelay reference is missing.");
+            if (llmInteractionDebugPanel == null)
+                return Fail("LlmInteractionDebugPanel reference is missing.");
             if (!boneRoot.IsChildOf(characterRoot.transform))
                 return Fail("Bone root must be inside the character root hierarchy.");
 

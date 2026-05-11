@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac891889f5887345bfbdca7da33f3d3, type: 3}
   m_Name: Toki_FSMProfile
   m_EditorClassIdentifier: 
-  idleWaitMin: 10
-  idleWaitMax: 20
+  idleWaitMin: 5
+  idleWaitMax: 10
   actions:
   - actionName: Greet
     enabled: 1
@@ -28,8 +28,8 @@ MonoBehaviour:
     enabled: 1
     weight: 2
     duration: 3
-    durationMin: 0
-    durationMax: 0
+    durationMin: 3
+    durationMax: 5
     actionType: 1
     animationName: 
     locomotionMode: walk
@@ -37,8 +37,8 @@ MonoBehaviour:
     enabled: 1
     weight: 0.2
     duration: 1
-    durationMin: 0
-    durationMax: 0
+    durationMin: 0.5
+    durationMax: 1.5
     actionType: 1
     animationName: 
     locomotionMode: run

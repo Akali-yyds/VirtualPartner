@@ -18,7 +18,8 @@ namespace VirtualPartner.Runtime
         Thigh,
         Calf,
         Foot,
-        Toe
+        Toe,
+        Eye
     }
 
     public enum BoneSide
@@ -75,10 +76,66 @@ namespace VirtualPartner.Runtime
                     continue;
                 }
 
+                if (entry.UsesPairedPaths)
+                {
+                    AddPairedInstance(boneRoot, results, entry, ref missingCount);
+                    continue;
+                }
+
                 AddInstance(boneRoot, results, entry, BoneSide.None, entry.Path, ref missingCount);
             }
 
             return missingCount;
+        }
+
+        private static void AddPairedInstance(
+            Transform boneRoot,
+            List<BoneMapInstance> results,
+            BoneMapEntry entry,
+            ref int missingCount)
+        {
+            var paths = entry.PairedPaths;
+            if (paths == null || paths.Count == 0)
+            {
+                missingCount++;
+                return;
+            }
+
+            var transforms = new List<Transform>();
+            var resolvedPaths = new List<string>();
+            var missingPairMember = false;
+
+            for (var i = 0; i < paths.Count; i++)
+            {
+                var path = paths[i];
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    missingCount++;
+                    missingPairMember = true;
+                    continue;
+                }
+
+                var transform = FindBone(boneRoot, path);
+                if (transform == null)
+                {
+                    missingCount++;
+                    missingPairMember = true;
+                    continue;
+                }
+
+                transforms.Add(transform);
+                resolvedPaths.Add(path);
+            }
+
+            if (missingPairMember || transforms.Count == 0)
+                return;
+
+            results.Add(new BoneMapInstance(
+                entry,
+                BoneSide.None,
+                resolvedPaths[0],
+                transforms.ToArray(),
+                resolvedPaths.ToArray()));
         }
 
         private static void AddInstance(
@@ -133,6 +190,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string path;
         [SerializeField] private string leftPath;
         [SerializeField] private string rightPath;
+        [SerializeField] private string[] pairedPaths = Array.Empty<string>();
         [SerializeField] private Vector3 axes = Vector3.one;
         [Tooltip("Stage 2 debug initial range only. Later stages will tighten final LLM capability ranges.")]
         [SerializeField] private Vector2 range = new Vector2(-45f, 45f);
@@ -143,6 +201,8 @@ namespace VirtualPartner.Runtime
         public string Path => path;
         public string LeftPath => leftPath;
         public string RightPath => rightPath;
+        public IReadOnlyList<string> PairedPaths => pairedPaths ?? Array.Empty<string>();
+        public bool UsesPairedPaths => !hasSide && pairedPaths != null && pairedPaths.Length > 0;
         public float RangeMin => range.x;
         public float RangeMax => range.y;
 
@@ -151,7 +211,12 @@ namespace VirtualPartner.Runtime
             get
             {
                 if (!hasSide)
+                {
+                    if (UsesPairedPaths)
+                        return 1;
+
                     return string.IsNullOrWhiteSpace(path) ? 0 : 1;
+                }
 
                 var count = 0;
                 if (!string.IsNullOrWhiteSpace(leftPath))
@@ -192,17 +257,25 @@ namespace VirtualPartner.Runtime
     public sealed class BoneMapInstance
     {
         public BoneMapInstance(BoneMapEntry entry, BoneSide side, string path, Transform transform)
+            : this(entry, side, path, new[] { transform }, new[] { path })
+        {
+        }
+
+        public BoneMapInstance(BoneMapEntry entry, BoneSide side, string path, Transform[] transforms, string[] paths)
         {
             Entry = entry;
             Side = side;
             Path = path;
-            Transform = transform;
+            Transforms = transforms ?? Array.Empty<Transform>();
+            Paths = paths ?? Array.Empty<string>();
         }
 
         public BoneMapEntry Entry { get; }
         public BoneSide Side { get; }
         public string Path { get; }
-        public Transform Transform { get; }
+        public Transform Transform => Transforms.Count > 0 ? Transforms[0] : null;
+        public IReadOnlyList<Transform> Transforms { get; }
+        public IReadOnlyList<string> Paths { get; }
         public SemanticBone SemanticBone => Entry.SemanticBone;
         public string DisplayName => Side == BoneSide.None ? SemanticBone.ToString() : $"{SemanticBone} {Side}";
     }

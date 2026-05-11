@@ -48,6 +48,13 @@ namespace VirtualPartner.Runtime
         public string CurrentActionName => currentActionName;
         public string LastMessage => lastMessage;
 
+        public void SetUserInteractionTimeout(float timeout)
+        {
+            userInteractionTimeout = Mathf.Max(0f, timeout);
+            if (inUserInteraction)
+                interactionRemaining = Mathf.Max(interactionRemaining, userInteractionTimeout);
+        }
+
         public void Configure(
             FSMProfile profile,
             TimelinePlayer player,
@@ -132,6 +139,20 @@ namespace VirtualPartner.Runtime
                 rootOrientationController.EnterUserInteraction();
 
             lastMessage = "User interaction entered.";
+        }
+
+        public void KeepUserInteractionAlive()
+        {
+            if (!initialized && !ValidateReferences())
+                return;
+
+            if (!inUserInteraction)
+            {
+                EnterUserInteraction();
+                return;
+            }
+
+            interactionRemaining = Mathf.Max(0f, userInteractionTimeout);
         }
 
         public void ExitUserInteraction()

@@ -117,3 +117,14 @@ MonoBehaviour:
     axes: {x: 1, y: 1, z: 1}
     range: {x: -90, y: 90}
     rightMirrorSign: {x: -1, y: -1, z: 1}
+  - semanticBone: 13
+    hasSide: 0
+    path: 
+    leftPath: 
+    rightPath: 
+    pairedPaths:
+    - Bip001 Xtra_eyeL
+    - Bip001 Xtra_eyeR
+    axes: {x: 1, y: 1, z: 0}
+    range: {x: -30, y: 30}
+    rightMirrorSign: {x: 1, y: 1, z: 1}
