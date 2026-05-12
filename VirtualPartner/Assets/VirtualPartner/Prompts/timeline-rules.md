@@ -12,6 +12,12 @@ Supported actions:
 - `facing`: turn Toki's root toward one target.
 - `locomotion`: move along Toki's current forward using walk/run.
 
+Before writing JSON, decompose the user's request into supported action primitives:
+- First infer the intended visible outcome, then choose the smallest supported actions that can create it.
+- If one primitive cannot express the full outcome, compose multiple segments instead of dropping the missing part.
+- Do not invent unsupported fields to express missing details. Use only supported actions and fields.
+- If exact behavior is unsupported but an approximation is possible with existing primitives, output that approximation.
+
 Action field shapes:
 - `speech`: `{"type":"speech","text":"..."}`
 - `bonePose`: `{"type":"bonePose","bones":[{"bone":"Head","rotation":{"x":0,"y":0,"z":0}}]}`

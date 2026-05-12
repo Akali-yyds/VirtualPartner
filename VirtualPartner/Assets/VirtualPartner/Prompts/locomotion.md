@@ -2,6 +2,8 @@
 
 `locomotion` has no direction or steps. It always moves along Toki's current forward. To choose a movement direction, place a separate `facing` segment before locomotion.
 
+`locomotion` is a straight-line movement primitive, not a path planner. Any request that implies a path shape, turning while moving, going around something, or returning toward the start must be decomposed into several short straight walks, each preceded by a separate `facing` segment.
+
 Facing targets:
 - `camera`: turn toward the user/camera position.
 - `screenLeft`: face toward the left side of the screen.
