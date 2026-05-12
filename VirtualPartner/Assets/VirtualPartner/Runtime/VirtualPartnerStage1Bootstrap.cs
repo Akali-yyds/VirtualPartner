@@ -24,7 +24,12 @@ namespace VirtualPartner.Runtime
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
+        [SerializeField] private TimelineDebugPanel timelineDebugPanel;
+        [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
+        [SerializeField] private RootLocomotionDebugPanel rootLocomotionDebugPanel;
+        [SerializeField] private VirtualPartnerBoneDebugPanel boneDebugPanel;
         [SerializeField] private LlmInteractionDebugPanel llmInteractionDebugPanel;
+        [SerializeField] private VirtualPartnerRuntimeDebugPanel runtimeDebugPanel;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -83,6 +88,22 @@ namespace VirtualPartner.Runtime
                 autonomousBehaviorScheduler);
             if (llmInteractionDebugPanel != null)
                 llmInteractionDebugPanel.Configure(llmRelay);
+            if (runtimeDebugPanel != null)
+            {
+                runtimeDebugPanel.Configure(
+                    llmRelay,
+                    timelinePlayer,
+                    autonomousBehaviorScheduler,
+                    rootOrientationController,
+                    locomotionActionExecutor,
+                    movementConstraintController,
+                    actionCoordinator,
+                    llmInteractionDebugPanel,
+                    timelineDebugPanel,
+                    autonomousBehaviorDebugPanel,
+                    rootLocomotionDebugPanel,
+                    boneDebugPanel);
+            }
 
             yield return null;
 
@@ -183,8 +204,18 @@ namespace VirtualPartner.Runtime
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)
                 return Fail("LlmRelay reference is missing.");
+            if (timelineDebugPanel == null)
+                return Fail("TimelineDebugPanel reference is missing.");
+            if (autonomousBehaviorDebugPanel == null)
+                return Fail("AutonomousBehaviorDebugPanel reference is missing.");
+            if (rootLocomotionDebugPanel == null)
+                return Fail("RootLocomotionDebugPanel reference is missing.");
+            if (boneDebugPanel == null)
+                return Fail("VirtualPartnerBoneDebugPanel reference is missing.");
             if (llmInteractionDebugPanel == null)
                 return Fail("LlmInteractionDebugPanel reference is missing.");
+            if (runtimeDebugPanel == null)
+                return Fail("VirtualPartnerRuntimeDebugPanel reference is missing.");
             if (!boneRoot.IsChildOf(characterRoot.transform))
                 return Fail("Bone root must be inside the character root hierarchy.");
 

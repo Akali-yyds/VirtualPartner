@@ -9,14 +9,20 @@ namespace VirtualPartner.Runtime
         [SerializeField] private AutonomousBehaviorScheduler scheduler;
 
         [Header("Runtime Status")]
+        [SerializeField] private bool standaloneVisible = true;
         [SerializeField] private bool minimized;
         [SerializeField] private Rect windowRect = new Rect(20f, 420f, 320f, 210f);
 
         private Vector2 expandedWindowSize = new Vector2(320f, 210f);
 
+        public void SetStandaloneVisible(bool visible)
+        {
+            standaloneVisible = visible;
+        }
+
         private void OnGUI()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !standaloneVisible)
                 return;
 
             windowRect = GUILayout.Window(
@@ -43,6 +49,18 @@ namespace VirtualPartner.Runtime
                 DrawControls();
 
             GUI.DragWindow();
+        }
+
+        public void DrawEmbedded()
+        {
+            if (scheduler == null)
+            {
+                GUILayout.Label("Scheduler: Missing");
+                return;
+            }
+
+            DrawStatus();
+            DrawControls();
         }
 
         private void DrawStatus()

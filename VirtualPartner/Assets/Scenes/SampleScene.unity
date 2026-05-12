@@ -841,6 +841,7 @@ MonoBehaviour:
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
   boneRoot: {fileID: 1274239515}
   actionCoordinator: {fileID: 1195117183}
+  standaloneVisible: 0
   apply: 0
   minimized: 0
   rotation: {x: 0, y: 0, z: 0}
@@ -882,6 +883,7 @@ GameObject:
   - component: {fileID: 1195117197}
   - component: {fileID: 1195117200}
   - component: {fileID: 1195117199}
+  - component: {fileID: 1195117201}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -918,7 +920,12 @@ MonoBehaviour:
   speechBubbleView: {fileID: 1195117192}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   llmRelay: {fileID: 1195117200}
+  timelineDebugPanel: {fileID: 1195117191}
+  autonomousBehaviorDebugPanel: {fileID: 1195117197}
+  rootLocomotionDebugPanel: {fileID: 1195117195}
+  boneDebugPanel: {fileID: 1195117184}
   llmInteractionDebugPanel: {fileID: 1195117199}
+  runtimeDebugPanel: {fileID: 1195117201}
   initialized: 0
   baseRotationCaptured: 0
   registeredBoneCount: 0
@@ -1022,6 +1029,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelineDebugPanel
   timelinePlayer: {fileID: 1195117190}
   sampleTimeline: {fileID: 4900000, guid: d2a4544f06a04da8ba083e756a2ff6c6, type: 3}
+  standaloneVisible: 0
   minimized: 0
   timelineJson: 
   windowRect:
@@ -1111,6 +1119,7 @@ MonoBehaviour:
   rootOrientationController: {fileID: 1195117193}
   locomotionActionExecutor: {fileID: 1195117194}
   movementConstraintController: {fileID: 1195117196}
+  standaloneVisible: 0
   minimized: 0
   windowRect:
     serializedVersion: 2
@@ -1155,6 +1164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.AutonomousBehaviorDebugPanel
   scheduler: {fileID: 1195117198}
+  standaloneVisible: 0
   minimized: 0
   windowRect:
     serializedVersion: 2
@@ -1199,6 +1209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.LlmInteractionDebugPanel
   llmRelay: {fileID: 1195117200}
+  standaloneVisible: 0
   minimized: 0
   userText: "\u6253\u4E2A\u62DB\u547C"
   promptCopyStatus: 
@@ -1243,6 +1254,39 @@ MonoBehaviour:
   lastPromptStatus: 
   lastRawResponse: 
   lastExtractedTimeline: 
+--- !u!114 &1195117201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ad78a9f8f6e4b05a4d9b43f7c190b3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.VirtualPartnerRuntimeDebugPanel
+  llmRelay: {fileID: 1195117200}
+  timelinePlayer: {fileID: 1195117190}
+  autonomousBehaviorScheduler: {fileID: 1195117198}
+  rootOrientationController: {fileID: 1195117193}
+  locomotionActionExecutor: {fileID: 1195117194}
+  movementConstraintController: {fileID: 1195117196}
+  actionCoordinator: {fileID: 1195117183}
+  llmPanel: {fileID: 1195117199}
+  timelinePanel: {fileID: 1195117191}
+  fsmPanel: {fileID: 1195117197}
+  rootPanel: {fileID: 1195117195}
+  bonePanel: {fileID: 1195117184}
+  hideLegacyStandalonePanels: 1
+  minimized: 0
+  selectedSection: 0
+  windowRect:
+    serializedVersion: 2
+    x: 20
+    y: 20
+    width: 780
+    height: 620
 --- !u!1001 &1274239514
 PrefabInstance:
   m_ObjectHideFlags: 0

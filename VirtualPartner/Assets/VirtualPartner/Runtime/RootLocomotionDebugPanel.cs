@@ -12,14 +12,20 @@ namespace VirtualPartner.Runtime
         [SerializeField] private MovementConstraintController movementConstraintController;
 
         [Header("Runtime Status")]
+        [SerializeField] private bool standaloneVisible = true;
         [SerializeField] private bool minimized;
         [SerializeField] private Rect windowRect = new Rect(860f, 20f, 320f, 230f);
 
         private Vector2 expandedWindowSize = new Vector2(320f, 230f);
 
+        public void SetStandaloneVisible(bool visible)
+        {
+            standaloneVisible = visible;
+        }
+
         private void OnGUI()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !standaloneVisible)
                 return;
 
             windowRect = GUILayout.Window(
@@ -46,6 +52,12 @@ namespace VirtualPartner.Runtime
             DrawStatus();
             DrawControls();
             GUI.DragWindow();
+        }
+
+        public void DrawEmbedded()
+        {
+            DrawStatus();
+            DrawControls();
         }
 
         private void DrawStatus()

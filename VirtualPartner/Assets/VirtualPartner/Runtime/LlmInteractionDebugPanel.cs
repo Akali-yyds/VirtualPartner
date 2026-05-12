@@ -9,6 +9,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LlmRelay llmRelay;
 
         [Header("Runtime Status")]
+        [SerializeField] private bool standaloneVisible = true;
         [SerializeField] private bool minimized;
         [SerializeField, TextArea(2, 5)] private string userText = "打个招呼";
         [SerializeField] private string promptCopyStatus;
@@ -18,6 +19,11 @@ namespace VirtualPartner.Runtime
         private Vector2 timelineScroll;
         private Vector2 expandedWindowSize = new Vector2(430f, 520f);
 
+        public void SetStandaloneVisible(bool visible)
+        {
+            standaloneVisible = visible;
+        }
+
         public void Configure(LlmRelay relay)
         {
             llmRelay = relay;
@@ -25,7 +31,7 @@ namespace VirtualPartner.Runtime
 
         private void OnGUI()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !standaloneVisible)
                 return;
 
             windowRect = GUILayout.Window(
@@ -51,6 +57,19 @@ namespace VirtualPartner.Runtime
             DrawInput();
             DrawResponse();
             GUI.DragWindow();
+        }
+
+        public void DrawEmbedded()
+        {
+            if (llmRelay == null)
+            {
+                GUILayout.Label("LlmRelay: Missing");
+                return;
+            }
+
+            DrawStatus();
+            DrawInput();
+            DrawResponse();
         }
 
         private void DrawCompactStatus()

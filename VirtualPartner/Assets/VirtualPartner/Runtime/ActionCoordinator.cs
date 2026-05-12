@@ -64,6 +64,8 @@ namespace VirtualPartner.Runtime
         public int LocomotionOwnedBoneCount => locomotionOwnedBoneCount;
         public int PresetAnimationOwnedBoneCount => presetAnimationOwnedBoneCount;
         public int ActiveTransitionCount => activeTransitionCount;
+        public string ActiveBoneName => activeBoneName;
+        public BoneOwner ActiveOwner => activeOwner;
 
         public void Configure(AvatarPoseApplier applier)
         {
@@ -718,6 +720,9 @@ namespace VirtualPartner.Runtime
                     activeTransitionCount++;
 
                 if (!string.IsNullOrEmpty(activeBoneName))
+                    continue;
+
+                if (state.Owner == BoneOwner.Idle && state.Transition == null)
                     continue;
 
                 activeBoneName = state.DisplayName;

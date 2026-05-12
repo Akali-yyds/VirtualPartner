@@ -14,6 +14,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private ActionCoordinator actionCoordinator;
 
         [Header("Runtime Status")]
+        [SerializeField] private bool standaloneVisible = true;
         [SerializeField] private bool apply;
         [SerializeField] private bool minimized;
         [SerializeField] private Vector3 rotation;
@@ -30,6 +31,11 @@ namespace VirtualPartner.Runtime
         private Vector2 boneListScroll;
         private Vector2 expandedWindowSize = new Vector2(360f, 560f);
         private BoneMapInstance appliedInstance;
+
+        public void SetStandaloneVisible(bool visible)
+        {
+            standaloneVisible = visible;
+        }
 
         private void Start()
         {
@@ -99,7 +105,7 @@ namespace VirtualPartner.Runtime
 
         private void OnGUI()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !standaloneVisible)
                 return;
 
             windowRect = GUILayout.Window(
@@ -141,6 +147,17 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
+            DrawEmbedded(true);
+            GUI.DragWindow();
+        }
+
+        public void DrawEmbedded()
+        {
+            DrawEmbedded(false);
+        }
+
+        public void DrawEmbedded(bool allowBoneMapRefresh)
+        {
             GUILayout.Label($"Configs: {semanticConfigCount}  Instances: {controlInstanceCount}  Missing: {missingInstanceCount}");
             GUILayout.Label($"Coordinator: {(actionCoordinator != null ? "Ready" : "Missing")}");
             GUILayout.Label($"Overlay: {(debugOverlayActive ? "On" : "Off")}  Active: {(string.IsNullOrEmpty(activeDebugBone) ? "-" : activeDebugBone)}");
@@ -150,14 +167,19 @@ namespace VirtualPartner.Runtime
                 EndDebugOverlay();
             apply = nextApply;
 
-            if (GUILayout.Button("Refresh BoneMap"))
-                RefreshControlInstances();
+            if (allowBoneMapRefresh)
+            {
+                if (GUILayout.Button("Refresh BoneMap"))
+                    RefreshControlInstances();
+            }
+            else if (GUILayout.Button("Refresh UI"))
+            {
+                RefreshSelectedStatus();
+            }
 
             DrawBoneList();
             DrawRotationControls();
             DrawExportControls();
-
-            GUI.DragWindow();
         }
 
         private void ToggleMinimized()
