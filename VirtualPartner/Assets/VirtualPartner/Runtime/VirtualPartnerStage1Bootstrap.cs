@@ -82,6 +82,8 @@ namespace VirtualPartner.Runtime
                 rootOrientationController);
             llmRelay.Configure(
                 boneMapProfile,
+                boneRoot,
+                avatarPoseApplier,
                 presetAnimationProfile,
                 locomotionProfile,
                 timelinePlayer,

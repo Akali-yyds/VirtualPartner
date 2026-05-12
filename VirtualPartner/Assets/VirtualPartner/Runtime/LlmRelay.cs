@@ -17,16 +17,22 @@ namespace VirtualPartner.Runtime
         private const string ConfigRelativePath = "UserSettings/VirtualPartnerLlmConfig.json";
         private const float DefaultInteractionTimeout = 10f;
         private const int RequestTimeoutSeconds = 60;
+        private const float AxisComponentThreshold = 0.1f;
+        private const float PrimaryEffectAngle = 90f;
+        private const float TwistDotThreshold = 0.98f;
         private const string PromptFolderName = "Prompts";
         private const string CharacterPromptFileName = "character.md";
         private const string TimelineRulesPromptFileName = "timeline-rules.md";
         private const string ParameterBonesPromptFileName = "parameter-bones.md";
+        private const string BonePoseExamplesPromptFileName = "bone-pose-examples.md";
         private const string PresetActionsPromptFileName = "preset-actions.md";
         private const string LocomotionPromptFileName = "locomotion.md";
         private const string ExamplesPromptFileName = "examples.md";
 
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private Transform boneRoot;
+        [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private TimelinePlayer timelinePlayer;
@@ -36,6 +42,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TextAsset characterPrompt;
         [SerializeField] private TextAsset timelineRulesPrompt;
         [SerializeField] private TextAsset parameterBonesPrompt;
+        [SerializeField] private TextAsset bonePoseExamplesPrompt;
         [SerializeField] private TextAsset presetActionsPrompt;
         [SerializeField] private TextAsset locomotionPrompt;
         [SerializeField] private TextAsset examplesPrompt;
@@ -58,6 +65,8 @@ namespace VirtualPartner.Runtime
         private UnityWebRequest activeRequest;
         private Coroutine activeCoroutine;
         private string configPath;
+        private readonly List<BoneMapInstance> promptAxisInstances = new List<BoneMapInstance>();
+        private readonly List<Transform> baseRotationChain = new List<Transform>();
 
         public bool Initialized => initialized;
         public bool ConfigLoaded => configLoaded;
@@ -77,12 +86,16 @@ namespace VirtualPartner.Runtime
 
         public void Configure(
             BoneMapProfile boneProfile,
+            Transform root,
+            AvatarPoseApplier poseApplier,
             PresetAnimationProfile presetProfile,
             LocomotionProfile locomotion,
             TimelinePlayer player,
             AutonomousBehaviorScheduler scheduler)
         {
             boneMapProfile = boneProfile;
+            boneRoot = root;
+            avatarPoseApplier = poseApplier;
             presetAnimationProfile = presetProfile;
             locomotionProfile = locomotion;
             timelinePlayer = player;
@@ -353,10 +366,11 @@ namespace VirtualPartner.Runtime
 
         private string BuildDeveloperPrompt()
         {
-            var builder = new StringBuilder(8192);
+            var builder = new StringBuilder(12288);
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
             AppendPromptSection(builder, "Timeline Rules", LoadPromptText(timelineRulesPrompt, TimelineRulesPromptFileName), true);
             AppendPromptSection(builder, "Parameter Bone Rules", LoadPromptText(parameterBonesPrompt, ParameterBonesPromptFileName), true);
+            AppendPromptSection(builder, "Verified Bone Pose Examples", LoadPromptText(bonePoseExamplesPrompt, BonePoseExamplesPromptFileName), true);
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
             AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
@@ -387,6 +401,14 @@ namespace VirtualPartner.Runtime
             builder.AppendLine();
             builder.AppendLine("### Controllable Semantic Bones");
             AppendBoneCapabilities(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Base Pose Local Axis Directions");
+            AppendBasePoseLocalAxisDirections(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Primary Direction Single-Axis Effects");
+            AppendPrimaryDirectionEffects(builder);
 
             builder.AppendLine();
             builder.AppendLine("### Preset Animations");
@@ -448,6 +470,290 @@ namespace VirtualPartner.Runtime
 
                 builder.AppendLine();
             }
+        }
+
+        private void AppendBasePoseLocalAxisDirections(StringBuilder builder)
+        {
+            if (boneMapProfile == null || boneRoot == null || avatarPoseApplier == null)
+            {
+                builder.AppendLine("- Base axis directions unavailable: references missing.");
+                return;
+            }
+
+            if (!avatarPoseApplier.HasBaseRotation)
+            {
+                builder.AppendLine("- BaseRotation not captured yet.");
+                return;
+            }
+
+            var missingCount = boneMapProfile.BuildControlInstances(boneRoot, promptAxisInstances);
+            if (missingCount > 0)
+                builder.AppendLine("- Note: " + missingCount.ToString(CultureInfo.InvariantCulture) + " configured bone instance(s) are missing.");
+
+            builder.AppendLine("- Direction components use character space: Right, Up, Forward.");
+            builder.AppendLine("- Components below " + FormatAxisFloat(AxisComponentThreshold) + " are omitted.");
+            builder.AppendLine("- Side bones list side=L only. For side=R, runtime mirrors the values; do not manually invert them.");
+
+            for (var i = 0; i < promptAxisInstances.Count; i++)
+            {
+                var instance = promptAxisInstances[i];
+                if (instance == null || instance.Entry == null)
+                    continue;
+                if (instance.SemanticBone == SemanticBone.Eye || instance.Entry.UsesPairedPaths)
+                    continue;
+                if (instance.Entry.HasSide && instance.Side != BoneSide.L)
+                    continue;
+
+                builder.Append("- ")
+                    .Append(instance.SemanticBone);
+
+                if (instance.Entry.HasSide)
+                    builder.Append(" side=L");
+                else
+                    builder.Append(" side=none");
+
+                if (!TryGetBasePoseRotation(instance.Transform, out var basePoseRotation))
+                {
+                    builder.AppendLine(" axis directions unavailable: BaseRotation missing.");
+                    continue;
+                }
+
+                AppendAxisDirection(builder, "+X", basePoseRotation * Vector3.right, instance.Entry.IsAxisEnabled(0));
+                AppendAxisDirection(builder, "+Y", basePoseRotation * Vector3.up, instance.Entry.IsAxisEnabled(1));
+                AppendAxisDirection(builder, "+Z", basePoseRotation * Vector3.forward, instance.Entry.IsAxisEnabled(2));
+                builder.AppendLine();
+            }
+
+            if (HasSemanticBone(SemanticBone.Eye))
+                builder.AppendLine("- Eye side=none: paired eye control. Use X/Y only; Z is disabled. Axis directions are not listed because both eyes are controlled together.");
+        }
+
+        private void AppendPrimaryDirectionEffects(StringBuilder builder)
+        {
+            if (boneMapProfile == null || boneRoot == null || avatarPoseApplier == null)
+            {
+                builder.AppendLine("- Primary direction effects unavailable: references missing.");
+                return;
+            }
+
+            if (!avatarPoseApplier.HasBaseRotation)
+            {
+                builder.AppendLine("- BaseRotation not captured yet.");
+                return;
+            }
+
+            boneMapProfile.BuildControlInstances(boneRoot, promptAxisInstances);
+            builder.AppendLine("- Effects describe the visible primary segment direction after a single-axis semantic rotation.");
+            builder.AppendLine("- Side bones list side=L only. Use the same semantic values for side=R; runtime mirrors them internally.");
+
+            for (var i = 0; i < promptAxisInstances.Count; i++)
+            {
+                var instance = promptAxisInstances[i];
+                if (instance == null || instance.Entry == null)
+                    continue;
+                if (instance.SemanticBone == SemanticBone.Eye || instance.Entry.UsesPairedPaths)
+                    continue;
+                if (instance.Entry.HasSide && instance.Side != BoneSide.L)
+                    continue;
+                if (!TryGetPrimaryLocalDirection(instance.SemanticBone, out var primaryLocalDirection))
+                    continue;
+                if (!TryGetBasePoseRotation(instance.Transform, out var basePoseRotation))
+                    continue;
+
+                var baseDirection = basePoseRotation * primaryLocalDirection;
+                builder.Append("- ")
+                    .Append(instance.SemanticBone);
+
+                if (instance.Entry.HasSide)
+                    builder.Append(" side=L");
+                else
+                    builder.Append(" side=none");
+
+                builder.Append(" primary=(");
+                AppendDirectionComponents(builder, baseDirection);
+                builder.Append(") effects:");
+                AppendSingleAxisEffect(builder, "x+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(0), new Vector3(PrimaryEffectAngle, 0f, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "x-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(0), new Vector3(-PrimaryEffectAngle, 0f, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "y+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(1), new Vector3(0f, PrimaryEffectAngle, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "y-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(1), new Vector3(0f, -PrimaryEffectAngle, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "z+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, PrimaryEffectAngle), baseDirection);
+                AppendSingleAxisEffect(builder, "z-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, -PrimaryEffectAngle), baseDirection);
+                builder.AppendLine();
+            }
+        }
+
+        private static void AppendSingleAxisEffect(
+            StringBuilder builder,
+            string label,
+            Quaternion basePoseRotation,
+            Vector3 primaryLocalDirection,
+            bool enabled,
+            Vector3 semanticRotation,
+            Vector3 baseDirection)
+        {
+            builder.Append(' ')
+                .Append(label)
+                .Append('=');
+
+            if (!enabled)
+            {
+                builder.Append("disabled");
+                return;
+            }
+
+            var effectDirection = basePoseRotation * (Quaternion.Euler(semanticRotation) * primaryLocalDirection);
+            if (Vector3.Dot(baseDirection.normalized, effectDirection.normalized) >= TwistDotThreshold)
+            {
+                builder.Append("twist/no swing");
+                return;
+            }
+
+            builder.Append('(');
+            AppendDirectionComponents(builder, effectDirection);
+            builder.Append(')');
+        }
+
+        private static bool TryGetPrimaryLocalDirection(SemanticBone semanticBone, out Vector3 direction)
+        {
+            switch (semanticBone)
+            {
+                case SemanticBone.Pelvis:
+                case SemanticBone.Spine:
+                case SemanticBone.Chest:
+                case SemanticBone.Neck:
+                case SemanticBone.Clavicle:
+                case SemanticBone.UpperArm:
+                case SemanticBone.Forearm:
+                case SemanticBone.Hand:
+                case SemanticBone.Thigh:
+                case SemanticBone.Calf:
+                case SemanticBone.Toe:
+                    direction = -Vector3.right;
+                    return true;
+                case SemanticBone.Head:
+                    direction = Vector3.up;
+                    return true;
+                case SemanticBone.Foot:
+                    direction = new Vector3(-0.69f, 0.73f, 0f).normalized;
+                    return true;
+                default:
+                    direction = Vector3.zero;
+                    return false;
+            }
+        }
+
+        private bool TryGetBasePoseRotation(Transform bone, out Quaternion basePoseRotation)
+        {
+            basePoseRotation = Quaternion.identity;
+            baseRotationChain.Clear();
+
+            var current = bone;
+            while (current != null)
+            {
+                baseRotationChain.Add(current);
+                if (current == boneRoot)
+                    break;
+
+                current = current.parent;
+            }
+
+            if (baseRotationChain.Count == 0 || baseRotationChain[baseRotationChain.Count - 1] != boneRoot)
+                return false;
+
+            for (var i = baseRotationChain.Count - 1; i >= 0; i--)
+            {
+                if (!avatarPoseApplier.TryGetBaseRotation(baseRotationChain[i], out var baseRotation))
+                    return false;
+
+                basePoseRotation *= baseRotation;
+            }
+
+            return true;
+        }
+
+        private bool HasSemanticBone(SemanticBone semanticBone)
+        {
+            if (boneMapProfile == null || boneMapProfile.Entries == null)
+                return false;
+
+            for (var i = 0; i < boneMapProfile.Entries.Count; i++)
+            {
+                var entry = boneMapProfile.Entries[i];
+                if (entry != null && entry.SemanticBone == semanticBone)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static void AppendAxisDirection(StringBuilder builder, string axisName, Vector3 direction, bool enabled)
+        {
+            builder.Append(' ')
+                .Append(axisName)
+                .Append('=');
+
+            if (!enabled)
+            {
+                builder.Append("disabled");
+                return;
+            }
+
+            builder.Append('(');
+            AppendDirectionComponents(builder, direction);
+            builder.Append(')');
+        }
+
+        private static void AppendDirectionComponents(StringBuilder builder, Vector3 direction)
+        {
+            var wrote = false;
+            AppendDirectionComponent(builder, direction.x, "Right", AxisComponentThreshold, ref wrote);
+            AppendDirectionComponent(builder, direction.y, "Up", AxisComponentThreshold, ref wrote);
+            AppendDirectionComponent(builder, direction.z, "Forward", AxisComponentThreshold, ref wrote);
+
+            if (!wrote)
+                AppendDominantDirectionComponent(builder, direction);
+        }
+
+        private static void AppendDominantDirectionComponent(StringBuilder builder, Vector3 direction)
+        {
+            var absoluteX = Mathf.Abs(direction.x);
+            var absoluteY = Mathf.Abs(direction.y);
+            var absoluteZ = Mathf.Abs(direction.z);
+            var wrote = false;
+
+            if (absoluteX >= absoluteY && absoluteX >= absoluteZ)
+            {
+                AppendDirectionComponent(builder, direction.x, "Right", 0f, ref wrote);
+                return;
+            }
+
+            if (absoluteY >= absoluteZ)
+            {
+                AppendDirectionComponent(builder, direction.y, "Up", 0f, ref wrote);
+                return;
+            }
+
+            AppendDirectionComponent(builder, direction.z, "Forward", 0f, ref wrote);
+        }
+
+        private static void AppendDirectionComponent(
+            StringBuilder builder,
+            float value,
+            string label,
+            float threshold,
+            ref bool wrote)
+        {
+            if (Mathf.Abs(value) < threshold)
+                return;
+
+            if (wrote)
+                builder.Append(", ");
+
+            builder.Append(value >= 0f ? "+" : "-")
+                .Append(label)
+                .Append(' ')
+                .Append(FormatAxisFloat(Mathf.Abs(value)));
+            wrote = true;
         }
 
         private void AppendBoneCapabilities(StringBuilder builder)
@@ -701,6 +1007,10 @@ namespace VirtualPartner.Runtime
         {
             if (boneMapProfile == null)
                 return Fail("BoneMapProfile reference is missing.");
+            if (boneRoot == null)
+                return Fail("Bone root reference is missing.");
+            if (avatarPoseApplier == null)
+                return Fail("AvatarPoseApplier reference is missing.");
             if (presetAnimationProfile == null)
                 return Fail("PresetAnimationProfile reference is missing.");
             if (locomotionProfile == null)
@@ -762,6 +1072,11 @@ namespace VirtualPartner.Runtime
         private static string FormatFloat(float value)
         {
             return value.ToString("0.###", CultureInfo.InvariantCulture);
+        }
+
+        private static string FormatAxisFloat(float value)
+        {
+            return value.ToString("0.00", CultureInfo.InvariantCulture);
         }
 
         private static string EscapeJson(string value)

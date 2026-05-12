@@ -421,7 +421,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 1, z: 5}
+  m_LocalPosition: {x: 0, y: 0.5, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1232,6 +1232,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.LlmRelay
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
+  boneRoot: {fileID: 0}
+  avatarPoseApplier: {fileID: 0}
   presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
   locomotionProfile: {fileID: 11400000, guid: 890ff2ca7f984cbcb8033f4308eda132, type: 2}
   timelinePlayer: {fileID: 1195117190}
@@ -1239,6 +1241,7 @@ MonoBehaviour:
   characterPrompt: {fileID: 4900000, guid: 97a21e5347e948a6a2a6bc11e6272eab, type: 3}
   timelineRulesPrompt: {fileID: 4900000, guid: 4b8b5d0d521d40b4b0e33e7f3920e1c7, type: 3}
   parameterBonesPrompt: {fileID: 4900000, guid: f1dce2e925f24ff9af8a3f20f0389425, type: 3}
+  bonePoseExamplesPrompt: {fileID: 0}
   presetActionsPrompt: {fileID: 4900000, guid: c3f0e91593a541079d7f6802cbba0d5e, type: 3}
   locomotionPrompt: {fileID: 4900000, guid: a8df28a78d334f7aa0f870d62bff2df7, type: 3}
   examplesPrompt: {fileID: 4900000, guid: db26fb53fbb04e7aa3b93f34eea1d144, type: 3}
