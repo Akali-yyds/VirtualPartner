@@ -15,7 +15,7 @@ MonoBehaviour:
   characterId: toki
   displayName: Toki
   momotalkStatus: Available
-  avatarIcon: {fileID: 0}
+  avatarIcon: {fileID: 21300000, guid: 870d4e0f38891b34f9bd0c78008eaee4, type: 3}
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
   presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
   locomotionProfile: {fileID: 11400000, guid: 890ff2ca7f984cbcb8033f4308eda132, type: 2}

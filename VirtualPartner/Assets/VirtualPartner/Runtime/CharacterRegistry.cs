@@ -47,6 +47,16 @@ namespace VirtualPartner.Runtime
             return contexts.TryGetValue(characterId, out context);
         }
 
+        public static void GetRegisteredContexts(List<CharacterRuntimeContext> results)
+        {
+            if (results == null)
+                return;
+
+            results.Clear();
+            foreach (var pair in contexts)
+                results.Add(pair.Value);
+        }
+
         public static void Unregister(string characterId)
         {
             if (string.IsNullOrWhiteSpace(characterId))
