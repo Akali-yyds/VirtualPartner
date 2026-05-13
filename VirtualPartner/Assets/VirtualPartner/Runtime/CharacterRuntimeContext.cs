@@ -1,0 +1,40 @@
+using UnityEngine;
+
+namespace VirtualPartner.Runtime
+{
+    public sealed class CharacterRuntimeContext
+    {
+        public CharacterRuntimeContext(
+            CharacterProfile profile,
+            GameObject runtimeRoot,
+            TimelinePlayer timelinePlayer,
+            ActionCoordinator actionCoordinator,
+            AvatarPoseApplier avatarPoseApplier,
+            RootOrientationController rootOrientationController,
+            LocomotionActionExecutor locomotionActionExecutor,
+            AutonomousBehaviorScheduler autonomousBehaviorScheduler,
+            SpeechBubbleView speechBubbleView)
+        {
+            Profile = profile;
+            RuntimeRoot = runtimeRoot;
+            TimelinePlayer = timelinePlayer;
+            ActionCoordinator = actionCoordinator;
+            AvatarPoseApplier = avatarPoseApplier;
+            RootOrientationController = rootOrientationController;
+            LocomotionActionExecutor = locomotionActionExecutor;
+            AutonomousBehaviorScheduler = autonomousBehaviorScheduler;
+            SpeechBubbleView = speechBubbleView;
+        }
+
+        public string CharacterId => Profile != null ? Profile.CharacterId : string.Empty;
+        public CharacterProfile Profile { get; }
+        public GameObject RuntimeRoot { get; }
+        public TimelinePlayer TimelinePlayer { get; }
+        public ActionCoordinator ActionCoordinator { get; }
+        public AvatarPoseApplier AvatarPoseApplier { get; }
+        public RootOrientationController RootOrientationController { get; }
+        public LocomotionActionExecutor LocomotionActionExecutor { get; }
+        public AutonomousBehaviorScheduler AutonomousBehaviorScheduler { get; }
+        public SpeechBubbleView SpeechBubbleView { get; }
+    }
+}

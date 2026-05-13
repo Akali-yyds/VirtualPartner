@@ -8,6 +8,7 @@ namespace VirtualPartner.Runtime
     {
         [Header("References")]
         [SerializeField] private GameObject characterRoot;
+        [SerializeField] private CharacterRuntimeBinder characterRuntimeBinder;
         [SerializeField] private Transform boneRoot;
         [SerializeField] private AnimationClip idleClip;
         [SerializeField] private IdleBaseProvider idleBaseProvider;
@@ -126,6 +127,13 @@ namespace VirtualPartner.Runtime
             timelinePlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
+
+            if (!characterRuntimeBinder.TryRegister(out var characterRegisterFailure))
+            {
+                Fail($"Character registration failed: {characterRegisterFailure}");
+                yield break;
+            }
+
             initialized = true;
             autonomousBehaviorScheduler.StartScheduler();
 
@@ -151,6 +159,8 @@ namespace VirtualPartner.Runtime
 
         private void OnDisable()
         {
+            if (characterRuntimeBinder != null)
+                characterRuntimeBinder.Unregister();
             if (llmRelay != null)
                 llmRelay.StopPendingRequest();
             if (autonomousBehaviorScheduler != null)
@@ -176,6 +186,8 @@ namespace VirtualPartner.Runtime
         {
             if (characterRoot == null)
                 return Fail("Character root reference is missing.");
+            if (characterRuntimeBinder == null)
+                return Fail("CharacterRuntimeBinder reference is missing.");
             if (boneRoot == null)
                 return Fail("Bone root reference is missing.");
             if (idleClip == null)

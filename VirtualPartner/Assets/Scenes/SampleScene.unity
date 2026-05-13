@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5e2f0f527e34792b4ef0f0d92f01f64, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.ObstacleArea
 --- !u!4 &324159580
 Transform:
@@ -884,6 +884,7 @@ GameObject:
   - component: {fileID: 1195117200}
   - component: {fileID: 1195117199}
   - component: {fileID: 1195117201}
+  - component: {fileID: 1195117202}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -904,6 +905,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.VirtualPartnerStage1Bootstrap
   characterRoot: {fileID: 1274239516}
+  characterRuntimeBinder: {fileID: 1195117202}
   boneRoot: {fileID: 1274239515}
   idleClip: {fileID: 7400000, guid: 8deafc5e7fb5f1a48bea3b763259be4f, type: 2}
   idleBaseProvider: {fileID: 1195117188}
@@ -1290,6 +1292,30 @@ MonoBehaviour:
     y: 20
     width: 780
     height: 620
+--- !u!114 &1195117202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 011415cc82ac4b29bdf57aebf59d9399, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.CharacterRuntimeBinder
+  characterProfile: {fileID: 11400000, guid: 787400ffb71c42f88a9687e059db585f, type: 2}
+  runtimeRoot: {fileID: 1274239516}
+  timelinePlayer: {fileID: 1195117190}
+  actionCoordinator: {fileID: 1195117183}
+  avatarPoseApplier: {fileID: 1195117187}
+  rootOrientationController: {fileID: 1195117193}
+  locomotionActionExecutor: {fileID: 1195117194}
+  autonomousBehaviorScheduler: {fileID: 1195117198}
+  speechBubbleView: {fileID: 1195117192}
+  registered: 0
+  registeredCharacterId:
+  lastMessage:
 --- !u!1001 &1274239514
 PrefabInstance:
   m_ObjectHideFlags: 0
