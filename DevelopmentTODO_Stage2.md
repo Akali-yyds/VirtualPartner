@@ -266,40 +266,57 @@
 
 - [x] 阶段完成。
 
-## 阶段 2.6：Momotalk 授权资源准备
+## 阶段 2.6：Momotalk 参考资源与 UI 素材准备
 
 **阶段目标**
 
-在导入 Unity 前整理 Momotalk 授权资源和归档说明，为后续 UI 外壳提供可靠素材基础。
+为阶段 2.7 Momotalk UI 外壳准备参考归档、UI 美术资源清单、生成素材和 1080x1920 系预览图。手机外框、Loading、联系人首页以 Momotalk BWIKI 为主要参考；对话界面以 U1805/momotalk 为主要参考，目标是尽可能贴近参考效果。
 
 **前置条件**
 
-- [ ] 已确认可使用相关 Momotalk 美术资源。
-- [ ] 已确认资源准备可与前置 Runtime 阶段并行讨论和准备。
-- [ ] 已确认导入 Unity 前必须完成授权归档。
+- [x] 阶段 2.5 已完成。
+- [x] 已确认 Momotalk 手机外框、Loading、联系人首页主要参考 [Momotalk BWIKI](https://wiki.biligame.com/ba/Momotalk)。
+- [x] 已确认 Momotalk 对话界面主要参考 [U1805/momotalk](https://github.com/U1805/momotalk)。
+- [x] 已确认本阶段只做资源准备和预览验收，不实现 Unity Runtime UI 逻辑。
 
 **开发任务**
 
-- [ ] 从 [Momotalk BWIKI](https://wiki.biligame.com/ba/Momotalk) 获取需要的 UI 参考资源。
-- [ ] 归档资源来源、授权状态和使用边界。
-- [ ] 整理资源命名和导入清单。
-- [ ] 确认哪些资源用于参考还原，哪些资源需要 Unity 内重建。
-- [ ] 导入 Unity 前完成授权归档检查。
+- [x] 新建 `Archive/MomotalkVisualReference/README.md`，记录 BWIKI、U1805/momotalk、GitHub Pages 预览、访问日期和参考 commit。
+- [x] 在归档文档中明确视觉分工：BWIKI 负责手机壳、Loading、联系人首页方向；U1805/momotalk 负责聊天页方向。
+- [x] 准备 `VirtualPartner/Assets/VirtualPartner/UI/Momotalk/` 下的 Textures、Icons、Fonts、Preview 资源目录。
+- [x] 准备 `phone_frame.png` 时只保留 BWIKI 原始手机框效果，不再手绘或重做手机外壳。
+- [x] 不输出 `phone_mask.png`，裁切范围只在归档文档中用坐标记录，避免辅助图被误当成 UI 素材。
+- [x] 准备手机框、Loading、联系人项、聊天气泡、输入栏、状态提示等 UI 图片资源。
+- [x] 从 `loading_icon.png` 上半部分裁出桃子小图标，并用于联系人首页标题区域。
+- [x] 聊天页底部只保留单行输入栏：左侧麦克风按钮，中间输入框，右侧图片按钮和发送按钮；不保留下方角色圈和加号工具栏。
+- [x] 准备发送、麦克风、图片、返回、更多、个人、爱心、选项、通知、添加等聊天页图标资源。
+- [x] 准备 U1805/momotalk 参考字体文件或可用于 2.7 的字体导入说明。
+- [x] 输出 `preview_loading.png`、`preview_contact_home.png`、`preview_chat.png`，并确认内容被压进 BWIKI 原手机框的屏幕区。
+- [x] 在归档文档中记录哪些元素使用图片资源，哪些元素建议在阶段 2.7 直接用 Unity UI 绘制。
 
 **手动验收标准**
 
-- [ ] 授权归档清楚记录资源来源和使用许可。
-- [ ] 待导入资源清单明确。
-- [ ] 未授权或来源不明的资源没有进入 Unity 项目。
-- [ ] 后续 UI 阶段可以基于该资源清单继续开发。
+- [x] `Archive/MomotalkVisualReference/README.md` 存在，并记录 BWIKI、U1805/momotalk、GitHub Pages、访问日期、参考 commit、视觉分工和阶段边界。
+- [x] `VirtualPartner/Assets/VirtualPartner/UI/Momotalk/` 资源目录存在，并包含 Textures、Icons、Fonts、Preview 分区。
+- [x] 核心资源存在：手机框、Loading、联系人项、聊天气泡、输入栏、发送图标、麦克风图标和未读红点。
+- [x] `preview_loading.png` 明显贴近 BWIKI 手机 Loading 效果。
+- [x] `preview_contact_home.png` 保持 BWIKI 手机应用壳与粉白氛围。
+- [x] `preview_chat.png` 贴近 U1805/momotalk 对话页样式，包括字体、气泡、底栏和按钮风格。
+- [x] PNG 资源能被 Unity 正常识别，适合后续设置为 Sprite。
+- [x] 本阶段没有新增 Momotalk Runtime 脚本，没有实现右侧滑出、联系人切换、聊天记录、typing indicator 或消息发送逻辑。
+- [x] 未生成或导入 Toki 头像，角色头像资源后续由用户提供。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 用户已确认 Stage 2.6 资源版本验收通过。
+- 已确认 `phone_frame.png` 只保留 BWIKI 原始手机框效果，不保留伪手机壳或 `phone_mask.png` 辅助图资源。
+- 已确认联系人首页左上角使用从 `loading_icon.png` 裁出的桃子小图标 + `MomoTalk` 标题。
+- 已确认聊天页底部只保留单行输入栏：左侧麦克风、中间输入框、右侧图片和发送按钮；不保留下方角色圈和加号工具栏。
+- 已确认本阶段只完成资源准备和预览图，不新增 Momotalk Runtime 脚本。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.7：Momotalk UI 外壳
 
