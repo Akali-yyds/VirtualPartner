@@ -885,6 +885,7 @@ GameObject:
   - component: {fileID: 1195117199}
   - component: {fileID: 1195117201}
   - component: {fileID: 1195117202}
+  - component: {fileID: 1195117203}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -1316,6 +1317,36 @@ MonoBehaviour:
   registered: 0
   registeredCharacterId:
   lastMessage:
+--- !u!114 &1195117203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c4e66aeb8b48204ca8ab7374554164f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.StagePlanDebugPanel
+  characterProfile: {fileID: 11400000, guid: 787400ffb71c42f88a9687e059db585f, type: 2}
+  basicSample: {fileID: 4900000, guid: 5b5e46af5cbc6884f950a672da83772c, type: 3}
+  fullSample: {fileID: 4900000, guid: 015f6bb42d5fa2a4aa8e6f5b974c99eb, type: 3}
+  standaloneVisible: 1
+  minimized: 0
+  stagePlanJson:
+  windowRect:
+    serializedVersion: 2
+    x: 820
+    y: 20
+    width: 480
+    height: 620
+  valid: 0
+  errorCount: 0
+  warningCount: 0
+  validStageCount: 0
+  validActionCount: 0
+  lastResult: Not validated.
 --- !u!1001 &1274239514
 PrefabInstance:
   m_ObjectHideFlags: 0

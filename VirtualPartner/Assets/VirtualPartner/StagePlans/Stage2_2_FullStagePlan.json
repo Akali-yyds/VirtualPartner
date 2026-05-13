@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "2.0",
+  "type": "stagePlan",
+  "metadata": {
+    "intent": "full_validation",
+    "mood": "thinking",
+    "characterId": "toki"
+  },
+  "stages": [
+    {
+      "actions": [
+        {
+          "type": "expression",
+          "name": "thinking",
+          "duration": 0.4
+        },
+        {
+          "type": "speech",
+          "text": "I will check the room first.",
+          "emotion": "thinking",
+          "speed": 1.0
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "type": "bonePose",
+          "duration": 0.6,
+          "bones": [
+            {
+              "bone": "Head",
+              "side": "None",
+              "rotation": {
+                "x": 0,
+                "y": 12,
+                "z": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "type": "animation",
+          "name": "Greet"
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "type": "facing",
+          "target": "camera",
+          "duration": 0.5
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "type": "locomotion",
+          "mode": "walk",
+          "duration": 1.2
+        }
+      ]
+    }
+  ]
+}

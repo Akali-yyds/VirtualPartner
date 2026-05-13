@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "2.0",
+  "type": "stagePlan",
+  "metadata": {
+    "intent": "basic_validation",
+    "mood": "smile",
+    "characterId": "toki"
+  },
+  "stages": [
+    {
+      "actions": [
+        {
+          "type": "expression",
+          "name": "smile",
+          "duration": 0.3
+        },
+        {
+          "type": "speech",
+          "text": "Sensei, I am ready.",
+          "emotion": "happy",
+          "speed": 1.0
+        }
+      ]
+    }
+  ]
+}

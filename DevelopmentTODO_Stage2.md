@@ -109,34 +109,38 @@
 
 **前置条件**
 
-- [ ] 阶段 2.1 已完成。
-- [ ] 已确认 StagePlan 2.0 是第二阶段唯一主格式。
-- [ ] 已确认本阶段只做本地 JSON 解析和校验，不接 LLM。
+- [x] 阶段 2.1 已完成。
+- [x] 已确认 StagePlan 2.0 是第二阶段唯一主格式。
+- [x] 已确认本阶段只做本地 JSON 解析和校验，不接 LLM。
 
 **开发任务**
 
-- [ ] 支持读取或输入本地 StagePlan 2.0 JSON。
-- [ ] 支持校验 schemaVersion、type、stages 和 stage actions 基础结构。
-- [ ] 支持每个 stage 最多一个 speech 的校验。
-- [ ] 支持结构性错误拒绝整条 StagePlan。
-- [ ] 支持局部 action 错误记录 warning，并允许合法 action 继续参与后续执行。
-- [ ] 准备本地 StagePlan 2.0 样例用于后续执行验证。
+- [x] 支持读取或输入本地 StagePlan 2.0 JSON。
+- [x] 支持校验 schemaVersion、type、stages 和 stage actions 基础结构。
+- [x] 支持每个 stage 最多一个 speech 的校验。
+- [x] 支持结构性错误拒绝整条 StagePlan。
+- [x] 支持局部 action 错误记录 warning，并允许合法 action 继续参与后续执行。
+- [x] 准备本地 StagePlan 2.0 样例用于后续执行验证。
 
 **手动验收标准**
 
-- [ ] 合法 StagePlan 2.0 JSON 能通过校验。
-- [ ] 缺少关键结构的 StagePlan 会被拒绝。
-- [ ] stage 内多个 speech 会被明确识别为非法。
-- [ ] 非法局部 action 能产生清晰 warning。
-- [ ] 本阶段不要求播放动作。
+- [x] 合法 StagePlan 2.0 JSON 能通过校验。
+- [x] 缺少关键结构的 StagePlan 会被拒绝。
+- [x] stage 内多个 speech 会被明确识别为非法。
+- [x] 非法局部 action 能产生清晰 warning。
+- [x] 本阶段不要求播放动作。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 用户已确认 Stage 2.2 手动验收通过。
+- 已新增 StagePlan 2.0 DTO、Validator、独立 Debug 面板和 Basic / Full 本地样例。
+- 已确认 Basic / Full 样例可通过本地校验，缺关键结构、多 speech、timeline 1.0 字段和非法局部 action 均能被识别。
+- 已确认 StagePlan 2.0 标准格式不包含 `stageId`，Runtime 后续按数组顺序生成 `stageIndex`，LLM 不负责命名 stage。
+- 已确认本阶段只做校验，不播放、不接 LLM、不替换 timeline 1.0 链路。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.3：StagePlanPlayer 本地执行闭环
 
