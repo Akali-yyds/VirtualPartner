@@ -22,7 +22,7 @@ namespace VirtualPartner.Runtime
         private const float TwistDotThreshold = 0.98f;
         private const string PromptFolderName = "Prompts";
         private const string CharacterPromptFileName = "character.md";
-        private const string TimelineRulesPromptFileName = "timeline-rules.md";
+        private const string StagePlanRulesPromptFileName = "stageplan-rules.md";
         private const string ParameterBonesPromptFileName = "parameter-bones.md";
         private const string BonePoseExamplesPromptFileName = "bone-pose-examples.md";
         private const string PresetActionsPromptFileName = "preset-actions.md";
@@ -36,13 +36,12 @@ namespace VirtualPartner.Runtime
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private LocomotionProfile locomotionProfile;
-        [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
 
         [Header("Prompt TextAssets")]
         [SerializeField] private TextAsset characterPrompt;
-        [SerializeField] private TextAsset timelineRulesPrompt;
+        [SerializeField] private TextAsset stagePlanRulesPrompt;
         [SerializeField] private TextAsset parameterBonesPrompt;
         [SerializeField] private TextAsset bonePoseExamplesPrompt;
         [SerializeField] private TextAsset presetActionsPrompt;
@@ -82,11 +81,9 @@ namespace VirtualPartner.Runtime
         public string LastPromptStatus => lastPromptStatus;
         public string LastRawResponse => lastRawResponse;
         public string LastExtractedStagePlan => lastExtractedStagePlan;
-        public string LastExtractedTimeline => lastExtractedStagePlan;
         public float InteractionTimeoutSeconds => config.InteractionTimeoutSeconds;
         public string ConfigPath => configPath;
         public bool IsLlmStagePlanPlaying => stagePlanPlayer != null && stagePlanPlayer.IsOwnerPlaying(LlmOwnerId);
-        public bool IsLlmTimelinePlaying => IsLlmStagePlanPlaying;
 
         public void Configure(
             BoneMapProfile boneProfile,
@@ -95,7 +92,6 @@ namespace VirtualPartner.Runtime
             AvatarPoseApplier poseApplier,
             PresetAnimationProfile presetProfile,
             LocomotionProfile locomotion,
-            TimelinePlayer player,
             StagePlanPlayer stagePlayer,
             AutonomousBehaviorScheduler scheduler)
         {
@@ -105,7 +101,6 @@ namespace VirtualPartner.Runtime
             avatarPoseApplier = poseApplier;
             presetAnimationProfile = presetProfile;
             locomotionProfile = locomotion;
-            timelinePlayer = player;
             stagePlanPlayer = stagePlayer;
             autonomousBehaviorScheduler = scheduler;
             configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
@@ -209,11 +204,6 @@ namespace VirtualPartner.Runtime
                 : "No LLM StagePlan is playing.";
             lastError = statusText;
             return false;
-        }
-
-        public bool StopLlmTimeline()
-        {
-            return StopLlmStagePlan();
         }
 
         public void ManualUpdate(float deltaTime)
@@ -331,9 +321,6 @@ namespace VirtualPartner.Runtime
                     yield break;
                 }
 
-                if (timelinePlayer != null && timelinePlayer.IsOwnerPlaying(AutonomousBehaviorScheduler.FsmOwnerId))
-                    timelinePlayer.StopTimelineForOwner(AutonomousBehaviorScheduler.FsmOwnerId);
-
                 if (stagePlanPlayer == null || !stagePlanPlayer.ReplaceJsonForOwner(stagePlanJson, LlmOwnerId))
                 {
                     RecordError(stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.");
@@ -384,7 +371,7 @@ namespace VirtualPartner.Runtime
             var builder = new StringBuilder(12288);
             AppendTargetCharacterSection(builder);
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
-            AppendPromptSection(builder, "StagePlan Rules", LoadPromptText(timelineRulesPrompt, TimelineRulesPromptFileName), true);
+            AppendPromptSection(builder, "StagePlan Rules", LoadPromptText(stagePlanRulesPrompt, StagePlanRulesPromptFileName), true);
             AppendPromptSection(builder, "Parameter Bone Rules", LoadPromptText(parameterBonesPrompt, ParameterBonesPromptFileName), true);
             AppendPromptSection(builder, "Verified Bone Pose Examples", LoadPromptText(bonePoseExamplesPrompt, BonePoseExamplesPromptFileName), true);
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
@@ -1062,8 +1049,6 @@ namespace VirtualPartner.Runtime
                 return Fail("PresetAnimationProfile reference is missing.");
             if (locomotionProfile == null)
                 return Fail("LocomotionProfile reference is missing.");
-            if (timelinePlayer == null)
-                return Fail("TimelinePlayer reference is missing.");
             if (stagePlanPlayer == null)
                 return Fail("StagePlanPlayer reference is missing.");
             if (autonomousBehaviorScheduler == null)

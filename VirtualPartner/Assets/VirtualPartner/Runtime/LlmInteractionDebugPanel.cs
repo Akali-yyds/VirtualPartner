@@ -16,7 +16,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private Rect windowRect = new Rect(20f, 260f, 430f, 520f);
 
         private Vector2 responseScroll;
-        private Vector2 timelineScroll;
+        private Vector2 stagePlanScroll;
         private Vector2 expandedWindowSize = new Vector2(430f, 520f);
 
         public void SetStandaloneVisible(bool visible)
@@ -142,7 +142,7 @@ namespace VirtualPartner.Runtime
             GUILayout.EndScrollView();
 
             GUILayout.Label("Last Extracted StagePlan");
-            timelineScroll = GUILayout.BeginScrollView(timelineScroll, GUILayout.Height(120f));
+            stagePlanScroll = GUILayout.BeginScrollView(stagePlanScroll, GUILayout.Height(120f));
             GUILayout.TextArea(llmRelay.LastExtractedStagePlan);
             GUILayout.EndScrollView();
         }

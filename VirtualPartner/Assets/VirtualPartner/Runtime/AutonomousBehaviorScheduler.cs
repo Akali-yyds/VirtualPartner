@@ -9,7 +9,7 @@ namespace VirtualPartner.Runtime
         Waiting,
         Turning,
         PlayingAction,
-        PausedByExternalTimeline,
+        PausedByExternalStagePlan,
         UserInteraction
     }
 
@@ -20,7 +20,7 @@ namespace VirtualPartner.Runtime
 
         [Header("References")]
         [SerializeField] private FSMProfile fsmProfile;
-        [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private RootOrientationController rootOrientationController;
 
         [Header("Settings")]
@@ -37,8 +37,6 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string lastMessage;
 
         private FSMActionEntry pendingAction;
-        private bool currentActionIsLocomotion;
-        private bool locomotionObservedActive;
 
         public bool SchedulerActive => schedulerActive;
         public AutonomousBehaviorState State => state;
@@ -57,11 +55,11 @@ namespace VirtualPartner.Runtime
 
         public void Configure(
             FSMProfile profile,
-            TimelinePlayer player,
+            StagePlanPlayer player,
             RootOrientationController orientationController)
         {
             fsmProfile = profile;
-            timelinePlayer = player;
+            stagePlanPlayer = player;
             rootOrientationController = orientationController;
             initialized = ValidateReferences();
             state = AutonomousBehaviorState.Disabled;
@@ -88,7 +86,7 @@ namespace VirtualPartner.Runtime
 
         public void StopScheduler()
         {
-            StopOwnedTimeline();
+            StopOwnedStagePlan();
             if (state == AutonomousBehaviorState.Turning && rootOrientationController != null)
                 rootOrientationController.StopCurrentTurn();
 
@@ -97,8 +95,6 @@ namespace VirtualPartner.Runtime
             waitRemaining = 0f;
             currentActionName = string.Empty;
             pendingAction = null;
-            currentActionIsLocomotion = false;
-            locomotionObservedActive = false;
             lastMessage = "FSM disabled.";
         }
 
@@ -123,7 +119,7 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            StopOwnedTimeline();
+            StopOwnedStagePlan();
             if (state == AutonomousBehaviorState.Turning && rootOrientationController != null)
                 rootOrientationController.StopCurrentTurn();
 
@@ -132,9 +128,6 @@ namespace VirtualPartner.Runtime
             waitRemaining = 0f;
             currentActionName = string.Empty;
             pendingAction = null;
-            currentActionIsLocomotion = false;
-            locomotionObservedActive = false;
-
             if (rootOrientationController != null)
                 rootOrientationController.EnterUserInteraction();
 
@@ -188,14 +181,14 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            if (IsExternalTimelinePlaying())
+            if (IsExternalStagePlanPlaying())
             {
-                PauseForExternalTimeline();
+                PauseForExternalStagePlan();
                 return;
             }
 
-            if (state == AutonomousBehaviorState.PausedByExternalTimeline)
-                BeginWaiting("External timeline finished.");
+            if (state == AutonomousBehaviorState.PausedByExternalStagePlan)
+                BeginWaiting("External StagePlan finished.");
 
             if (state == AutonomousBehaviorState.Waiting)
             {
@@ -210,7 +203,7 @@ namespace VirtualPartner.Runtime
                 if (rootOrientationController != null && rootOrientationController.IsTurning)
                     return;
 
-                StartActionTimeline(pendingAction);
+                StartActionStagePlan(pendingAction);
                 return;
             }
 
@@ -220,9 +213,9 @@ namespace VirtualPartner.Runtime
 
         private void StartNextAction()
         {
-            if (timelinePlayer.IsPlaying)
+            if (stagePlanPlayer.IsPlaying)
             {
-                PauseForExternalTimeline();
+                PauseForExternalStagePlan();
                 return;
             }
 
@@ -238,7 +231,7 @@ namespace VirtualPartner.Runtime
 
             if (pendingAction.ActionType != FSMActionType.Locomotion)
             {
-                StartActionTimeline(pendingAction);
+                StartActionStagePlan(pendingAction);
                 return;
             }
 
@@ -258,7 +251,7 @@ namespace VirtualPartner.Runtime
             lastMessage = $"FSM turning to world yaw {yaw:0.#}.";
         }
 
-        private void StartActionTimeline(FSMActionEntry action)
+        private void StartActionStagePlan(FSMActionEntry action)
         {
             if (action == null)
             {
@@ -267,121 +260,96 @@ namespace VirtualPartner.Runtime
             }
 
             var json = action.ActionType == FSMActionType.Locomotion
-                ? BuildLocomotionTimeline(action)
-                : BuildAnimationTimeline(action);
+                ? BuildLocomotionStagePlan(action)
+                : BuildAnimationStagePlan(action);
 
             if (string.IsNullOrWhiteSpace(json))
             {
-                BeginWaiting("FSM action has missing timeline data.");
+                BeginWaiting("FSM action has missing StagePlan data.");
                 return;
             }
 
-            if (!timelinePlayer.PlayJsonForOwner(json, FsmOwnerId))
+            if (!stagePlanPlayer.PlayJsonForOwner(json, FsmOwnerId))
             {
-                BeginWaiting("FSM timeline failed to start.");
+                BeginWaiting("FSM StagePlan failed to start.");
                 return;
             }
 
             state = AutonomousBehaviorState.PlayingAction;
-            currentActionIsLocomotion = action.ActionType == FSMActionType.Locomotion;
-            locomotionObservedActive = false;
             lastMessage = $"FSM action started: {currentActionName}.";
         }
 
         private void UpdatePlayingAction()
         {
-            if (timelinePlayer.IsOwnerPlaying(FsmOwnerId))
-            {
-                if (!currentActionIsLocomotion)
-                    return;
-
-                if (timelinePlayer.LocomotionActive)
-                {
-                    locomotionObservedActive = true;
-                    return;
-                }
-
-                if (locomotionObservedActive || timelinePlayer.CurrentTime > 0.05f)
-                {
-                    StopOwnedTimeline();
-                    BeginWaiting("FSM locomotion ended or stopped early.");
-                }
-
+            if (stagePlanPlayer.IsOwnerPlaying(FsmOwnerId))
                 return;
-            }
 
-            if (!timelinePlayer.IsPlaying)
+            if (!stagePlanPlayer.IsPlaying)
             {
                 BeginWaiting("FSM action finished.");
                 return;
             }
 
-            PauseForExternalTimeline();
+            PauseForExternalStagePlan();
         }
 
-        private void PauseForExternalTimeline()
+        private void PauseForExternalStagePlan()
         {
             if (state == AutonomousBehaviorState.Turning && rootOrientationController != null)
                 rootOrientationController.StopCurrentTurn();
 
             pendingAction = null;
             currentActionName = string.Empty;
-            currentActionIsLocomotion = false;
-            locomotionObservedActive = false;
             waitRemaining = 0f;
-            state = AutonomousBehaviorState.PausedByExternalTimeline;
-            lastMessage = "FSM paused for external timeline.";
+            state = AutonomousBehaviorState.PausedByExternalStagePlan;
+            lastMessage = "FSM paused for external StagePlan.";
         }
 
         private void BeginWaiting(string message)
         {
-            StopOwnedTimeline();
+            StopOwnedStagePlan();
             pendingAction = null;
             currentActionName = string.Empty;
-            currentActionIsLocomotion = false;
-            locomotionObservedActive = false;
             waitRemaining = fsmProfile != null ? fsmProfile.GetRandomWaitDuration() : 0f;
             state = AutonomousBehaviorState.Waiting;
             lastMessage = message;
         }
 
-        private void StopOwnedTimeline()
+        private void StopOwnedStagePlan()
         {
-            if (timelinePlayer != null)
-                timelinePlayer.StopTimelineForOwner(FsmOwnerId);
+            if (stagePlanPlayer != null)
+                stagePlanPlayer.StopStagePlanForOwner(FsmOwnerId);
         }
 
-        private bool IsExternalTimelinePlaying()
+        private bool IsExternalStagePlanPlaying()
         {
-            return timelinePlayer != null &&
-                timelinePlayer.IsPlaying &&
-                !timelinePlayer.IsOwnerPlaying(FsmOwnerId);
+            return stagePlanPlayer != null &&
+                stagePlanPlayer.IsPlaying &&
+                !stagePlanPlayer.IsOwnerPlaying(FsmOwnerId);
         }
 
-        private static string BuildAnimationTimeline(FSMActionEntry action)
+        private static string BuildAnimationStagePlan(FSMActionEntry action)
         {
             var duration = action.GetDuration();
             if (string.IsNullOrWhiteSpace(action.AnimationName) || duration <= 0f)
                 return string.Empty;
 
-            return "{\"schemaVersion\":\"1.0\",\"timeline\":[{\"start\":0.0,\"end\":" +
-                FormatFloat(duration) +
-                ",\"actions\":[{\"type\":\"animation\",\"name\":\"" +
+            return "{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"stages\":[{\"actions\":[{\"type\":\"animation\",\"name\":\"" +
                 EscapeJson(action.AnimationName) +
                 "\"}]}]}";
         }
 
-        private static string BuildLocomotionTimeline(FSMActionEntry action)
+        private static string BuildLocomotionStagePlan(FSMActionEntry action)
         {
             var duration = action.GetDuration();
             if (string.IsNullOrWhiteSpace(action.LocomotionMode) || duration <= 0f)
                 return string.Empty;
 
-            return "{\"schemaVersion\":\"1.0\",\"timeline\":[{\"start\":0.0,\"end\":" +
-                FormatFloat(duration) +
-                ",\"actions\":[{\"type\":\"locomotion\",\"mode\":\"" +
+            return "{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"stages\":[{\"actions\":[{\"type\":\"locomotion\",\"mode\":\"" +
                 EscapeJson(action.LocomotionMode) +
-                "\"}]}]}";
+                "\",\"duration\":" +
+                FormatFloat(duration) +
+                "}]}]}";
         }
 
         private static string FormatFloat(float value)
@@ -400,8 +368,8 @@ namespace VirtualPartner.Runtime
         {
             if (fsmProfile == null)
                 return Fail("FSMProfile reference is missing.");
-            if (timelinePlayer == null)
-                return Fail("TimelinePlayer reference is missing.");
+            if (stagePlanPlayer == null)
+                return Fail("StagePlanPlayer reference is missing.");
             if (rootOrientationController == null)
                 return Fail("RootOrientationController reference is missing.");
 

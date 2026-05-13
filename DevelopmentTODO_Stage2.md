@@ -234,33 +234,37 @@
 
 **前置条件**
 
-- [ ] 阶段 2.4 已完成。
-- [ ] LLM 和本地测试均已使用 StagePlan 2.0。
-- [ ] timeline 1.0 迁出前已完成 Git 备份或 tag。
+- [x] 阶段 2.4 已完成。
+- [x] LLM 和本地测试均已使用 StagePlan 2.0。
+- [x] timeline 1.0 迁出前已完成 Git 备份或 tag。
 
 **开发任务**
 
-- [ ] 确认 timeline 1.0 相关代码、样例和 Prompt 的迁出范围。
-- [ ] 将 timeline 1.0 从主项目活跃代码和样例中迁出。
-- [ ] 确认主项目不保留双格式 Runtime。
-- [ ] 创建单独迁移说明文档，记录迁出位置和必要时迁回方法。
-- [ ] 清理因迁出产生的无效引用。
+- [x] 确认 timeline 1.0 相关代码、样例和 Prompt 的迁出范围。
+- [x] 将 timeline 1.0 从主项目活跃代码和样例中迁出。
+- [x] 确认主项目不保留双格式 Runtime。
+- [x] 创建单独迁移说明文档，记录迁出位置和必要时迁回方法。
+- [x] 清理因迁出产生的无效引用。
 
 **手动验收标准**
 
-- [ ] Git 备份或 tag 已可追溯。
-- [ ] 主项目中不再保留 timeline 1.0 活跃执行路径。
-- [ ] 主项目中不再保留 timeline 1.0 样例作为当前格式样例。
-- [ ] StagePlan 2.0 本地和 LLM 闭环仍可运行。
-- [ ] 迁移说明文档能说明必要时如何找回旧实现。
+- [x] Git 备份或 tag 已可追溯。
+- [x] 主项目中不再保留 timeline 1.0 活跃执行路径。
+- [x] 主项目中不再保留 timeline 1.0 样例作为当前格式样例。
+- [x] StagePlan 2.0 本地和 LLM 闭环仍可运行。
+- [x] 迁移说明文档能说明必要时如何找回旧实现。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 已确认迁出前存在 Git tag `stage2.4-approved`。
+- 已将 timeline 1.0 Runtime 脚本和样例迁出到 `Archive/Timeline1_0/`，归档 README 明确说明归档仅用于追溯，恢复优先使用 Git tag。
+- 已确认主项目活跃 Runtime、Prompt、Debug 文案和场景组件不再保留 timeline 1.0 正向执行路径。
+- 已确认 `SampleScene` 无 Missing Script，Unity 编译无项目 error，StagePlan Debug 已并入 RuntimeDebug 的 StagePlan 页面。
+- 用户已手动验收通过。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.6：Momotalk 授权资源准备
 

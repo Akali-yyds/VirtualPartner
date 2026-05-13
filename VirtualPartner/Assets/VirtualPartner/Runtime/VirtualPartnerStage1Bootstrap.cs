@@ -22,15 +22,14 @@ namespace VirtualPartner.Runtime
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private MovementConstraintController movementConstraintController;
-        [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
-        [SerializeField] private TimelineDebugPanel timelineDebugPanel;
         [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
         [SerializeField] private RootLocomotionDebugPanel rootLocomotionDebugPanel;
         [SerializeField] private VirtualPartnerBoneDebugPanel boneDebugPanel;
+        [SerializeField] private StagePlanDebugPanel stagePlanDebugPanel;
         [SerializeField] private LlmInteractionDebugPanel llmInteractionDebugPanel;
         [SerializeField] private VirtualPartnerRuntimeDebugPanel runtimeDebugPanel;
 
@@ -68,17 +67,6 @@ namespace VirtualPartner.Runtime
                 movementConstraintController);
             if (speechBubbleView != null)
                 speechBubbleView.Configure(characterRoot.transform);
-            timelinePlayer.Configure(
-                boneMapProfile,
-                presetAnimationProfile,
-                locomotionProfile,
-                characterRoot,
-                boneRoot,
-                avatarPoseApplier,
-                actionCoordinator,
-                rootOrientationController,
-                locomotionActionExecutor,
-                speechBubbleView);
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -90,12 +78,11 @@ namespace VirtualPartner.Runtime
                 actionCoordinator,
                 rootOrientationController,
                 locomotionActionExecutor,
-                timelinePlayer,
                 speechBubbleView,
                 autonomousBehaviorScheduler);
             autonomousBehaviorScheduler.Configure(
                 fsmProfile,
-                timelinePlayer,
+                stagePlanPlayer,
                 rootOrientationController);
             llmRelay.Configure(
                 boneMapProfile,
@@ -104,7 +91,6 @@ namespace VirtualPartner.Runtime
                 avatarPoseApplier,
                 presetAnimationProfile,
                 locomotionProfile,
-                timelinePlayer,
                 stagePlanPlayer,
                 autonomousBehaviorScheduler);
             if (llmInteractionDebugPanel != null)
@@ -113,14 +99,14 @@ namespace VirtualPartner.Runtime
             {
                 runtimeDebugPanel.Configure(
                     llmRelay,
-                    timelinePlayer,
+                    stagePlanPlayer,
                     autonomousBehaviorScheduler,
                     rootOrientationController,
                     locomotionActionExecutor,
                     movementConstraintController,
                     actionCoordinator,
+                    stagePlanDebugPanel,
                     llmInteractionDebugPanel,
-                    timelineDebugPanel,
                     autonomousBehaviorDebugPanel,
                     rootLocomotionDebugPanel,
                     boneDebugPanel);
@@ -142,7 +128,6 @@ namespace VirtualPartner.Runtime
 
             idleBaseProvider.Play();
             ApplyIdleFrame(0f);
-            timelinePlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
             stagePlanPlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
@@ -167,11 +152,9 @@ namespace VirtualPartner.Runtime
                 return;
 
             ApplyIdleFrame(Time.deltaTime);
-            var wasTimelinePlaying = timelinePlayer.IsPlaying;
             var wasStagePlanPlaying = stagePlanPlayer.IsPlaying;
-            timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             stagePlanPlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
-            if (!wasTimelinePlaying && !wasStagePlanPlaying && rootOrientationController != null)
+            if (!wasStagePlanPlaying && rootOrientationController != null)
                 rootOrientationController.ManualUpdate(Time.deltaTime);
             llmRelay.ManualUpdate(Time.deltaTime);
             autonomousBehaviorScheduler.ManualUpdate(Time.deltaTime);
@@ -186,8 +169,6 @@ namespace VirtualPartner.Runtime
                 llmRelay.StopPendingRequest();
             if (autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.StopScheduler();
-            if (timelinePlayer != null)
-                timelinePlayer.StopTimeline();
             if (stagePlanPlayer != null)
                 stagePlanPlayer.StopStagePlan();
             if (actionCoordinator != null)
@@ -235,8 +216,6 @@ namespace VirtualPartner.Runtime
                 return Fail("RootOrientationController reference is missing.");
             if (locomotionActionExecutor == null)
                 return Fail("LocomotionActionExecutor reference is missing.");
-            if (timelinePlayer == null)
-                return Fail("TimelinePlayer reference is missing.");
             if (stagePlanPlayer == null)
                 return Fail("StagePlanPlayer reference is missing.");
             if (speechBubbleView == null)
@@ -245,8 +224,6 @@ namespace VirtualPartner.Runtime
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)
                 return Fail("LlmRelay reference is missing.");
-            if (timelineDebugPanel == null)
-                return Fail("TimelineDebugPanel reference is missing.");
             if (autonomousBehaviorDebugPanel == null)
                 return Fail("AutonomousBehaviorDebugPanel reference is missing.");
             if (rootLocomotionDebugPanel == null)

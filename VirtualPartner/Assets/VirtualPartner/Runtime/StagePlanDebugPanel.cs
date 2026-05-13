@@ -13,7 +13,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TextAsset fullSample;
 
         [Header("Display")]
-        [SerializeField] private bool standaloneVisible = true;
+        [SerializeField] private bool standaloneVisible;
         [SerializeField] private bool minimized;
         [SerializeField, TextArea(8, 16)] private string stagePlanJson;
         [SerializeField] private Rect windowRect = new Rect(820f, 20f, 480f, 620f);
@@ -65,11 +65,16 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
+            DrawEmbedded();
+            GUI.DragWindow();
+        }
+
+        public void DrawEmbedded()
+        {
             DrawStatus();
             DrawControls();
             DrawJsonEditor();
             DrawValidationResult();
-            GUI.DragWindow();
         }
 
         private void DrawCompactStatus()

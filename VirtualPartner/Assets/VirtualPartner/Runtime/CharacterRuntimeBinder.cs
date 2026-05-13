@@ -10,7 +10,6 @@ namespace VirtualPartner.Runtime
         [SerializeField] private GameObject runtimeRoot;
 
         [Header("Runtime Components")]
-        [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
@@ -45,7 +44,6 @@ namespace VirtualPartner.Runtime
             var context = new CharacterRuntimeContext(
                 characterProfile,
                 runtimeRoot,
-                timelinePlayer,
                 stagePlanPlayer,
                 actionCoordinator,
                 avatarPoseApplier,
@@ -86,8 +84,6 @@ namespace VirtualPartner.Runtime
                 return false;
             if (runtimeRoot == null)
                 return Fail("Runtime root reference is missing.", out failureReason);
-            if (timelinePlayer == null)
-                return Fail("TimelinePlayer reference is missing.", out failureReason);
             if (stagePlanPlayer == null)
                 return Fail("StagePlanPlayer reference is missing.", out failureReason);
             if (actionCoordinator == null)

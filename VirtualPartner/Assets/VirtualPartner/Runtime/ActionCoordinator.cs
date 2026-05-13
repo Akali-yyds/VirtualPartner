@@ -8,7 +8,7 @@ namespace VirtualPartner.Runtime
         Idle,
         PresetAnimation,
         Locomotion,
-        TimelineBonePose,
+        StagePlanBonePose,
         Debug
     }
 
@@ -48,7 +48,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Runtime Status")]
         [SerializeField] private int debugOwnedBoneCount;
-        [SerializeField] private int timelineBonePoseOwnedBoneCount;
+        [SerializeField] private int stagePlanBonePoseOwnedBoneCount;
         [SerializeField] private int locomotionOwnedBoneCount;
         [SerializeField] private int presetAnimationOwnedBoneCount;
         [SerializeField] private int activeTransitionCount;
@@ -60,7 +60,7 @@ namespace VirtualPartner.Runtime
         private readonly List<string> displacedPresetBuffer = new List<string>();
 
         public int DebugOwnedBoneCount => debugOwnedBoneCount;
-        public int TimelineBonePoseOwnedBoneCount => timelineBonePoseOwnedBoneCount;
+        public int StagePlanBonePoseOwnedBoneCount => stagePlanBonePoseOwnedBoneCount;
         public int LocomotionOwnedBoneCount => locomotionOwnedBoneCount;
         public int PresetAnimationOwnedBoneCount => presetAnimationOwnedBoneCount;
         public int ActiveTransitionCount => activeTransitionCount;
@@ -145,18 +145,18 @@ namespace VirtualPartner.Runtime
             RefreshStatus();
         }
 
-        public bool RequestTimelineBonePose(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
+        public bool RequestStagePlanBonePose(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
         {
-            return RequestTimelineBonePose(instance, semanticRotation, handoffDuration, out failureReason);
+            return RequestStagePlanBonePose(instance, semanticRotation, handoffDuration, out failureReason);
         }
 
-        public bool RequestTimelineBonePose(BoneMapInstance instance, Vector3 semanticRotation, float transitionDuration, out string failureReason)
+        public bool RequestStagePlanBonePose(BoneMapInstance instance, Vector3 semanticRotation, float transitionDuration, out string failureReason)
         {
             failureReason = string.Empty;
 
             if (!HasResolvedTransforms(instance))
             {
-                failureReason = "Timeline bone instance is missing.";
+                failureReason = "StagePlan bone instance is missing.";
                 return false;
             }
 
@@ -179,7 +179,7 @@ namespace VirtualPartner.Runtime
 
             var clampedRotation = instance.Entry.ClampRotation(semanticRotation);
             var mirrorSign = instance.Entry.GetMirrorSign(instance.Side);
-            var timelineBonePoseTargets = new Quaternion[instance.Transforms.Count];
+            var stagePlanBonePoseTargets = new Quaternion[instance.Transforms.Count];
 
             for (var i = 0; i < instance.Transforms.Count; i++)
             {
@@ -187,9 +187,9 @@ namespace VirtualPartner.Runtime
                         instance.Transforms[i],
                         clampedRotation,
                         mirrorSign,
-                        out timelineBonePoseTargets[i]))
+                        out stagePlanBonePoseTargets[i]))
                 {
-                    failureReason = $"Could not build timeline pose for {GetInstanceDisplayName(instance, i)}.";
+                    failureReason = $"Could not build StagePlan pose for {GetInstanceDisplayName(instance, i)}.";
                     return false;
                 }
             }
@@ -197,16 +197,16 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < instance.Transforms.Count; i++)
             {
                 var state = GetOrCreateState(instance.Transforms[i], GetInstanceDisplayName(instance, i));
-                state.TimelineBonePoseTarget = timelineBonePoseTargets[i];
+                state.StagePlanBonePoseTarget = stagePlanBonePoseTargets[i];
 
-                if (state.Owner != BoneOwner.TimelineBonePose)
+                if (state.Owner != BoneOwner.StagePlanBonePose)
                 {
-                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state), transitionDuration);
-                    UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> TimelineBonePose.", this);
+                    StartTransition(state, BoneOwner.StagePlanBonePose, GetCurrentOwnedPose(state), transitionDuration);
+                    UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> StagePlanBonePose.", this);
                 }
                 else
                 {
-                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state), transitionDuration);
+                    StartTransition(state, BoneOwner.StagePlanBonePose, GetCurrentOwnedPose(state), transitionDuration);
                 }
             }
 
@@ -214,38 +214,33 @@ namespace VirtualPartner.Runtime
             return true;
         }
 
-        public bool RequestTimeline(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
-        {
-            return RequestTimelineBonePose(instance, semanticRotation, out failureReason);
-        }
-
-        public void ReleaseTimeline(BoneMapInstance instance)
+        public void ReleaseStagePlanBonePose(BoneMapInstance instance)
         {
             if (instance == null)
                 return;
 
             for (var i = 0; i < instance.Transforms.Count; i++)
-                ReleaseTimeline(instance.Transforms[i]);
+                ReleaseStagePlanBonePose(instance.Transforms[i]);
         }
 
-        public void ReleaseTimeline(Transform bone)
+        public void ReleaseStagePlanBonePose(Transform bone)
         {
             if (bone == null || !states.TryGetValue(bone, out var state))
                 return;
 
-            if (state.Owner != BoneOwner.TimelineBonePose)
+            if (state.Owner != BoneOwner.StagePlanBonePose)
                 return;
 
             StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
-            UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} TimelineBonePose -> Idle.", this);
+            UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} StagePlanBonePose -> Idle.", this);
             RefreshStatus();
         }
 
-        public void ReleaseAllTimeline()
+        public void ReleaseAllStagePlanBonePoses()
         {
             foreach (var state in states.Values)
             {
-                if (state.Owner == BoneOwner.TimelineBonePose)
+                if (state.Owner == BoneOwner.StagePlanBonePose)
                     StartTransition(state, BoneOwner.Idle, GetCurrentOwnedPose(state));
             }
 
@@ -302,9 +297,9 @@ namespace VirtualPartner.Runtime
                     return false;
                 }
 
-                if (state.Owner == BoneOwner.TimelineBonePose)
+                if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
-                    failureReason = $"{state.DisplayName} is owned by TimelineBonePose.";
+                    failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
                     return false;
                 }
 
@@ -430,9 +425,9 @@ namespace VirtualPartner.Runtime
                     return false;
                 }
 
-                if (state.Owner == BoneOwner.TimelineBonePose)
+                if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
-                    failureReason = $"{state.DisplayName} is owned by TimelineBonePose.";
+                    failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
                     return false;
                 }
 
@@ -568,9 +563,9 @@ namespace VirtualPartner.Runtime
                     finalPose = state.DebugTarget;
                     shouldWrite = true;
                 }
-                else if (state.Owner == BoneOwner.TimelineBonePose)
+                else if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
-                    finalPose = state.TimelineBonePoseTarget;
+                    finalPose = state.StagePlanBonePoseTarget;
                     shouldWrite = true;
                 }
                 else if (state.Owner == BoneOwner.Locomotion)
@@ -696,8 +691,8 @@ namespace VirtualPartner.Runtime
         {
             if (state.Transition.ToOwner == BoneOwner.Debug)
                 return state.DebugTarget;
-            if (state.Transition.ToOwner == BoneOwner.TimelineBonePose)
-                return state.TimelineBonePoseTarget;
+            if (state.Transition.ToOwner == BoneOwner.StagePlanBonePose)
+                return state.StagePlanBonePoseTarget;
             if (state.Transition.ToOwner == BoneOwner.Locomotion)
                 return state.LocomotionTarget;
             if (state.Transition.ToOwner == BoneOwner.PresetAnimation)
@@ -709,7 +704,7 @@ namespace VirtualPartner.Runtime
         private void RefreshStatus()
         {
             debugOwnedBoneCount = 0;
-            timelineBonePoseOwnedBoneCount = 0;
+            stagePlanBonePoseOwnedBoneCount = 0;
             locomotionOwnedBoneCount = 0;
             presetAnimationOwnedBoneCount = 0;
             activeTransitionCount = 0;
@@ -720,8 +715,8 @@ namespace VirtualPartner.Runtime
             {
                 if (state.Owner == BoneOwner.Debug)
                     debugOwnedBoneCount++;
-                if (state.Owner == BoneOwner.TimelineBonePose)
-                    timelineBonePoseOwnedBoneCount++;
+                if (state.Owner == BoneOwner.StagePlanBonePose)
+                    stagePlanBonePoseOwnedBoneCount++;
                 if (state.Owner == BoneOwner.Locomotion)
                     locomotionOwnedBoneCount++;
                 if (state.Owner == BoneOwner.PresetAnimation)
@@ -748,7 +743,7 @@ namespace VirtualPartner.Runtime
                 DisplayName = displayName;
                 Owner = BoneOwner.Idle;
                 DebugTarget = bone.localRotation;
-                TimelineBonePoseTarget = bone.localRotation;
+                StagePlanBonePoseTarget = bone.localRotation;
                 LocomotionTarget = bone.localRotation;
                 LocomotionId = string.Empty;
                 PresetAnimationTarget = bone.localRotation;
@@ -760,7 +755,7 @@ namespace VirtualPartner.Runtime
             public string DisplayName { get; }
             public BoneOwner Owner { get; set; }
             public Quaternion DebugTarget { get; set; }
-            public Quaternion TimelineBonePoseTarget { get; set; }
+            public Quaternion StagePlanBonePoseTarget { get; set; }
             public Quaternion LocomotionTarget { get; set; }
             public string LocomotionId { get; set; }
             public Quaternion PresetAnimationTarget { get; set; }

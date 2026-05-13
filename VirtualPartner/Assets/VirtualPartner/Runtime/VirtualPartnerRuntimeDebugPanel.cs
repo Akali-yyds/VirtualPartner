@@ -9,7 +9,7 @@ namespace VirtualPartner.Runtime
         {
             Overview,
             Llm,
-            Timeline,
+            StagePlan,
             Fsm,
             Root,
             Bone
@@ -17,7 +17,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Runtime References")]
         [SerializeField] private LlmRelay llmRelay;
-        [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
@@ -25,8 +25,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private ActionCoordinator actionCoordinator;
 
         [Header("Embedded Panels")]
+        [SerializeField] private StagePlanDebugPanel stagePlanPanel;
         [SerializeField] private LlmInteractionDebugPanel llmPanel;
-        [SerializeField] private TimelineDebugPanel timelinePanel;
         [SerializeField] private AutonomousBehaviorDebugPanel fsmPanel;
         [SerializeField] private RootLocomotionDebugPanel rootPanel;
         [SerializeField] private VirtualPartnerBoneDebugPanel bonePanel;
@@ -40,29 +40,34 @@ namespace VirtualPartner.Runtime
         private Vector2 contentScroll;
         private Vector2 expandedWindowSize = new Vector2(780f, 620f);
 
+        private void Awake()
+        {
+            ResolveEmbeddedPanels();
+        }
+
         public void Configure(
             LlmRelay relay,
-            TimelinePlayer player,
+            StagePlanPlayer player,
             AutonomousBehaviorScheduler scheduler,
             RootOrientationController orientationController,
             LocomotionActionExecutor locomotionExecutor,
             MovementConstraintController constraintController,
             ActionCoordinator coordinator,
+            StagePlanDebugPanel stagePlanDebugPanel,
             LlmInteractionDebugPanel llmDebugPanel,
-            TimelineDebugPanel timelineDebugPanel,
             AutonomousBehaviorDebugPanel fsmDebugPanel,
             RootLocomotionDebugPanel rootDebugPanel,
             VirtualPartnerBoneDebugPanel boneDebugPanel)
         {
             llmRelay = relay;
-            timelinePlayer = player;
+            stagePlanPlayer = player;
             autonomousBehaviorScheduler = scheduler;
             rootOrientationController = orientationController;
             locomotionActionExecutor = locomotionExecutor;
             movementConstraintController = constraintController;
             actionCoordinator = coordinator;
+            stagePlanPanel = stagePlanDebugPanel;
             llmPanel = llmDebugPanel;
-            timelinePanel = timelineDebugPanel;
             fsmPanel = fsmDebugPanel;
             rootPanel = rootDebugPanel;
             bonePanel = boneDebugPanel;
@@ -71,6 +76,7 @@ namespace VirtualPartner.Runtime
 
         private void Start()
         {
+            ResolveEmbeddedPanels();
             ApplyLegacyPanelVisibility();
         }
 
@@ -121,7 +127,7 @@ namespace VirtualPartner.Runtime
             GUILayout.BeginVertical(GUILayout.Width(130f));
             DrawSectionButton(DebugSection.Overview, "Overview");
             DrawSectionButton(DebugSection.Llm, "LLM");
-            DrawSectionButton(DebugSection.Timeline, "Timeline");
+            DrawSectionButton(DebugSection.StagePlan, "StagePlan");
             DrawSectionButton(DebugSection.Fsm, "FSM");
             DrawSectionButton(DebugSection.Root, "Root");
             DrawSectionButton(DebugSection.Bone, "Bone");
@@ -148,8 +154,8 @@ namespace VirtualPartner.Runtime
                 case DebugSection.Llm:
                     DrawEmbeddedLlm();
                     break;
-                case DebugSection.Timeline:
-                    DrawEmbeddedTimeline();
+                case DebugSection.StagePlan:
+                    DrawEmbeddedStagePlan();
                     break;
                 case DebugSection.Fsm:
                     DrawEmbeddedFsm();
@@ -177,15 +183,15 @@ namespace VirtualPartner.Runtime
             llmPanel.DrawEmbedded();
         }
 
-        private void DrawEmbeddedTimeline()
+        private void DrawEmbeddedStagePlan()
         {
-            if (timelinePanel == null)
+            if (stagePlanPanel == null)
             {
-                GUILayout.Label("Timeline panel: Missing");
+                DrawStagePlanOverview();
                 return;
             }
 
-            timelinePanel.DrawEmbedded();
+            stagePlanPanel.DrawEmbedded();
         }
 
         private void DrawEmbeddedFsm()
@@ -223,8 +229,8 @@ namespace VirtualPartner.Runtime
 
         private void DrawCompactOverview()
         {
-            GUILayout.Label(timelinePlayer != null && timelinePlayer.IsPlaying
-                ? $"Timeline {FormatOwner(timelinePlayer.ActiveOwnerId)} {timelinePlayer.CurrentTime:0.00}s"
+            GUILayout.Label(stagePlanPlayer != null && stagePlanPlayer.IsPlaying
+                ? $"StagePlan {FormatOwner(stagePlanPlayer.ActiveOwnerId)} {stagePlanPlayer.CurrentStageStatus}"
                 : "Runtime Ready");
         }
 
@@ -233,7 +239,7 @@ namespace VirtualPartner.Runtime
             GUILayout.Label("Overview");
             DrawLlmOverview();
             GUILayout.Space(8f);
-            DrawTimelineOverview();
+            DrawStagePlanOverview();
             GUILayout.Space(8f);
             DrawFsmOverview();
             GUILayout.Space(8f);
@@ -259,20 +265,22 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Last Error: {llmRelay.LastError}");
         }
 
-        private void DrawTimelineOverview()
+        private void DrawStagePlanOverview()
         {
-            GUILayout.Label("Timeline");
-            if (timelinePlayer == null)
+            GUILayout.Label("StagePlan");
+            if (stagePlanPlayer == null)
             {
                 GUILayout.Label("Missing");
                 return;
             }
 
-            GUILayout.Label($"Status: {timelinePlayer.StatusText}  Owner: {FormatOwner(timelinePlayer.ActiveOwnerId)}");
-            GUILayout.Label($"Time: {timelinePlayer.CurrentTime:0.00}s  Segment: {timelinePlayer.CurrentSegmentStatus}");
-            GUILayout.Label($"Errors: {timelinePlayer.ErrorCount}  Warnings: {timelinePlayer.WarningCount}");
-            if (!string.IsNullOrWhiteSpace(timelinePlayer.LastMessage))
-                GUILayout.Label($"Last: {timelinePlayer.LastMessage}");
+            GUILayout.Label($"Status: {stagePlanPlayer.StatusText}  Owner: {FormatOwner(stagePlanPlayer.ActiveOwnerId)}");
+            GUILayout.Label($"Stage: {stagePlanPlayer.CurrentStageStatus}  Actions: {stagePlanPlayer.TerminalActionCount}/{stagePlanPlayer.ActiveActionCount}");
+            GUILayout.Label($"Errors: {stagePlanPlayer.ErrorCount}  Warnings: {stagePlanPlayer.WarningCount}");
+            GUILayout.Label(
+                $"Results C/F/I/S/O: {stagePlanPlayer.CompletedCount}/{stagePlanPlayer.FailedCount}/{stagePlanPlayer.InterruptedCount}/{stagePlanPlayer.SkippedCount}/{stagePlanPlayer.OwnershipDeniedCount}");
+            if (!string.IsNullOrWhiteSpace(stagePlanPlayer.LastMessage))
+                GUILayout.Label($"Last: {stagePlanPlayer.LastMessage}");
         }
 
         private void DrawFsmOverview()
@@ -323,7 +331,7 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            GUILayout.Label($"Debug: {actionCoordinator.DebugOwnedBoneCount}  Timeline: {actionCoordinator.TimelineBonePoseOwnedBoneCount}");
+            GUILayout.Label($"Debug: {actionCoordinator.DebugOwnedBoneCount}  StagePlan: {actionCoordinator.StagePlanBonePoseOwnedBoneCount}");
             GUILayout.Label($"Locomotion: {actionCoordinator.LocomotionOwnedBoneCount}  Preset: {actionCoordinator.PresetAnimationOwnedBoneCount}");
             GUILayout.Label($"Transitions: {actionCoordinator.ActiveTransitionCount}  Active: {FormatActiveBone()}");
         }
@@ -338,19 +346,35 @@ namespace VirtualPartner.Runtime
 
         private void ApplyLegacyPanelVisibility()
         {
+            ResolveEmbeddedPanels();
+
             if (!hideLegacyStandalonePanels)
                 return;
 
             if (llmPanel != null)
                 llmPanel.SetStandaloneVisible(false);
-            if (timelinePanel != null)
-                timelinePanel.SetStandaloneVisible(false);
+            if (stagePlanPanel != null)
+                stagePlanPanel.SetStandaloneVisible(false);
             if (fsmPanel != null)
                 fsmPanel.SetStandaloneVisible(false);
             if (rootPanel != null)
                 rootPanel.SetStandaloneVisible(false);
             if (bonePanel != null)
                 bonePanel.SetStandaloneVisible(false);
+        }
+
+        private void ResolveEmbeddedPanels()
+        {
+            if (stagePlanPanel == null)
+                stagePlanPanel = GetComponent<StagePlanDebugPanel>();
+            if (llmPanel == null)
+                llmPanel = GetComponent<LlmInteractionDebugPanel>();
+            if (fsmPanel == null)
+                fsmPanel = GetComponent<AutonomousBehaviorDebugPanel>();
+            if (rootPanel == null)
+                rootPanel = GetComponent<RootLocomotionDebugPanel>();
+            if (bonePanel == null)
+                bonePanel = GetComponent<VirtualPartnerBoneDebugPanel>();
         }
 
         private void ToggleMinimized()

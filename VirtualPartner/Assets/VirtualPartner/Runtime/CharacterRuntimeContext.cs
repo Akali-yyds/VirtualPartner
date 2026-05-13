@@ -7,7 +7,6 @@ namespace VirtualPartner.Runtime
         public CharacterRuntimeContext(
             CharacterProfile profile,
             GameObject runtimeRoot,
-            TimelinePlayer timelinePlayer,
             StagePlanPlayer stagePlanPlayer,
             ActionCoordinator actionCoordinator,
             AvatarPoseApplier avatarPoseApplier,
@@ -18,7 +17,6 @@ namespace VirtualPartner.Runtime
         {
             Profile = profile;
             RuntimeRoot = runtimeRoot;
-            TimelinePlayer = timelinePlayer;
             StagePlanPlayer = stagePlanPlayer;
             ActionCoordinator = actionCoordinator;
             AvatarPoseApplier = avatarPoseApplier;
@@ -31,7 +29,6 @@ namespace VirtualPartner.Runtime
         public string CharacterId => Profile != null ? Profile.CharacterId : string.Empty;
         public CharacterProfile Profile { get; }
         public GameObject RuntimeRoot { get; }
-        public TimelinePlayer TimelinePlayer { get; }
         public StagePlanPlayer StagePlanPlayer { get; }
         public ActionCoordinator ActionCoordinator { get; }
         public AvatarPoseApplier AvatarPoseApplier { get; }

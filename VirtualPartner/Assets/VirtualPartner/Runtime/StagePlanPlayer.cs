@@ -53,7 +53,6 @@ namespace VirtualPartner.Runtime
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private RootOrientationController rootOrientationController;
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
-        [SerializeField] private TimelinePlayer timelinePlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
 
@@ -129,7 +128,6 @@ namespace VirtualPartner.Runtime
             ActionCoordinator coordinator,
             RootOrientationController orientationController,
             LocomotionActionExecutor locomotionExecutor,
-            TimelinePlayer timeline,
             SpeechBubbleView speechView,
             AutonomousBehaviorScheduler scheduler)
         {
@@ -143,7 +141,6 @@ namespace VirtualPartner.Runtime
             actionCoordinator = coordinator;
             rootOrientationController = orientationController;
             locomotionActionExecutor = locomotionExecutor;
-            timelinePlayer = timeline;
             speechBubbleView = speechView;
             autonomousBehaviorScheduler = scheduler;
             initialized = ValidateReferences();
@@ -200,13 +197,15 @@ namespace VirtualPartner.Runtime
             if (!IsOwnerPlaying(ownerId))
                 return false;
 
-            StopStagePlan();
+            StopActiveStagePlan(StageActionStatus.Interrupted, "StagePlan stopped.", UsesUserInteraction(ownerId));
+            statusText = "Stopped";
+            lastMessage = "StagePlan stopped.";
             return true;
         }
 
         public void StopStagePlan()
         {
-            StopActiveStagePlan(StageActionStatus.Interrupted, "StagePlan stopped.", true);
+            StopActiveStagePlan(StageActionStatus.Interrupted, "StagePlan stopped.", UsesUserInteraction(activeOwnerId));
             statusText = "Stopped";
             lastMessage = "StagePlan stopped.";
         }
@@ -217,7 +216,7 @@ namespace VirtualPartner.Runtime
                 return;
 
             var frameDelta = Mathf.Max(0f, deltaTime);
-            if (autonomousBehaviorScheduler != null)
+            if (autonomousBehaviorScheduler != null && UsesUserInteraction(activeOwnerId))
                 autonomousBehaviorScheduler.KeepUserInteractionAlive();
 
             if (rootOrientationController != null)
@@ -241,19 +240,17 @@ namespace VirtualPartner.Runtime
             if (!result.IsValid)
                 return false;
 
+            var normalizedOwnerId = NormalizeOwnerId(ownerId);
             StopActiveStagePlan(StageActionStatus.Interrupted, "StagePlan replaced.", false);
 
-            if (timelinePlayer != null && timelinePlayer.IsPlaying)
-                timelinePlayer.StopTimeline();
-
-            if (autonomousBehaviorScheduler != null)
+            if (autonomousBehaviorScheduler != null && UsesUserInteraction(normalizedOwnerId))
                 autonomousBehaviorScheduler.EnterUserInteraction();
 
             ResetResultCounts();
             activeStages = result.Root.stages;
             currentStageIndex = -1;
             playing = true;
-            activeOwnerId = NormalizeOwnerId(ownerId);
+            activeOwnerId = normalizedOwnerId;
             statusText = "Playing";
             lastMessage = "StagePlan started.";
             StartNextStage();
@@ -420,7 +417,7 @@ namespace VirtualPartner.Runtime
                     return;
                 }
 
-                if (!actionCoordinator.RequestTimelineBonePose(
+                if (!actionCoordinator.RequestStagePlanBonePose(
                         desiredBone.Instance,
                         desiredBone.Rotation,
                         runningAction.Duration,
@@ -472,7 +469,7 @@ namespace VirtualPartner.Runtime
             }
 
             runningAction.Duration = GetDefaultedDuration(runningAction.Action.duration);
-            if (!rootOrientationController.RequestTimelineFacing(runningAction.Action.target, runningAction.Duration, out var failureReason))
+            if (!rootOrientationController.RequestStagePlanFacing(runningAction.Action.target, runningAction.Duration, out var failureReason))
             {
                 CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
                 return;
@@ -636,6 +633,7 @@ namespace VirtualPartner.Runtime
 
         private void FinishStagePlan()
         {
+            var exitInteraction = UsesUserInteraction(activeOwnerId);
             playing = false;
             activeStages = null;
             runningActions.Clear();
@@ -649,7 +647,7 @@ namespace VirtualPartner.Runtime
 
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
-            if (autonomousBehaviorScheduler != null)
+            if (autonomousBehaviorScheduler != null && exitInteraction)
                 autonomousBehaviorScheduler.ExitUserInteraction();
         }
 
@@ -669,7 +667,7 @@ namespace VirtualPartner.Runtime
             if (locomotionActionExecutor != null)
                 locomotionActionExecutor.StopLocomotion();
             if (rootOrientationController != null)
-                rootOrientationController.StopTimelineFacing();
+                rootOrientationController.StopStagePlanFacing();
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
 
@@ -698,7 +696,7 @@ namespace VirtualPartner.Runtime
                 return;
 
             for (var i = 0; i < bones.Count; i++)
-                actionCoordinator.ReleaseTimeline(bones[i]);
+                actionCoordinator.ReleaseStagePlanBonePose(bones[i]);
         }
 
         private void ReleaseActivePresetAnimations()
@@ -969,8 +967,6 @@ namespace VirtualPartner.Runtime
                 return Fail("RootOrientationController reference is missing.");
             if (locomotionActionExecutor == null)
                 return Fail("LocomotionActionExecutor reference is missing.");
-            if (timelinePlayer == null)
-                return Fail("TimelinePlayer reference is missing.");
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.");
             if (autonomousBehaviorScheduler == null)
@@ -1083,6 +1079,11 @@ namespace VirtualPartner.Runtime
                 NormalizeOwnerId(left),
                 NormalizeOwnerId(right),
                 StringComparison.Ordinal);
+        }
+
+        private static bool UsesUserInteraction(string ownerId)
+        {
+            return !SameOwner(ownerId, AutonomousBehaviorScheduler.FsmOwnerId);
         }
 
         private static bool Approximately(Vector3 left, Vector3 right)

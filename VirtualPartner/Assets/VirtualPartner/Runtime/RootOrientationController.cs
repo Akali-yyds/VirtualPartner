@@ -41,7 +41,7 @@ namespace VirtualPartner.Runtime
             RefreshYaw();
         }
 
-        public bool RequestTimelineFacing(string target, float duration, out string failureReason)
+        public bool RequestStagePlanFacing(string target, float duration, out string failureReason)
         {
             return BeginTurn(target, duration, false, out failureReason);
         }
@@ -89,7 +89,7 @@ namespace VirtualPartner.Runtime
             inUserInteraction = false;
         }
 
-        public void StopTimelineFacing()
+        public void StopStagePlanFacing()
         {
             StopCurrentTurn();
         }
@@ -103,7 +103,7 @@ namespace VirtualPartner.Runtime
             RefreshYaw();
         }
 
-        public void CompleteTimelineFacing()
+        public void CompleteStagePlanFacing()
         {
             if (turning && root != null)
                 root.rotation = turnTo;

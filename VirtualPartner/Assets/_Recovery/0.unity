@@ -820,7 +820,7 @@ MonoBehaviour:
   avatarPoseApplier: {fileID: 1195117187}
   handoffDuration: 0.25
   debugOwnedBoneCount: 0
-  timelineBonePoseOwnedBoneCount: 0
+  stagePlanBonePoseOwnedBoneCount: 0
   locomotionOwnedBoneCount: 0
   presetAnimationOwnedBoneCount: 0
   activeTransitionCount: 0
@@ -871,8 +871,6 @@ GameObject:
   - component: {fileID: 1195117186}
   - component: {fileID: 1195117184}
   - component: {fileID: 1195117183}
-  - component: {fileID: 1195117190}
-  - component: {fileID: 1195117191}
   - component: {fileID: 1195117192}
   - component: {fileID: 1195117193}
   - component: {fileID: 1195117194}
@@ -914,7 +912,6 @@ MonoBehaviour:
   rootOrientationController: {fileID: 1195117193}
   locomotionActionExecutor: {fileID: 1195117194}
   movementConstraintController: {fileID: 1195117196}
-  timelinePlayer: {fileID: 1195117190}
   speechBubbleView: {fileID: 1195117192}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   llmRelay: {fileID: 1195117200}
@@ -973,63 +970,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1195117190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195117185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb48420bed31447e9734a3d71a597b6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelinePlayer
-  boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
-  presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
-  locomotionProfile: {fileID: 11400000, guid: 890ff2ca7f984cbcb8033f4308eda132, type: 2}
-  characterRoot: {fileID: 1274239516}
-  boneRoot: {fileID: 1274239515}
-  avatarPoseApplier: {fileID: 1195117187}
-  actionCoordinator: {fileID: 1195117183}
-  rootOrientationController: {fileID: 1195117193}
-  locomotionActionExecutor: {fileID: 1195117194}
-  speechBubbleView: {fileID: 1195117192}
-  initialized: 0
-  playing: 0
-  currentTime: 0
-  activeSegmentIndex: -1
-  validationErrorCount: 0
-  validationWarningCount: 0
-  runtimeWarningCount: 0
-  activePresetAnimationCount: 0
-  locomotionActive: 0
-  currentSegmentStatus: '-'
-  statusText: Idle
-  lastMessage: 
-  activeOwnerId: 
---- !u!114 &1195117191
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195117185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5401247f74d4348ae4c3ff1c5921521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TimelineDebugPanel
-  timelinePlayer: {fileID: 1195117190}
-  sampleTimeline: {fileID: 4900000, guid: d2a4544f06a04da8ba083e756a2ff6c6, type: 3}
-  minimized: 0
-  timelineJson: 
-  windowRect:
-    serializedVersion: 2
-    x: 400
-    y: 20
-    width: 440
-    height: 560
 --- !u!114 &1195117192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1175,7 +1115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.AutonomousBehaviorScheduler
   fsmProfile: {fileID: 11400000, guid: f8e651c8bb9f4e50a3a9c190b64f1529, type: 2}
-  timelinePlayer: {fileID: 1195117190}
+  stagePlanPlayer: {fileID: 0}
   rootOrientationController: {fileID: 1195117193}
   userInteractionTimeout: 10
   initialized: 0
@@ -1222,7 +1162,6 @@ MonoBehaviour:
   boneMapProfile: {fileID: 11400000, guid: f52d13c4a2f94913a3dfb37cf1385baf, type: 2}
   presetAnimationProfile: {fileID: 11400000, guid: 2f71b4bc83e843c499dc585877e588cc, type: 2}
   locomotionProfile: {fileID: 11400000, guid: 890ff2ca7f984cbcb8033f4308eda132, type: 2}
-  timelinePlayer: {fileID: 1195117190}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   initialized: 0
   configLoaded: 0
@@ -1234,7 +1173,6 @@ MonoBehaviour:
   configStatus: Not loaded.
   lastError: 
   lastRawResponse: 
-  lastExtractedTimeline: 
 --- !u!1001 &1274239514
 PrefabInstance:
   m_ObjectHideFlags: 0
