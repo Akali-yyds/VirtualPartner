@@ -1,16 +1,16 @@
-# Timeline Examples
+# StagePlan Examples
 
 Greeting:
-{"schemaVersion":"1.0","timeline":[{"start":0.0,"end":1.8,"actions":[{"type":"speech","text":"你好，我在这里。"}]}]}
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"greeting","mood":"friendly"},"stages":[{"actions":[{"type":"speech","text":"Hello, I am here.","emotion":"friendly","speed":1.0},{"type":"animation","name":"Greet"}]}]}
 
 Walk toward the user:
-{"schemaVersion":"1.0","timeline":[{"start":0.0,"end":0.3,"actions":[{"type":"facing","target":"camera"}]},{"start":0.3,"end":2.0,"actions":[{"type":"locomotion","mode":"walk"},{"type":"speech","text":"我往前走两步。"}]}]}
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"walk_to_user","mood":"focused"},"stages":[{"actions":[{"type":"facing","target":"camera","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":1.4},{"type":"speech","text":"I will walk toward you.","emotion":"focused","speed":1.0}]}]}
 
 Walk one loop approximation:
-{"schemaVersion":"1.0","timeline":[{"start":0.0,"end":0.3,"actions":[{"type":"facing","target":"screenRight"}]},{"start":0.3,"end":1.1,"actions":[{"type":"locomotion","mode":"walk"},{"type":"speech","text":"我绕着走一圈。"}]},{"start":1.1,"end":1.4,"actions":[{"type":"facing","target":"screenForward"}]},{"start":1.4,"end":2.2,"actions":[{"type":"locomotion","mode":"walk"}]},{"start":2.2,"end":2.5,"actions":[{"type":"facing","target":"screenLeft"}]},{"start":2.5,"end":3.3,"actions":[{"type":"locomotion","mode":"walk"}]},{"start":3.3,"end":3.6,"actions":[{"type":"facing","target":"screenBackward"}]},{"start":3.6,"end":4.4,"actions":[{"type":"locomotion","mode":"walk"}]}]}
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"walk_loop","mood":"active"},"stages":[{"actions":[{"type":"facing","target":"screenRight","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8},{"type":"speech","text":"I will make a small loop.","emotion":"active","speed":1.0}]},{"actions":[{"type":"facing","target":"screenForward","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]},{"actions":[{"type":"facing","target":"screenLeft","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]},{"actions":[{"type":"facing","target":"screenBackward","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]}]}
 
 Look left:
-{"schemaVersion":"1.0","timeline":[{"start":0.0,"end":0.3,"actions":[{"type":"facing","target":"screenLeft"}]},{"start":0.3,"end":1.2,"actions":[{"type":"speech","text":"我看向左边。"}]}]}
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"look_left","mood":"attentive"},"stages":[{"actions":[{"type":"facing","target":"screenLeft","duration":0.3}]},{"actions":[{"type":"speech","text":"I am looking left.","emotion":"attentive","speed":1.0}]}]}
 
 Preset action:
-{"schemaVersion":"1.0","timeline":[{"start":0.0,"end":1.7,"actions":[{"type":"speech","text":"剪刀手。"},{"type":"animation","name":"ScissorsHandSingle"}]}]}
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"peace_sign","mood":"playful"},"stages":[{"actions":[{"type":"speech","text":"Peace sign.","emotion":"playful","speed":1.0},{"type":"animation","name":"ScissorsHandSingle"}]}]}

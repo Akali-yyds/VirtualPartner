@@ -254,7 +254,7 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Status: {llmRelay.StatusText}");
             GUILayout.Label($"Config: {llmRelay.ConfigStatus}");
             GUILayout.Label($"Request: latest {llmRelay.LatestRequestId}  pending {(llmRelay.RequestPending ? llmRelay.PendingRequestId.ToString() : "-")}");
-            GUILayout.Label($"LLM Timeline: {(llmRelay.IsLlmTimelinePlaying ? "Playing" : "No")}  Timeout: {llmRelay.InteractionTimeoutSeconds:0.#}s");
+            GUILayout.Label($"LLM StagePlan: {(llmRelay.IsLlmStagePlanPlaying ? "Playing" : "No")}  Timeout: {llmRelay.InteractionTimeoutSeconds:0.#}s");
             if (!string.IsNullOrWhiteSpace(llmRelay.LastError))
                 GUILayout.Label($"Last Error: {llmRelay.LastError}");
         }

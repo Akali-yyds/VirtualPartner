@@ -193,34 +193,38 @@
 
 **前置条件**
 
-- [ ] 阶段 2.3 已完成。
-- [ ] 本地 StagePlan 2.0 执行闭环稳定。
-- [ ] 已确认本阶段不再扩展新的二阶段表现功能。
+- [x] 阶段 2.3 已完成。
+- [x] 本地 StagePlan 2.0 执行闭环稳定。
+- [x] 已确认本阶段不再扩展新的二阶段表现功能。
 
 **开发任务**
 
-- [ ] 将 LLM 输出要求改为 StagePlan 2.0 JSON。
-- [ ] 将 Prompt 模块迁移到 StagePlan 2.0 规则。
-- [ ] 注入当前角色可用能力时，保持白名单和结构化输出原则。
-- [ ] LLM 返回后先校验 StagePlan，再播放。
-- [ ] 保留 latest-wins 行为。
-- [ ] 确认 LLM 不输出 timeline 1.0 格式。
+- [x] 将 LLM 输出要求改为 StagePlan 2.0 JSON。
+- [x] 将 Prompt 模块迁移到 StagePlan 2.0 规则。
+- [x] 注入当前角色可用能力时，保持白名单和结构化输出原则。
+- [x] LLM 返回后先校验 StagePlan，再播放。
+- [x] 保留 latest-wins 行为。
+- [x] 确认 LLM 不输出 timeline 1.0 格式。
 
 **手动验收标准**
 
-- [ ] 用户提交文本后，LLM 返回 StagePlan 2.0。
-- [ ] 合法 StagePlan 能驱动角色 speech 和动作。
-- [ ] 非法 StagePlan 能被清晰拒绝或局部 warning。
-- [ ] 连续提交消息时仍遵循 latest-wins。
-- [ ] Prompt 中不再要求 timeline 1.0。
+- [x] 用户提交文本后，LLM 返回 StagePlan 2.0。
+- [x] 合法 StagePlan 能驱动角色 speech 和动作。
+- [x] 非法 StagePlan 能被清晰拒绝或局部 warning。
+- [x] 连续提交消息时仍遵循 latest-wins。
+- [x] Prompt 中不再要求 timeline 1.0。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 用户已确认 Stage 2.4 手动验收通过。
+- 已确认 `LlmRelay` 从 timeline 1.0 输出链路迁移到 StagePlan 2.0 输出、提取、校验和播放链路。
+- 已确认 Prompt 文件保留原 Unity 引用文件名，但内容已迁移为 StagePlan 2.0 规则，并明确禁止 `timeline`、`start`、`end`、`stageId`。
+- 已确认 2.4 的目标角色由 `LlmRelay` 当前绑定的 `CharacterProfile` 决定，StagePlan JSON 不使用 `characterId` 分发。
+- 已确认 latest-wins 行为：新请求刷新 requestId，旧 response 忽略，新合法 response 才 Replace 当前 LLM StagePlan，新非法 response 不中断当前播放。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.5：timeline 1.0 完整迁出
 

@@ -99,11 +99,13 @@ namespace VirtualPartner.Runtime
                 rootOrientationController);
             llmRelay.Configure(
                 boneMapProfile,
+                characterProfile,
                 boneRoot,
                 avatarPoseApplier,
                 presetAnimationProfile,
                 locomotionProfile,
                 timelinePlayer,
+                stagePlanPlayer,
                 autonomousBehaviorScheduler);
             if (llmInteractionDebugPanel != null)
                 llmInteractionDebugPanel.Configure(llmRelay);

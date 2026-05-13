@@ -3,8 +3,7 @@
   "type": "stagePlan",
   "metadata": {
     "intent": "full_validation",
-    "mood": "thinking",
-    "characterId": "toki"
+    "mood": "thinking"
   },
   "stages": [
     {

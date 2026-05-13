@@ -78,6 +78,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string currentStageStatus = "-";
         [SerializeField] private string statusText = "Idle";
         [SerializeField] private string lastMessage;
+        [SerializeField] private string activeOwnerId;
 
         private enum StageActionKind
         {
@@ -114,6 +115,7 @@ namespace VirtualPartner.Runtime
         public string CurrentStageStatus => currentStageStatus;
         public string StatusText => statusText;
         public string LastMessage => lastMessage;
+        public string ActiveOwnerId => activeOwnerId;
         public float DebugSpeechDurationSeconds => Mathf.Max(0.01f, debugSpeechDurationSeconds);
 
         public void Configure(
@@ -170,12 +172,36 @@ namespace VirtualPartner.Runtime
 
         public bool PlayJson(string json)
         {
-            return StartStagePlan(json);
+            return StartStagePlan(json, string.Empty);
         }
 
         public bool ReplaceJson(string json)
         {
-            return StartStagePlan(json);
+            return StartStagePlan(json, string.Empty);
+        }
+
+        public bool PlayJsonForOwner(string json, string ownerId)
+        {
+            return StartStagePlan(json, ownerId);
+        }
+
+        public bool ReplaceJsonForOwner(string json, string ownerId)
+        {
+            return StartStagePlan(json, ownerId);
+        }
+
+        public bool IsOwnerPlaying(string ownerId)
+        {
+            return playing && SameOwner(activeOwnerId, ownerId);
+        }
+
+        public bool StopStagePlanForOwner(string ownerId)
+        {
+            if (!IsOwnerPlaying(ownerId))
+                return false;
+
+            StopStagePlan();
+            return true;
         }
 
         public void StopStagePlan()
@@ -203,7 +229,7 @@ namespace VirtualPartner.Runtime
                 CompleteCurrentStage();
         }
 
-        private bool StartStagePlan(string json)
+        private bool StartStagePlan(string json, string ownerId)
         {
             if (!initialized && !ValidateReferences())
                 return false;
@@ -227,6 +253,7 @@ namespace VirtualPartner.Runtime
             activeStages = result.Root.stages;
             currentStageIndex = -1;
             playing = true;
+            activeOwnerId = NormalizeOwnerId(ownerId);
             statusText = "Playing";
             lastMessage = "StagePlan started.";
             StartNextStage();
@@ -616,6 +643,7 @@ namespace VirtualPartner.Runtime
             activeActionCount = 0;
             terminalActionCount = 0;
             currentStageStatus = "-";
+            activeOwnerId = string.Empty;
             statusText = "Finished";
             lastMessage = "StagePlan finished.";
 
@@ -652,6 +680,7 @@ namespace VirtualPartner.Runtime
             activeActionCount = 0;
             terminalActionCount = 0;
             currentStageStatus = "-";
+            activeOwnerId = string.Empty;
 
             if (exitInteraction && autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.ExitUserInteraction();
@@ -1039,6 +1068,21 @@ namespace VirtualPartner.Runtime
             return string.IsNullOrWhiteSpace(actionType)
                 ? string.Empty
                 : actionType.Trim().ToLowerInvariant();
+        }
+
+        private static string NormalizeOwnerId(string ownerId)
+        {
+            return string.IsNullOrWhiteSpace(ownerId)
+                ? string.Empty
+                : ownerId.Trim();
+        }
+
+        private static bool SameOwner(string left, string right)
+        {
+            return string.Equals(
+                NormalizeOwnerId(left),
+                NormalizeOwnerId(right),
+                StringComparison.Ordinal);
         }
 
         private static bool Approximately(Vector3 left, Vector3 right)

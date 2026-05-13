@@ -18,7 +18,6 @@ namespace VirtualPartner.Runtime
     {
         public string intent;
         public string mood;
-        public string characterId;
     }
 
     [Serializable]

@@ -94,7 +94,7 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Status: {llmRelay.StatusText}");
             GUILayout.Label($"Config: {llmRelay.ConfigStatus}");
             GUILayout.Label($"Request: latest {llmRelay.LatestRequestId}  pending {(llmRelay.RequestPending ? llmRelay.PendingRequestId.ToString() : "-")}");
-            GUILayout.Label($"Interaction timeout: {llmRelay.InteractionTimeoutSeconds:0.#}s  LLM timeline: {(llmRelay.IsLlmTimelinePlaying ? "Playing" : "No")}");
+            GUILayout.Label($"Interaction timeout: {llmRelay.InteractionTimeoutSeconds:0.#}s  LLM StagePlan: {(llmRelay.IsLlmStagePlanPlaying ? "Playing" : "No")}");
 
             if (!string.IsNullOrWhiteSpace(llmRelay.LastError))
                 GUILayout.Label($"Last Error: {llmRelay.LastError}");
@@ -114,8 +114,8 @@ namespace VirtualPartner.Runtime
             GUI.enabled = llmRelay != null;
             if (GUILayout.Button("Reload Config"))
                 llmRelay.ReloadConfig();
-            if (GUILayout.Button("Stop LLM Timeline"))
-                llmRelay.StopLlmTimeline();
+            if (GUILayout.Button("Stop LLM StagePlan"))
+                llmRelay.StopLlmStagePlan();
             GUI.enabled = true;
             GUILayout.EndHorizontal();
 
@@ -141,9 +141,9 @@ namespace VirtualPartner.Runtime
             GUILayout.TextArea(llmRelay.LastRawResponse);
             GUILayout.EndScrollView();
 
-            GUILayout.Label("Last Extracted Timeline");
+            GUILayout.Label("Last Extracted StagePlan");
             timelineScroll = GUILayout.BeginScrollView(timelineScroll, GUILayout.Height(120f));
-            GUILayout.TextArea(llmRelay.LastExtractedTimeline);
+            GUILayout.TextArea(llmRelay.LastExtractedStagePlan);
             GUILayout.EndScrollView();
         }
 

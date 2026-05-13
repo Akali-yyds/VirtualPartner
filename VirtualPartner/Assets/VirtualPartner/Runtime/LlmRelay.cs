@@ -31,11 +31,13 @@ namespace VirtualPartner.Runtime
 
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
+        [SerializeField] private CharacterProfile characterProfile;
         [SerializeField] private Transform boneRoot;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
 
         [Header("Prompt TextAssets")]
@@ -59,7 +61,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string lastError;
         [SerializeField] private string lastPromptStatus;
         [SerializeField, TextArea(4, 10)] private string lastRawResponse;
-        [SerializeField, TextArea(4, 10)] private string lastExtractedTimeline;
+        [SerializeField, TextArea(4, 10)] private string lastExtractedStagePlan;
 
         private LlmRelayConfig config = new LlmRelayConfig();
         private UnityWebRequest activeRequest;
@@ -79,26 +81,32 @@ namespace VirtualPartner.Runtime
         public string LastError => lastError;
         public string LastPromptStatus => lastPromptStatus;
         public string LastRawResponse => lastRawResponse;
-        public string LastExtractedTimeline => lastExtractedTimeline;
+        public string LastExtractedStagePlan => lastExtractedStagePlan;
+        public string LastExtractedTimeline => lastExtractedStagePlan;
         public float InteractionTimeoutSeconds => config.InteractionTimeoutSeconds;
         public string ConfigPath => configPath;
-        public bool IsLlmTimelinePlaying => timelinePlayer != null && timelinePlayer.IsOwnerPlaying(LlmOwnerId);
+        public bool IsLlmStagePlanPlaying => stagePlanPlayer != null && stagePlanPlayer.IsOwnerPlaying(LlmOwnerId);
+        public bool IsLlmTimelinePlaying => IsLlmStagePlanPlaying;
 
         public void Configure(
             BoneMapProfile boneProfile,
+            CharacterProfile profile,
             Transform root,
             AvatarPoseApplier poseApplier,
             PresetAnimationProfile presetProfile,
             LocomotionProfile locomotion,
             TimelinePlayer player,
+            StagePlanPlayer stagePlayer,
             AutonomousBehaviorScheduler scheduler)
         {
             boneMapProfile = boneProfile;
+            characterProfile = profile;
             boneRoot = root;
             avatarPoseApplier = poseApplier;
             presetAnimationProfile = presetProfile;
             locomotionProfile = locomotion;
             timelinePlayer = player;
+            stagePlanPlayer = stagePlayer;
             autonomousBehaviorScheduler = scheduler;
             configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
             initialized = ValidateReferences();
@@ -172,40 +180,40 @@ namespace VirtualPartner.Runtime
             requestPending = true;
             statusText = $"Request {latestRequestId} pending.";
             lastRawResponse = string.Empty;
-            lastExtractedTimeline = string.Empty;
-
-            if (activeCoroutine != null)
-                StopCoroutine(activeCoroutine);
-            if (activeRequest != null)
-                activeRequest.Abort();
+            lastExtractedStagePlan = string.Empty;
 
             activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim()));
             return true;
         }
 
-        public bool StopLlmTimeline()
+        public bool StopLlmStagePlan()
         {
-            if (timelinePlayer == null)
+            if (stagePlanPlayer == null)
             {
-                lastError = "TimelinePlayer reference is missing.";
+                lastError = "StagePlanPlayer reference is missing.";
                 return false;
             }
 
-            if (timelinePlayer.StopTimelineForOwner(LlmOwnerId))
+            if (stagePlanPlayer.StopStagePlanForOwner(LlmOwnerId))
             {
                 if (autonomousBehaviorScheduler != null)
                     autonomousBehaviorScheduler.EnterUserInteraction();
 
-                statusText = "LLM timeline stopped.";
+                statusText = "LLM StagePlan stopped.";
                 lastError = string.Empty;
                 return true;
             }
 
-            statusText = timelinePlayer.IsPlaying
-                ? $"Current timeline owner is '{FormatOwner(timelinePlayer.ActiveOwnerId)}', not '{LlmOwnerId}'."
-                : "No LLM timeline is playing.";
+            statusText = stagePlanPlayer.IsPlaying
+                ? $"Current StagePlan owner is '{FormatOwner(stagePlanPlayer.ActiveOwnerId)}', not '{LlmOwnerId}'."
+                : "No LLM StagePlan is playing.";
             lastError = statusText;
             return false;
+        }
+
+        public bool StopLlmTimeline()
+        {
+            return StopLlmStagePlan();
         }
 
         public void ManualUpdate(float deltaTime)
@@ -213,7 +221,7 @@ namespace VirtualPartner.Runtime
             if (autonomousBehaviorScheduler == null)
                 return;
 
-            if (requestPending || IsLlmTimelinePlaying)
+            if (requestPending || IsLlmStagePlanPlaying)
                 autonomousBehaviorScheduler.KeepUserInteractionAlive();
         }
 
@@ -308,24 +316,31 @@ namespace VirtualPartner.Runtime
                     yield break;
                 }
 
-                if (!TryExtractTimelineJson(content, out var timelineJson, out var timelineFailure))
+                if (!TryExtractStagePlanJson(content, out var stagePlanJson, out var stagePlanFailure))
                 {
-                    RecordError(timelineFailure);
+                    RecordError(stagePlanFailure);
                     yield break;
                 }
 
-                lastExtractedTimeline = timelineJson;
+                lastExtractedStagePlan = stagePlanJson;
+
+                var validationResult = StagePlanValidator.Validate(stagePlanJson, characterProfile);
+                if (!validationResult.IsValid)
+                {
+                    RecordError(FormatStagePlanValidationFailure(validationResult));
+                    yield break;
+                }
 
                 if (timelinePlayer != null && timelinePlayer.IsOwnerPlaying(AutonomousBehaviorScheduler.FsmOwnerId))
                     timelinePlayer.StopTimelineForOwner(AutonomousBehaviorScheduler.FsmOwnerId);
 
-                if (timelinePlayer == null || !timelinePlayer.ReplaceJsonForOwner(timelineJson, LlmOwnerId))
+                if (stagePlanPlayer == null || !stagePlanPlayer.ReplaceJsonForOwner(stagePlanJson, LlmOwnerId))
                 {
-                    RecordError(timelinePlayer != null ? timelinePlayer.LastMessage : "TimelinePlayer reference is missing.");
+                    RecordError(stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.");
                     yield break;
                 }
 
-                statusText = $"Request {requestId} timeline playing.";
+                statusText = $"Request {requestId} StagePlan playing.";
                 lastError = string.Empty;
             }
         }
@@ -361,14 +376,15 @@ namespace VirtualPartner.Runtime
 
         private string BuildSystemPrompt()
         {
-            return "You control Toki in Unity. Return only one valid JSON timeline object. Do not use Markdown, comments, or explanation.";
+            return $"You control {GetTargetCharacterName()} in Unity. Return only one valid JSON StagePlan 2.0 object. Do not use Markdown, comments, or explanation.";
         }
 
         private string BuildDeveloperPrompt()
         {
             var builder = new StringBuilder(12288);
+            AppendTargetCharacterSection(builder);
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
-            AppendPromptSection(builder, "Timeline Rules", LoadPromptText(timelineRulesPrompt, TimelineRulesPromptFileName), true);
+            AppendPromptSection(builder, "StagePlan Rules", LoadPromptText(timelineRulesPrompt, TimelineRulesPromptFileName), true);
             AppendPromptSection(builder, "Parameter Bone Rules", LoadPromptText(parameterBonesPrompt, ParameterBonesPromptFileName), true);
             AppendPromptSection(builder, "Verified Bone Pose Examples", LoadPromptText(bonePoseExamplesPrompt, BonePoseExamplesPromptFileName), true);
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
@@ -376,6 +392,22 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
             AppendRuntimeCapabilities(builder);
             return builder.ToString();
+        }
+
+        private void AppendTargetCharacterSection(StringBuilder builder)
+        {
+            builder.AppendLine();
+            builder.AppendLine("## Target Character");
+            if (characterProfile == null)
+            {
+                builder.AppendLine("The current target character is not configured.");
+                return;
+            }
+
+            builder.Append("Current target: ")
+                .Append(GetTargetCharacterName())
+                .AppendLine(".");
+            builder.AppendLine("Use this target for tone and behavior context only. Do not output characterId in JSON.");
         }
 
         private static void AppendPromptSection(StringBuilder builder, string title, string promptText, bool includeWhenEmpty)
@@ -946,9 +978,9 @@ namespace VirtualPartner.Runtime
             return true;
         }
 
-        private static bool TryExtractTimelineJson(string content, out string timelineJson, out string failureReason)
+        private static bool TryExtractStagePlanJson(string content, out string stagePlanJson, out string failureReason)
         {
-            timelineJson = string.Empty;
+            stagePlanJson = string.Empty;
             failureReason = string.Empty;
 
             var trimmed = StripCodeFence(content);
@@ -960,7 +992,7 @@ namespace VirtualPartner.Runtime
 
             if (trimmed.StartsWith("{", StringComparison.Ordinal) && trimmed.EndsWith("}", StringComparison.Ordinal))
             {
-                timelineJson = trimmed;
+                stagePlanJson = trimmed;
                 return true;
             }
 
@@ -968,12 +1000,25 @@ namespace VirtualPartner.Runtime
             var end = trimmed.LastIndexOf('}');
             if (start >= 0 && end > start)
             {
-                timelineJson = trimmed.Substring(start, end - start + 1);
+                stagePlanJson = trimmed.Substring(start, end - start + 1);
                 return true;
             }
 
             failureReason = "LLM content does not contain a JSON object.";
             return false;
+        }
+
+        private static string FormatStagePlanValidationFailure(StagePlanValidationResult result)
+        {
+            if (result == null)
+                return "StagePlan validation failed.";
+
+            var builder = new StringBuilder(256);
+            builder.Append("StagePlan validation failed.");
+            for (var i = 0; i < result.Errors.Count; i++)
+                builder.Append(' ').Append(result.Errors[i]);
+
+            return builder.ToString();
         }
 
         private static string StripCodeFence(string content)
@@ -1007,6 +1052,8 @@ namespace VirtualPartner.Runtime
         {
             if (boneMapProfile == null)
                 return Fail("BoneMapProfile reference is missing.");
+            if (characterProfile == null)
+                return Fail("CharacterProfile reference is missing.");
             if (boneRoot == null)
                 return Fail("Bone root reference is missing.");
             if (avatarPoseApplier == null)
@@ -1017,6 +1064,8 @@ namespace VirtualPartner.Runtime
                 return Fail("LocomotionProfile reference is missing.");
             if (timelinePlayer == null)
                 return Fail("TimelinePlayer reference is missing.");
+            if (stagePlanPlayer == null)
+                return Fail("StagePlanPlayer reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
 
@@ -1045,6 +1094,19 @@ namespace VirtualPartner.Runtime
         private static string FormatOwner(string ownerId)
         {
             return string.IsNullOrWhiteSpace(ownerId) ? "External" : ownerId;
+        }
+
+        private string GetTargetCharacterName()
+        {
+            if (characterProfile == null)
+                return "the current character";
+
+            if (!string.IsNullOrWhiteSpace(characterProfile.DisplayName))
+                return characterProfile.DisplayName.Trim();
+
+            return string.IsNullOrWhiteSpace(characterProfile.CharacterId)
+                ? "the current character"
+                : characterProfile.CharacterId.Trim();
         }
 
         private static string LoadPromptText(TextAsset promptAsset, string fileName)
