@@ -11,6 +11,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Runtime Components")]
         [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private ActionCoordinator actionCoordinator;
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
         [SerializeField] private RootOrientationController rootOrientationController;
@@ -45,6 +46,7 @@ namespace VirtualPartner.Runtime
                 characterProfile,
                 runtimeRoot,
                 timelinePlayer,
+                stagePlanPlayer,
                 actionCoordinator,
                 avatarPoseApplier,
                 rootOrientationController,
@@ -86,6 +88,8 @@ namespace VirtualPartner.Runtime
                 return Fail("Runtime root reference is missing.", out failureReason);
             if (timelinePlayer == null)
                 return Fail("TimelinePlayer reference is missing.", out failureReason);
+            if (stagePlanPlayer == null)
+                return Fail("StagePlanPlayer reference is missing.", out failureReason);
             if (actionCoordinator == null)
                 return Fail("ActionCoordinator reference is missing.", out failureReason);
             if (avatarPoseApplier == null)

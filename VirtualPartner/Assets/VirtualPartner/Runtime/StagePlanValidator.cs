@@ -64,6 +64,13 @@ namespace VirtualPartner.Runtime
             else if (root.type != SupportedType)
                 errors.Add($"type must be {SupportedType}.");
 
+            if (root.metadata != null
+                && !string.IsNullOrWhiteSpace(root.metadata.characterId)
+                && !SameName(root.metadata.characterId, characterProfile.CharacterId))
+            {
+                errors.Add($"metadata.characterId must match current characterId '{characterProfile.CharacterId}'.");
+            }
+
             if (root.stages == null || root.stages.Length == 0)
             {
                 errors.Add("stages must contain at least one stage.");

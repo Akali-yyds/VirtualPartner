@@ -147,6 +147,11 @@ namespace VirtualPartner.Runtime
 
         public bool RequestTimelineBonePose(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
         {
+            return RequestTimelineBonePose(instance, semanticRotation, handoffDuration, out failureReason);
+        }
+
+        public bool RequestTimelineBonePose(BoneMapInstance instance, Vector3 semanticRotation, float transitionDuration, out string failureReason)
+        {
             failureReason = string.Empty;
 
             if (!HasResolvedTransforms(instance))
@@ -196,12 +201,12 @@ namespace VirtualPartner.Runtime
 
                 if (state.Owner != BoneOwner.TimelineBonePose)
                 {
-                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state));
+                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state), transitionDuration);
                     UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> TimelineBonePose.", this);
                 }
                 else
                 {
-                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state));
+                    StartTransition(state, BoneOwner.TimelineBonePose, GetCurrentOwnedPose(state), transitionDuration);
                 }
             }
 
@@ -669,9 +674,14 @@ namespace VirtualPartner.Runtime
 
         private void StartTransition(BoneControlState state, BoneOwner toOwner, Quaternion fromPose)
         {
+            StartTransition(state, toOwner, fromPose, handoffDuration);
+        }
+
+        private void StartTransition(BoneControlState state, BoneOwner toOwner, Quaternion fromPose, float duration)
+        {
             var fromOwner = state.Owner;
             state.Owner = toOwner;
-            state.Transition = new BoneHandoffTransition(fromOwner, toOwner, fromPose, handoffDuration);
+            state.Transition = new BoneHandoffTransition(fromOwner, toOwner, fromPose, duration);
         }
 
         private Quaternion GetCurrentOwnedPose(BoneControlState state)

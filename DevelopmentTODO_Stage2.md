@@ -150,34 +150,40 @@
 
 **前置条件**
 
-- [ ] 阶段 2.2 已完成。
-- [ ] StagePlan 2.0 本地校验可用。
-- [ ] 第一阶段 ActionCoordinator、SpeechBubble、Root、Locomotion 等链路仍可正常工作。
+- [x] 阶段 2.2 已完成。
+- [x] StagePlan 2.0 本地校验可用。
+- [x] 第一阶段 ActionCoordinator、SpeechBubble、Root、Locomotion 等链路仍可正常工作。
 
 **开发任务**
 
-- [ ] 支持 stages 按顺序执行。
-- [ ] 支持 stage 内 action 同时开始。
-- [ ] 支持等待当前 stage 的 blocking action 完成后进入下一 stage。
-- [ ] 支持 speech、bonePose、animation、facing、locomotion 在 StagePlan 下复用现有 Runtime 链路。
-- [ ] 支持新 StagePlan 替换旧 StagePlan 的最小流程。
-- [ ] 保持 StagePlan 播放模块不直接写骨骼、不直接写 Root。
+- [x] 支持 stages 按顺序执行。
+- [x] 支持 stage 内 action 同时开始。
+- [x] 支持等待当前 stage 的 blocking action 完成后进入下一 stage。
+- [x] 支持 speech、bonePose、animation、facing、locomotion 在 StagePlan 下复用现有 Runtime 链路。
+- [x] 支持新 StagePlan 替换旧 StagePlan 的最小流程。
+- [x] 保持 StagePlan 播放模块不直接写骨骼、不直接写 Root。
 
 **手动验收标准**
 
-- [ ] 本地 StagePlan 能按 stage 顺序执行。
-- [ ] stage 内多个合法 action 能并行启动。
-- [ ] speech 不再依赖绝对 start / end 时间轴推进。
-- [ ] bonePose、animation、facing、locomotion 仍走现有协调链路。
-- [ ] 替换 StagePlan 时旧演出能按当前规则停止或交接。
+- [x] 本地 StagePlan 能按 stage 顺序执行。
+- [x] stage 内多个合法 action 能并行启动。
+- [x] speech 不再依赖绝对 start / end 时间轴推进。
+- [x] bonePose、animation、facing、locomotion 仍走现有协调链路。
+- [x] 替换 StagePlan 时旧演出能按当前规则停止或交接。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 用户已确认 Stage 2.3 手动验收通过。
+- 已新增独立 `StagePlanPlayer`，播放前复用 `StagePlanValidator.Validate(json, CharacterProfile)`。
+- 已支持按数组顺序生成 `stageIndex`，并按 stage 顺序执行 StagePlan 2.0。
+- 已支持 stage 内 action 同时启动，并以 `StageActionResult` 记录 `Completed`、`Failed`、`Interrupted`、`Skipped`、`OwnershipDenied` 等 terminal 结果。
+- 已接入 `speech`、`bonePose`、`animation`、`facing`、`locomotion` 的现有 Runtime 链路；`expression` 本阶段按计划 warning no-op 并返回 `Skipped`。
+- 已扩展独立 `StagePlanDebugPanel`，提供 `Play`、`Replace`、`Stop` 和播放结果计数。
+- 已确认 Basic 样例可在 Play Mode 中启动并完成，`toki` 注册成功，Console 无 error。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.4：LlmRelay / Prompt 迁移到 StagePlan 2.0
 

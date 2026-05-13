@@ -9,6 +9,7 @@ namespace VirtualPartner.Runtime
         [Header("References")]
         [SerializeField] private GameObject characterRoot;
         [SerializeField] private CharacterRuntimeBinder characterRuntimeBinder;
+        [SerializeField] private CharacterProfile characterProfile;
         [SerializeField] private Transform boneRoot;
         [SerializeField] private AnimationClip idleClip;
         [SerializeField] private IdleBaseProvider idleBaseProvider;
@@ -22,6 +23,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private MovementConstraintController movementConstraintController;
         [SerializeField] private TimelinePlayer timelinePlayer;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
@@ -77,6 +79,20 @@ namespace VirtualPartner.Runtime
                 rootOrientationController,
                 locomotionActionExecutor,
                 speechBubbleView);
+            stagePlanPlayer.Configure(
+                characterProfile,
+                boneMapProfile,
+                presetAnimationProfile,
+                locomotionProfile,
+                characterRoot,
+                boneRoot,
+                avatarPoseApplier,
+                actionCoordinator,
+                rootOrientationController,
+                locomotionActionExecutor,
+                timelinePlayer,
+                speechBubbleView,
+                autonomousBehaviorScheduler);
             autonomousBehaviorScheduler.Configure(
                 fsmProfile,
                 timelinePlayer,
@@ -125,6 +141,7 @@ namespace VirtualPartner.Runtime
             idleBaseProvider.Play();
             ApplyIdleFrame(0f);
             timelinePlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
+            stagePlanPlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
             actionCoordinator.FinalizeFrame(0f);
             idlePlaying = idleBaseProvider.IsPlaying;
 
@@ -149,8 +166,10 @@ namespace VirtualPartner.Runtime
 
             ApplyIdleFrame(Time.deltaTime);
             var wasTimelinePlaying = timelinePlayer.IsPlaying;
+            var wasStagePlanPlaying = stagePlanPlayer.IsPlaying;
             timelinePlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
-            if (!wasTimelinePlaying && rootOrientationController != null)
+            stagePlanPlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
+            if (!wasTimelinePlaying && !wasStagePlanPlaying && rootOrientationController != null)
                 rootOrientationController.ManualUpdate(Time.deltaTime);
             llmRelay.ManualUpdate(Time.deltaTime);
             autonomousBehaviorScheduler.ManualUpdate(Time.deltaTime);
@@ -167,6 +186,8 @@ namespace VirtualPartner.Runtime
                 autonomousBehaviorScheduler.StopScheduler();
             if (timelinePlayer != null)
                 timelinePlayer.StopTimeline();
+            if (stagePlanPlayer != null)
+                stagePlanPlayer.StopStagePlan();
             if (actionCoordinator != null)
                 actionCoordinator.ReleaseAllDebug();
             if (locomotionActionExecutor != null)
@@ -188,6 +209,8 @@ namespace VirtualPartner.Runtime
                 return Fail("Character root reference is missing.");
             if (characterRuntimeBinder == null)
                 return Fail("CharacterRuntimeBinder reference is missing.");
+            if (characterProfile == null)
+                return Fail("CharacterProfile reference is missing.");
             if (boneRoot == null)
                 return Fail("Bone root reference is missing.");
             if (idleClip == null)
@@ -212,6 +235,8 @@ namespace VirtualPartner.Runtime
                 return Fail("LocomotionActionExecutor reference is missing.");
             if (timelinePlayer == null)
                 return Fail("TimelinePlayer reference is missing.");
+            if (stagePlanPlayer == null)
+                return Fail("StagePlanPlayer reference is missing.");
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.");
             if (autonomousBehaviorScheduler == null)

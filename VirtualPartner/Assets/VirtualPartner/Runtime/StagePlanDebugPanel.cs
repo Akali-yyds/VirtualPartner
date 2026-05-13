@@ -8,6 +8,7 @@ namespace VirtualPartner.Runtime
     {
         [Header("References")]
         [SerializeField] private CharacterProfile characterProfile;
+        [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private TextAsset basicSample;
         [SerializeField] private TextAsset fullSample;
 
@@ -73,7 +74,8 @@ namespace VirtualPartner.Runtime
 
         private void DrawCompactStatus()
         {
-            GUILayout.Label(valid ? $"Valid {validStageCount}/{validActionCount}" : $"Invalid {errorCount} error(s)");
+            var playerStatus = stagePlanPlayer == null ? "No Player" : stagePlanPlayer.StatusText;
+            GUILayout.Label($"{playerStatus}  {(valid ? $"Valid {validStageCount}/{validActionCount}" : $"Invalid {errorCount} error(s)")}");
         }
 
         private void DrawStatus()
@@ -81,6 +83,17 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Profile: {(characterProfile == null ? "Missing" : characterProfile.CharacterId)}");
             GUILayout.Label($"Valid: {valid}  Errors: {errorCount}  Warnings: {warningCount}");
             GUILayout.Label($"Effective Stages: {validStageCount}  Effective Actions: {validActionCount}");
+
+            if (stagePlanPlayer == null)
+            {
+                GUILayout.Label("Player: Missing");
+                return;
+            }
+
+            GUILayout.Label($"Player: {stagePlanPlayer.StatusText}  Playing: {stagePlanPlayer.IsPlaying}  {stagePlanPlayer.CurrentStageStatus}");
+            GUILayout.Label($"Actions: {stagePlanPlayer.TerminalActionCount}/{stagePlanPlayer.ActiveActionCount} terminal");
+            GUILayout.Label(
+                $"Results C/F/I/S/O: {stagePlanPlayer.CompletedCount}/{stagePlanPlayer.FailedCount}/{stagePlanPlayer.InterruptedCount}/{stagePlanPlayer.SkippedCount}/{stagePlanPlayer.OwnershipDeniedCount}");
         }
 
         private void DrawControls()
@@ -97,6 +110,12 @@ namespace VirtualPartner.Runtime
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Validate"))
                 ValidateCurrentJson();
+            if (GUILayout.Button("Play"))
+                PlayCurrentJson(false);
+            if (GUILayout.Button("Replace"))
+                PlayCurrentJson(true);
+            if (GUILayout.Button("Stop"))
+                StopCurrentPlayback();
             if (GUILayout.Button("Clear"))
                 Clear();
             GUILayout.EndHorizontal();
@@ -129,7 +148,9 @@ namespace VirtualPartner.Runtime
 
         private void ValidateCurrentJson()
         {
-            var result = StagePlanValidator.Validate(stagePlanJson, characterProfile);
+            var result = stagePlanPlayer != null
+                ? stagePlanPlayer.ValidateStagePlanJson(stagePlanJson)
+                : StagePlanValidator.Validate(stagePlanJson, characterProfile);
             valid = result.IsValid;
             errorCount = result.ErrorCount;
             warningCount = result.WarningCount;
@@ -141,6 +162,39 @@ namespace VirtualPartner.Runtime
                 Debug.Log($"[VirtualPartner] StagePlan validation passed. stages={validStageCount}, actions={validActionCount}, warnings={warningCount}", this);
             else
                 Debug.LogWarning($"[VirtualPartner] StagePlan validation failed. errors={errorCount}, warnings={warningCount}", this);
+        }
+
+        private void PlayCurrentJson(bool replace)
+        {
+            if (stagePlanPlayer == null)
+            {
+                valid = false;
+                errorCount = 1;
+                warningCount = 0;
+                lastResult = "StagePlanPlayer reference is missing.";
+                Debug.LogWarning("[VirtualPartner] StagePlan play failed: StagePlanPlayer reference is missing.", this);
+                return;
+            }
+
+            var started = replace
+                ? stagePlanPlayer.ReplaceJson(stagePlanJson)
+                : stagePlanPlayer.PlayJson(stagePlanJson);
+
+            var result = StagePlanValidator.Validate(stagePlanJson, characterProfile);
+            valid = result.IsValid;
+            errorCount = result.ErrorCount;
+            warningCount = result.WarningCount;
+            validStageCount = result.ValidStageCount;
+            validActionCount = result.ValidActionCount;
+            lastResult = FormatResult(result) + (started ? "\nPlayback started." : "\nPlayback did not start.");
+        }
+
+        private void StopCurrentPlayback()
+        {
+            if (stagePlanPlayer == null)
+                return;
+
+            stagePlanPlayer.StopStagePlan();
         }
 
         private void Clear()

@@ -8,6 +8,7 @@ namespace VirtualPartner.Runtime
             CharacterProfile profile,
             GameObject runtimeRoot,
             TimelinePlayer timelinePlayer,
+            StagePlanPlayer stagePlanPlayer,
             ActionCoordinator actionCoordinator,
             AvatarPoseApplier avatarPoseApplier,
             RootOrientationController rootOrientationController,
@@ -18,6 +19,7 @@ namespace VirtualPartner.Runtime
             Profile = profile;
             RuntimeRoot = runtimeRoot;
             TimelinePlayer = timelinePlayer;
+            StagePlanPlayer = stagePlanPlayer;
             ActionCoordinator = actionCoordinator;
             AvatarPoseApplier = avatarPoseApplier;
             RootOrientationController = rootOrientationController;
@@ -30,6 +32,7 @@ namespace VirtualPartner.Runtime
         public CharacterProfile Profile { get; }
         public GameObject RuntimeRoot { get; }
         public TimelinePlayer TimelinePlayer { get; }
+        public StagePlanPlayer StagePlanPlayer { get; }
         public ActionCoordinator ActionCoordinator { get; }
         public AvatarPoseApplier AvatarPoseApplier { get; }
         public RootOrientationController RootOrientationController { get; }
