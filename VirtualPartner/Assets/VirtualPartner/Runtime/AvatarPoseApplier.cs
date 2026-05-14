@@ -16,6 +16,7 @@ namespace VirtualPartner.Runtime
 
         private Transform[] registeredBones;
         private Quaternion[] baseLocalRotations;
+        private Vector3[] baseLocalPositions;
 
         public bool HasBaseRotation => hasBaseRotation;
         public int RegisteredBoneCount => registeredBoneCount;
@@ -32,6 +33,7 @@ namespace VirtualPartner.Runtime
             lastSampleTime = 0f;
             registeredBones = null;
             baseLocalRotations = null;
+            baseLocalPositions = null;
         }
 
         public int CaptureBaseRotations()
@@ -45,9 +47,13 @@ namespace VirtualPartner.Runtime
 
             registeredBones = boneRoot.GetComponentsInChildren<Transform>(true);
             baseLocalRotations = new Quaternion[registeredBones.Length];
+            baseLocalPositions = new Vector3[registeredBones.Length];
 
             for (var i = 0; i < registeredBones.Length; i++)
+            {
                 baseLocalRotations[i] = registeredBones[i].localRotation;
+                baseLocalPositions[i] = registeredBones[i].localPosition;
+            }
 
             registeredBoneCount = registeredBones.Length;
             hasBaseRotation = registeredBoneCount > 0;
@@ -90,6 +96,25 @@ namespace VirtualPartner.Runtime
             return false;
         }
 
+        public bool TryGetBasePosition(Transform bone, out Vector3 basePosition)
+        {
+            basePosition = Vector3.zero;
+
+            if (!hasBaseRotation || bone == null || registeredBones == null || baseLocalPositions == null)
+                return false;
+
+            for (var i = 0; i < registeredBones.Length; i++)
+            {
+                if (registeredBones[i] != bone)
+                    continue;
+
+                basePosition = baseLocalPositions[i];
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryBuildSemanticBoneRotation(
             Transform bone,
             Vector3 semanticRotation,
@@ -116,6 +141,16 @@ namespace VirtualPartner.Runtime
                 return false;
 
             bone.localRotation = localRotation;
+            isApplying = true;
+            return true;
+        }
+
+        public bool ApplyBoneLocalPosition(Transform bone, Vector3 localPosition)
+        {
+            if (!TryGetBasePosition(bone, out _))
+                return false;
+
+            bone.localPosition = localPosition;
             isApplying = true;
             return true;
         }

@@ -9,6 +9,32 @@ using UnityEngine.Networking;
 
 namespace VirtualPartner.Runtime
 {
+    public sealed class LlmSubmitResult
+    {
+        public LlmSubmitResult(bool accepted, int requestId, string message)
+        {
+            Accepted = accepted;
+            RequestId = requestId;
+            Message = message ?? string.Empty;
+        }
+
+        public bool Accepted { get; }
+        public int RequestId { get; }
+        public string Message { get; }
+    }
+
+    public sealed class LlmRequestFailure
+    {
+        public LlmRequestFailure(int requestId, string message)
+        {
+            RequestId = requestId;
+            Message = message ?? string.Empty;
+        }
+
+        public int RequestId { get; }
+        public string Message { get; }
+    }
+
     [DisallowMultipleComponent]
     public sealed class LlmRelay : MonoBehaviour
     {
@@ -16,7 +42,7 @@ namespace VirtualPartner.Runtime
 
         private const string ConfigRelativePath = "UserSettings/VirtualPartnerLlmConfig.json";
         private const float DefaultInteractionTimeout = 10f;
-        private const int RequestTimeoutSeconds = 60;
+        private const int RequestTimeoutSeconds = 120;
         private const float AxisComponentThreshold = 0.1f;
         private const float PrimaryEffectAngle = 90f;
         private const float TwistDotThreshold = 0.98f;
@@ -84,6 +110,8 @@ namespace VirtualPartner.Runtime
         public float InteractionTimeoutSeconds => config.InteractionTimeoutSeconds;
         public string ConfigPath => configPath;
         public bool IsLlmStagePlanPlaying => stagePlanPlayer != null && stagePlanPlayer.IsOwnerPlaying(LlmOwnerId);
+
+        public event Action<LlmRequestFailure> RequestFailed;
 
         public void Configure(
             BoneMapProfile boneProfile,
@@ -153,13 +181,23 @@ namespace VirtualPartner.Runtime
 
         public bool Submit(string userText)
         {
+            return SubmitWithResult(userText).Accepted;
+        }
+
+        public LlmSubmitResult SubmitWithResult(string userText)
+        {
+            return SubmitWithResult(userText, string.Empty);
+        }
+
+        public LlmSubmitResult SubmitWithResult(string userText, string historyContext)
+        {
             lastError = string.Empty;
 
             if (!initialized && !ValidateReferences())
-                return FailSubmit("LlmRelay references are missing.");
+                return FailSubmitResult("LlmRelay references are missing.");
 
             if (string.IsNullOrWhiteSpace(userText))
-                return FailSubmit("User text is empty.");
+                return FailSubmitResult("User text is empty.");
 
             if (autonomousBehaviorScheduler != null)
             {
@@ -168,7 +206,7 @@ namespace VirtualPartner.Runtime
             }
 
             if (!configReady && !ReloadConfig())
-                return FailSubmit(configStatus);
+                return FailSubmitResult(configStatus);
 
             latestRequestId++;
             pendingRequestId = latestRequestId;
@@ -177,8 +215,8 @@ namespace VirtualPartner.Runtime
             lastRawResponse = string.Empty;
             lastExtractedStagePlan = string.Empty;
 
-            activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim()));
-            return true;
+            activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim(), historyContext));
+            return new LlmSubmitResult(true, latestRequestId, statusText);
         }
 
         public bool StopLlmStagePlan()
@@ -263,9 +301,9 @@ namespace VirtualPartner.Runtime
             return builder.ToString();
         }
 
-        private IEnumerator SendRequest(int requestId, string userText)
+        private IEnumerator SendRequest(int requestId, string userText, string historyContext)
         {
-            var requestJson = BuildRequestJson(userText);
+            var requestJson = BuildRequestJson(userText, historyContext);
             var requestBytes = Encoding.UTF8.GetBytes(requestJson);
 
             using (var request = new UnityWebRequest(config.GetChatCompletionsUrl(), "POST"))
@@ -296,19 +334,19 @@ namespace VirtualPartner.Runtime
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
-                    RecordError($"Request {requestId} failed: HTTP {request.responseCode} {request.error}");
+                    RecordError(requestId, $"Request {requestId} failed: HTTP {request.responseCode} {request.error}");
                     yield break;
                 }
 
                 if (!TryExtractAssistantContent(responseText, out var content, out var responseFailure))
                 {
-                    RecordError(responseFailure);
+                    RecordError(requestId, responseFailure);
                     yield break;
                 }
 
                 if (!TryExtractStagePlanJson(content, out var stagePlanJson, out var stagePlanFailure))
                 {
-                    RecordError(stagePlanFailure);
+                    RecordError(requestId, stagePlanFailure);
                     yield break;
                 }
 
@@ -317,13 +355,13 @@ namespace VirtualPartner.Runtime
                 var validationResult = StagePlanValidator.Validate(stagePlanJson, characterProfile);
                 if (!validationResult.IsValid)
                 {
-                    RecordError(FormatStagePlanValidationFailure(validationResult));
+                    RecordError(requestId, FormatStagePlanValidationFailure(validationResult));
                     yield break;
                 }
 
-                if (stagePlanPlayer == null || !stagePlanPlayer.ReplaceJsonForOwner(stagePlanJson, LlmOwnerId))
+                if (stagePlanPlayer == null || !stagePlanPlayer.ReplaceJsonForOwner(stagePlanJson, LlmOwnerId, requestId))
                 {
-                    RecordError(stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.");
+                    RecordError(requestId, stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.");
                     yield break;
                 }
 
@@ -334,8 +372,13 @@ namespace VirtualPartner.Runtime
 
         private string BuildRequestJson(string userText)
         {
+            return BuildRequestJson(userText, string.Empty);
+        }
+
+        private string BuildRequestJson(string userText, string historyContext)
+        {
             var systemPrompt = BuildSystemPrompt();
-            var developerPrompt = BuildDeveloperPrompt();
+            var developerPrompt = BuildDeveloperPrompt(historyContext);
             var combinedSystemPrompt = config.supportsDeveloperRole
                 ? systemPrompt
                 : systemPrompt + "\n\n" + developerPrompt;
@@ -368,6 +411,11 @@ namespace VirtualPartner.Runtime
 
         private string BuildDeveloperPrompt()
         {
+            return BuildDeveloperPrompt(string.Empty);
+        }
+
+        private string BuildDeveloperPrompt(string historyContext)
+        {
             var builder = new StringBuilder(12288);
             AppendTargetCharacterSection(builder);
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
@@ -377,6 +425,7 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
             AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
+            AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             AppendRuntimeCapabilities(builder);
             return builder.ToString();
         }
@@ -1024,15 +1073,26 @@ namespace VirtualPartner.Runtime
 
         private void RecordError(string message)
         {
+            RecordError(0, message);
+        }
+
+        private void RecordError(int requestId, string message)
+        {
             lastError = string.IsNullOrWhiteSpace(message) ? "Unknown LLM error." : message;
             statusText = "Error.";
             Debug.LogWarning($"[VirtualPartner] LlmRelay: {lastError}", this);
+            RequestFailed?.Invoke(new LlmRequestFailure(requestId, lastError));
         }
 
         private bool FailSubmit(string message)
         {
-            RecordError(message);
-            return false;
+            return FailSubmitResult(message).Accepted;
+        }
+
+        private LlmSubmitResult FailSubmitResult(string message)
+        {
+            RecordError(0, message);
+            return new LlmSubmitResult(false, 0, lastError);
         }
 
         private bool ValidateReferences()

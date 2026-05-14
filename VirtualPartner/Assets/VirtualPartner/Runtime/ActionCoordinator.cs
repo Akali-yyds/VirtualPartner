@@ -14,11 +14,17 @@ namespace VirtualPartner.Runtime
 
     public sealed class BoneHandoffTransition
     {
-        public BoneHandoffTransition(BoneOwner fromOwner, BoneOwner toOwner, Quaternion fromPose, float duration)
+        public BoneHandoffTransition(
+            BoneOwner fromOwner,
+            BoneOwner toOwner,
+            Quaternion fromPose,
+            Vector3 fromPosition,
+            float duration)
         {
             FromOwner = fromOwner;
             ToOwner = toOwner;
             FromPose = fromPose;
+            FromPosition = fromPosition;
             Duration = Mathf.Max(0.0001f, duration);
             Elapsed = 0f;
         }
@@ -26,6 +32,7 @@ namespace VirtualPartner.Runtime
         public BoneOwner FromOwner { get; }
         public BoneOwner ToOwner { get; }
         public Quaternion FromPose { get; }
+        public Vector3 FromPosition { get; }
         public float Duration { get; }
         public float Elapsed { get; private set; }
         public bool IsComplete => Elapsed >= Duration;
@@ -290,6 +297,12 @@ namespace VirtualPartner.Runtime
                     return false;
                 }
 
+                if (!avatarPoseApplier.TryGetBasePosition(pose.Bone, out _))
+                {
+                    failureReason = $"{pose.DisplayName} is outside the captured BasePosition set.";
+                    return false;
+                }
+
                 var state = GetOrCreateState(pose.Bone, pose.DisplayName);
                 if (state.Owner == BoneOwner.Debug)
                 {
@@ -333,6 +346,7 @@ namespace VirtualPartner.Runtime
                 var wasSamePreset = state.Owner == BoneOwner.PresetAnimation && state.PresetAnimationId == presetId;
 
                 state.PresetAnimationTarget = pose.LocalRotation;
+                state.PresetAnimationTargetPosition = pose.LocalPosition;
                 state.PresetAnimationId = presetId;
 
                 if (!wasSamePreset)
@@ -544,16 +558,23 @@ namespace VirtualPartner.Runtime
             {
                 var state = pair.Value;
                 var idlePoseNow = state.Bone.localRotation;
-                var shouldWrite = false;
+                var idlePositionNow = state.Bone.localPosition;
+                var shouldWriteRotation = false;
+                var shouldWritePosition = false;
                 var finalPose = idlePoseNow;
+                var finalPosition = idlePositionNow;
 
                 if (state.Transition != null)
                 {
                     state.Transition.Advance(deltaTime);
                     var smoothProgress = Mathf.SmoothStep(0f, 1f, state.Transition.Progress);
                     var targetPose = GetTargetPose(state, idlePoseNow);
+                    var targetPosition = GetTargetPosition(state, idlePositionNow);
                     finalPose = Quaternion.Slerp(state.Transition.FromPose, targetPose, smoothProgress);
-                    shouldWrite = true;
+                    finalPosition = Vector3.Lerp(state.Transition.FromPosition, targetPosition, smoothProgress);
+                    shouldWriteRotation = true;
+                    shouldWritePosition = UsesPresetAnimationPosition(state.Transition.FromOwner)
+                        || UsesPresetAnimationPosition(state.Transition.ToOwner);
 
                     if (state.Transition.IsComplete)
                         state.Transition = null;
@@ -561,29 +582,37 @@ namespace VirtualPartner.Runtime
                 else if (state.Owner == BoneOwner.Debug)
                 {
                     finalPose = state.DebugTarget;
-                    shouldWrite = true;
+                    shouldWriteRotation = true;
                 }
                 else if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
                     finalPose = state.StagePlanBonePoseTarget;
-                    shouldWrite = true;
+                    shouldWriteRotation = true;
                 }
                 else if (state.Owner == BoneOwner.Locomotion)
                 {
                     finalPose = state.LocomotionTarget;
-                    shouldWrite = true;
+                    shouldWriteRotation = true;
                 }
                 else if (state.Owner == BoneOwner.PresetAnimation)
                 {
                     finalPose = state.PresetAnimationTarget;
-                    shouldWrite = true;
+                    finalPosition = state.PresetAnimationTargetPosition;
+                    shouldWriteRotation = true;
+                    shouldWritePosition = true;
                 }
 
-                if (shouldWrite)
+                if (shouldWriteRotation)
                 {
                     avatarPoseApplier.ApplyBoneLocalRotation(state.Bone, finalPose);
                     state.LastAppliedPose = finalPose;
                     state.HasLastAppliedPose = true;
+                }
+
+                if (shouldWritePosition && avatarPoseApplier.ApplyBoneLocalPosition(state.Bone, finalPosition))
+                {
+                    state.LastAppliedPosition = finalPosition;
+                    state.HasLastAppliedPosition = true;
                 }
 
                 if (state.Owner == BoneOwner.Idle && state.Transition == null)
@@ -675,8 +704,9 @@ namespace VirtualPartner.Runtime
         private void StartTransition(BoneControlState state, BoneOwner toOwner, Quaternion fromPose, float duration)
         {
             var fromOwner = state.Owner;
+            var fromPosition = GetCurrentOwnedPosition(state);
             state.Owner = toOwner;
-            state.Transition = new BoneHandoffTransition(fromOwner, toOwner, fromPose, duration);
+            state.Transition = new BoneHandoffTransition(fromOwner, toOwner, fromPose, fromPosition, duration);
         }
 
         private Quaternion GetCurrentOwnedPose(BoneControlState state)
@@ -685,6 +715,14 @@ namespace VirtualPartner.Runtime
                 return state.LastAppliedPose;
 
             return state.Bone.localRotation;
+        }
+
+        private Vector3 GetCurrentOwnedPosition(BoneControlState state)
+        {
+            if (state.HasLastAppliedPosition && (state.Owner != BoneOwner.Idle || state.Transition != null))
+                return state.LastAppliedPosition;
+
+            return state.Bone.localPosition;
         }
 
         private static Quaternion GetTargetPose(BoneControlState state, Quaternion idlePoseNow)
@@ -699,6 +737,19 @@ namespace VirtualPartner.Runtime
                 return state.PresetAnimationTarget;
 
             return idlePoseNow;
+        }
+
+        private static Vector3 GetTargetPosition(BoneControlState state, Vector3 idlePositionNow)
+        {
+            if (state.Transition.ToOwner == BoneOwner.PresetAnimation)
+                return state.PresetAnimationTargetPosition;
+
+            return idlePositionNow;
+        }
+
+        private static bool UsesPresetAnimationPosition(BoneOwner owner)
+        {
+            return owner == BoneOwner.PresetAnimation;
         }
 
         private void RefreshStatus()
@@ -747,8 +798,10 @@ namespace VirtualPartner.Runtime
                 LocomotionTarget = bone.localRotation;
                 LocomotionId = string.Empty;
                 PresetAnimationTarget = bone.localRotation;
+                PresetAnimationTargetPosition = bone.localPosition;
                 PresetAnimationId = string.Empty;
                 LastAppliedPose = bone.localRotation;
+                LastAppliedPosition = bone.localPosition;
             }
 
             public Transform Bone { get; }
@@ -759,10 +812,13 @@ namespace VirtualPartner.Runtime
             public Quaternion LocomotionTarget { get; set; }
             public string LocomotionId { get; set; }
             public Quaternion PresetAnimationTarget { get; set; }
+            public Vector3 PresetAnimationTargetPosition { get; set; }
             public string PresetAnimationId { get; set; }
             public BoneHandoffTransition Transition { get; set; }
             public Quaternion LastAppliedPose { get; set; }
             public bool HasLastAppliedPose { get; set; }
+            public Vector3 LastAppliedPosition { get; set; }
+            public bool HasLastAppliedPosition { get; set; }
         }
     }
 }

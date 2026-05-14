@@ -37,6 +37,35 @@ namespace VirtualPartner.Runtime
         public bool IsCompleted => Status == StageActionStatus.Completed;
     }
 
+    public sealed class StagePlanSpeechEvent
+    {
+        public StagePlanSpeechEvent(
+            string ownerId,
+            string characterId,
+            int requestId,
+            string planId,
+            int stageIndex,
+            int actionIndex,
+            string text)
+        {
+            OwnerId = ownerId ?? string.Empty;
+            CharacterId = characterId ?? string.Empty;
+            RequestId = requestId;
+            PlanId = planId ?? string.Empty;
+            StageIndex = stageIndex;
+            ActionIndex = actionIndex;
+            Text = text ?? string.Empty;
+        }
+
+        public string OwnerId { get; }
+        public string CharacterId { get; }
+        public int RequestId { get; }
+        public string PlanId { get; }
+        public int StageIndex { get; }
+        public int ActionIndex { get; }
+        public string Text { get; }
+    }
+
     [DisallowMultipleComponent]
     public sealed class StagePlanPlayer : MonoBehaviour
     {
@@ -78,6 +107,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string statusText = "Idle";
         [SerializeField] private string lastMessage;
         [SerializeField] private string activeOwnerId;
+        [SerializeField] private int activeRequestId;
+        [SerializeField] private string activePlanId;
 
         private enum StageActionKind
         {
@@ -115,7 +146,11 @@ namespace VirtualPartner.Runtime
         public string StatusText => statusText;
         public string LastMessage => lastMessage;
         public string ActiveOwnerId => activeOwnerId;
+        public int ActiveRequestId => activeRequestId;
+        public int CurrentLlmStagePlanRequestId => IsOwnerPlaying(LlmRelay.LlmOwnerId) ? activeRequestId : 0;
         public float DebugSpeechDurationSeconds => Mathf.Max(0.01f, debugSpeechDurationSeconds);
+
+        public event Action<StagePlanSpeechEvent> SpeechActionStarted;
 
         public void Configure(
             CharacterProfile profile,
@@ -169,22 +204,32 @@ namespace VirtualPartner.Runtime
 
         public bool PlayJson(string json)
         {
-            return StartStagePlan(json, string.Empty);
+            return StartStagePlan(json, string.Empty, 0, string.Empty);
         }
 
         public bool ReplaceJson(string json)
         {
-            return StartStagePlan(json, string.Empty);
+            return StartStagePlan(json, string.Empty, 0, string.Empty);
         }
 
         public bool PlayJsonForOwner(string json, string ownerId)
         {
-            return StartStagePlan(json, ownerId);
+            return StartStagePlan(json, ownerId, 0, string.Empty);
         }
 
         public bool ReplaceJsonForOwner(string json, string ownerId)
         {
-            return StartStagePlan(json, ownerId);
+            return StartStagePlan(json, ownerId, 0, string.Empty);
+        }
+
+        public bool PlayJsonForOwner(string json, string ownerId, int requestId)
+        {
+            return StartStagePlan(json, ownerId, requestId, string.Empty);
+        }
+
+        public bool ReplaceJsonForOwner(string json, string ownerId, int requestId)
+        {
+            return StartStagePlan(json, ownerId, requestId, string.Empty);
         }
 
         public bool IsOwnerPlaying(string ownerId)
@@ -228,10 +273,19 @@ namespace VirtualPartner.Runtime
                 CompleteCurrentStage();
         }
 
-        private bool StartStagePlan(string json, string ownerId)
+        private bool StartStagePlan(string json, string ownerId, int requestId, string planId)
         {
             if (!initialized && !ValidateReferences())
                 return false;
+
+            var normalizedOwnerId = NormalizeOwnerId(ownerId);
+            if (SameOwner(normalizedOwnerId, LlmRelay.LlmOwnerId) && requestId <= 0)
+            {
+                lastMessage = "LLM StagePlan requestId is required.";
+                statusText = "Validation Failed";
+                Debug.LogError($"[VirtualPartner] StagePlan validation error: {lastMessage}", this);
+                return false;
+            }
 
             if (controlInstances.Count == 0)
                 boneMapProfile.BuildControlInstances(boneRoot, controlInstances);
@@ -240,7 +294,6 @@ namespace VirtualPartner.Runtime
             if (!result.IsValid)
                 return false;
 
-            var normalizedOwnerId = NormalizeOwnerId(ownerId);
             StopActiveStagePlan(StageActionStatus.Interrupted, "StagePlan replaced.", false);
 
             if (autonomousBehaviorScheduler != null && UsesUserInteraction(normalizedOwnerId))
@@ -251,6 +304,8 @@ namespace VirtualPartner.Runtime
             currentStageIndex = -1;
             playing = true;
             activeOwnerId = normalizedOwnerId;
+            activeRequestId = requestId;
+            activePlanId = planId ?? string.Empty;
             statusText = "Playing";
             lastMessage = "StagePlan started.";
             StartNextStage();
@@ -388,6 +443,14 @@ namespace VirtualPartner.Runtime
             }
 
             speechBubbleView.Show(runningAction.Action.text);
+            SpeechActionStarted?.Invoke(new StagePlanSpeechEvent(
+                activeOwnerId,
+                characterProfile != null ? characterProfile.CharacterId : string.Empty,
+                activeRequestId,
+                activePlanId,
+                runningAction.StageIndex,
+                runningAction.ActionIndex,
+                runningAction.Action.text));
             runningAction.Duration = DebugSpeechDurationSeconds;
         }
 
@@ -642,6 +705,8 @@ namespace VirtualPartner.Runtime
             terminalActionCount = 0;
             currentStageStatus = "-";
             activeOwnerId = string.Empty;
+            activeRequestId = 0;
+            activePlanId = string.Empty;
             statusText = "Finished";
             lastMessage = "StagePlan finished.";
 
@@ -679,6 +744,8 @@ namespace VirtualPartner.Runtime
             terminalActionCount = 0;
             currentStageStatus = "-";
             activeOwnerId = string.Empty;
+            activeRequestId = 0;
+            activePlanId = string.Empty;
 
             if (exitInteraction && autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.ExitUserInteraction();
@@ -888,7 +955,11 @@ namespace VirtualPartner.Runtime
                         return false;
                     }
 
-                    poses.Add(new PresetAnimationBonePose(target.Transform, target.DisplayName, target.Transform.localRotation));
+                    poses.Add(new PresetAnimationBonePose(
+                        target.Transform,
+                        target.DisplayName,
+                        target.Transform.localRotation,
+                        target.Transform.localPosition));
                 }
             }
             catch (Exception exception)

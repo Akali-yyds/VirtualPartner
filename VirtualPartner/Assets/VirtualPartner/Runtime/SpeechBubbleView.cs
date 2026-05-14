@@ -16,6 +16,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Runtime Status")]
         [SerializeField] private bool visible;
+        [SerializeField] private bool suppressed;
         [SerializeField, TextArea(2, 4)] private string currentText;
 
         private Transform anchor;
@@ -23,6 +24,7 @@ namespace VirtualPartner.Runtime
         private GUIStyle textStyle;
 
         public bool IsVisible => visible;
+        public bool Suppressed => suppressed;
         public string CurrentText => currentText;
 
         public void Configure(Transform root)
@@ -48,9 +50,14 @@ namespace VirtualPartner.Runtime
             visible = false;
         }
 
+        public void SetSuppressed(bool value)
+        {
+            suppressed = value;
+        }
+
         private void OnGUI()
         {
-            if (!Application.isPlaying || !visible || string.IsNullOrWhiteSpace(currentText))
+            if (!Application.isPlaying || suppressed || !visible || string.IsNullOrWhiteSpace(currentText))
                 return;
 
             var cameraToUse = worldCamera != null ? worldCamera : Camera.main;

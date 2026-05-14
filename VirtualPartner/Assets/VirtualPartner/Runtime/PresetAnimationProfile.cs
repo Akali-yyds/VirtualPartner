@@ -162,15 +162,17 @@ namespace VirtualPartner.Runtime
 
     public sealed class PresetAnimationBonePose
     {
-        public PresetAnimationBonePose(Transform bone, string displayName, Quaternion localRotation)
+        public PresetAnimationBonePose(Transform bone, string displayName, Quaternion localRotation, Vector3 localPosition)
         {
             Bone = bone;
             DisplayName = displayName;
             LocalRotation = localRotation;
+            LocalPosition = localPosition;
         }
 
         public Transform Bone { get; }
         public string DisplayName { get; }
         public Quaternion LocalRotation { get; }
+        public Vector3 LocalPosition { get; }
     }
 }

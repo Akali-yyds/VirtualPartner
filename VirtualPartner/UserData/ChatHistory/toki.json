@@ -1,0 +1,266 @@
+﻿{
+    "version": 1,
+    "characterId": "toki",
+    "messages": [
+        {
+            "messageId": "msg_20260514063549060",
+            "sender": "user",
+            "text": "你好",
+            "timestampUtc": "2026-05-14T06:35:49.0678852Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514063556637",
+            "sender": "character",
+            "text": "你好，我在这里。",
+            "timestampUtc": "2026-05-14T06:35:56.6371850Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514075340943",
+            "sender": "user",
+            "text": "你在干什么呢",
+            "timestampUtc": "2026-05-14T07:53:40.9507091Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514075355969",
+            "sender": "character",
+            "text": "我在这里待命，等你的指令呢。",
+            "timestampUtc": "2026-05-14T07:53:55.9691761Z",
+            "requestId": 1,
+            "stageIndex": 1,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514080453502",
+            "sender": "user",
+            "text": "举起你的左手，然后举起你的右手",
+            "timestampUtc": "2026-05-14T08:04:53.5108238Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514080542271",
+            "sender": "user",
+            "text": "告诉我今天有什么好玩的事情吗",
+            "timestampUtc": "2026-05-14T08:05:42.2712608Z",
+            "requestId": 2,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514080552079",
+            "sender": "character",
+            "text": "今天可以做点轻松好玩的事：散步、看一部喜剧、试试新游戏，或者和朋友聊聊新鲜事。",
+            "timestampUtc": "2026-05-14T08:05:52.0793790Z",
+            "requestId": 2,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514081304301",
+            "sender": "user",
+            "text": "和我打个招呼吧，然后你可以问我一个问题",
+            "timestampUtc": "2026-05-14T08:13:04.3090022Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514081309854",
+            "sender": "character",
+            "text": "你好，很高兴见到你！今天你想让我做什么呢？",
+            "timestampUtc": "2026-05-14T08:13:09.8544938Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514081916239",
+            "sender": "user",
+            "text": "你可以坐下休息一会儿吗",
+            "timestampUtc": "2026-05-14T08:19:16.2469901Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514081923795",
+            "sender": "character",
+            "text": "好的，我坐下休息一会儿。",
+            "timestampUtc": "2026-05-14T08:19:23.7959302Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514085744673",
+            "sender": "user",
+            "text": "打个招呼吧",
+            "timestampUtc": "2026-05-14T08:57:44.6806096Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514085751357",
+            "sender": "character",
+            "text": "你好，我在这里。",
+            "timestampUtc": "2026-05-14T08:57:51.3577846Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514085900465",
+            "sender": "user",
+            "text": "现在你比个心，然后往远处跑两步，然后再走回来。",
+            "timestampUtc": "2026-05-14T08:59:00.4659326Z",
+            "requestId": 2,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514085928165",
+            "sender": "character",
+            "text": "先比心，然后我跑远一点，再走回来。",
+            "timestampUtc": "2026-05-14T08:59:28.1651332Z",
+            "requestId": 2,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514090426082",
+            "sender": "user",
+            "text": "我现在需要你分别转动你左手的每一个骨骼，然后再分别转动你右手的每一根骨骼，边转动时边介绍",
+            "timestampUtc": "2026-05-14T09:04:26.0899591Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514090526091",
+            "sender": "system",
+            "text": "Request 1 failed: HTTP 0 Request timeout",
+            "timestampUtc": "2026-05-14T09:05:26.0914915Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "error"
+        },
+        {
+            "messageId": "msg_20260514091540637",
+            "sender": "user",
+            "text": "我现在需要你分别转动你左手的每一个骨骼，然后再分别转动你右手的每一根骨骼，边转动时边介绍",
+            "timestampUtc": "2026-05-14T09:15:40.6480248Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260514091646629",
+            "sender": "character",
+            "text": "先转动左侧锁骨。",
+            "timestampUtc": "2026-05-14T09:16:46.6294937Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091647618",
+            "sender": "character",
+            "text": "接着转动左上臂。",
+            "timestampUtc": "2026-05-14T09:16:47.6187987Z",
+            "requestId": 1,
+            "stageIndex": 1,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091648620",
+            "sender": "character",
+            "text": "然后转动左前臂。",
+            "timestampUtc": "2026-05-14T09:16:48.6209381Z",
+            "requestId": 1,
+            "stageIndex": 2,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091649625",
+            "sender": "character",
+            "text": "现在转动左手。",
+            "timestampUtc": "2026-05-14T09:16:49.6250942Z",
+            "requestId": 1,
+            "stageIndex": 3,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091650631",
+            "sender": "character",
+            "text": "换右侧，先转动右侧锁骨。",
+            "timestampUtc": "2026-05-14T09:16:50.6313119Z",
+            "requestId": 1,
+            "stageIndex": 4,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091651634",
+            "sender": "character",
+            "text": "接着转动右上臂。",
+            "timestampUtc": "2026-05-14T09:16:51.6345645Z",
+            "requestId": 1,
+            "stageIndex": 5,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091652638",
+            "sender": "character",
+            "text": "然后转动右前臂。",
+            "timestampUtc": "2026-05-14T09:16:52.6388921Z",
+            "requestId": 1,
+            "stageIndex": 6,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260514091653642",
+            "sender": "character",
+            "text": "最后转动右手。",
+            "timestampUtc": "2026-05-14T09:16:53.6429761Z",
+            "requestId": 1,
+            "stageIndex": 7,
+            "actionIndex": 0,
+            "status": "shown"
+        }
+    ]
+}

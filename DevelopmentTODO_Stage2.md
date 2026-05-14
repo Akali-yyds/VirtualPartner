@@ -365,37 +365,38 @@
 
 **前置条件**
 
-- [ ] 阶段 2.4 已完成。
-- [ ] 阶段 2.7 已完成。
-- [ ] StagePlan 2.0 LLM 闭环可用。
+- [x] 阶段 2.4 已完成。
+- [x] 阶段 2.7 已完成。
+- [x] StagePlan 2.0 LLM 闭环可用。
 
 **开发任务**
 
-- [ ] 支持在 Momotalk 聊天页输入文本并发送。
-- [ ] 发送后立即显示用户消息。
-- [ ] 发送后调用当前目标角色的 LLM 流程。
-- [ ] 支持 typing indicator。
-- [ ] 支持 StagePlan speech 按 stage 顺序显示为角色消息气泡。
-- [ ] 支持基础聊天记录保存和恢复。
-- [ ] 支持关闭期间新消息未读提示。
-- [ ] 保持角色场景演出仍走 Runtime 链路。
+- [x] 支持在 Momotalk 聊天页输入文本并发送。
+- [x] 发送后立即显示用户消息。
+- [x] 发送后调用当前目标角色的 LLM 流程。
+- [x] 支持 typing indicator。
+- [x] 支持 StagePlan speech 按 stage 顺序显示为角色消息气泡。
+- [x] 支持基础聊天记录保存和恢复。
+- [x] 支持关闭期间新消息未读提示。
+- [x] 保持角色场景演出仍走 Runtime 链路。
 
 **手动验收标准**
 
-- [ ] 用户可以通过 Momotalk UI 和 Toki 文本聊天。
-- [ ] 用户消息发送后立即显示。
-- [ ] 角色回复只来自通过 StagePlan 校验的 speech。
-- [ ] 多个 stage 的 speech 会按执行顺序显示为多条气泡。
-- [ ] 关闭 Momotalk 时新角色消息能产生未读提示。
-- [ ] 场景中的 Toki 演出仍由 StagePlan Runtime 执行。
+- [x] 用户可以通过 Momotalk UI 和 Toki 文本聊天。
+- [x] 用户消息发送后立即显示。
+- [x] 角色回复只来自通过 StagePlan 校验的 speech。
+- [x] 多个 stage 的 speech 会按执行顺序显示为多条气泡。
+- [x] 关闭 Momotalk 时新角色消息能产生未读提示。
+- [x] 场景中的 Toki 演出仍由 StagePlan Runtime 执行。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- [x] 用户已确认 Stage 2.8 手动验收通过。
+- [x] 已确认 Momotalk 搜索、Chat Info 临时详情页、置顶、清除聊天记录和 Chat Info 返回按钮修复验收通过。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.9：嘴型 / 基础表情系统 V1
 

@@ -1,0 +1,9 @@
+﻿{
+    "version": 1,
+    "contacts": [
+        {
+            "characterId": "toki",
+            "stickyOnTop": true
+        }
+    ]
+}
