@@ -25,9 +25,9 @@ MonoBehaviour:
     openLarge: 62
   - poseName: thinking
     closed: 52
-    openSmall: 38
-    openMid: 35
-    openLarge: 46
+    openSmall: 34
+    openMid: 42
+    openLarge: 43
   - poseName: surprised
     closed: 41
     openSmall: 44

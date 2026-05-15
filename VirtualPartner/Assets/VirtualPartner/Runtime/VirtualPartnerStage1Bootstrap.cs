@@ -27,6 +27,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private MouthTextureController mouthTextureController;
         [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
+        [SerializeField] private TtsManager ttsManager;
+        [SerializeField] private AudioSource ttsAudioSource;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
         [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
@@ -51,6 +53,7 @@ namespace VirtualPartner.Runtime
             idlePlaying = false;
             currentIdleTime = 0f;
 
+            ResolveRuntimeReferences();
             if (!ValidateReferences())
                 yield break;
 
@@ -77,6 +80,7 @@ namespace VirtualPartner.Runtime
             }
             expressionActionExecutor.Configure(characterProfile, mouthTextureController);
             speechMouthDriver.Configure(mouthTextureController, expressionActionExecutor);
+            ttsManager.Configure(characterProfile, speechMouthDriver, ttsAudioSource);
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -91,7 +95,8 @@ namespace VirtualPartner.Runtime
                 speechBubbleView,
                 autonomousBehaviorScheduler,
                 expressionActionExecutor,
-                speechMouthDriver);
+                speechMouthDriver,
+                ttsManager);
             autonomousBehaviorScheduler.Configure(
                 fsmProfile,
                 stagePlanPlayer,
@@ -124,7 +129,8 @@ namespace VirtualPartner.Runtime
                     boneDebugPanel,
                     mouthTextureController,
                     expressionActionExecutor,
-                    speechMouthDriver);
+                    speechMouthDriver,
+                    ttsManager);
             }
 
             yield return null;
@@ -167,6 +173,7 @@ namespace VirtualPartner.Runtime
                 return;
 
             ApplyIdleFrame(Time.deltaTime);
+            ttsManager.ManualUpdate(Time.deltaTime);
             var wasStagePlanPlaying = stagePlanPlayer.IsPlaying;
             stagePlanPlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             if (!wasStagePlanPlaying && rootOrientationController != null)
@@ -186,6 +193,8 @@ namespace VirtualPartner.Runtime
                 autonomousBehaviorScheduler.StopScheduler();
             if (stagePlanPlayer != null)
                 stagePlanPlayer.StopStagePlan();
+            if (ttsManager != null)
+                ttsManager.ReleaseSpeech();
             if (actionCoordinator != null)
                 actionCoordinator.ReleaseAllDebug();
             if (locomotionActionExecutor != null)
@@ -243,6 +252,10 @@ namespace VirtualPartner.Runtime
                 return Fail("ExpressionActionExecutor reference is missing.");
             if (speechMouthDriver == null)
                 return Fail("SpeechMouthDriver reference is missing.");
+            if (ttsManager == null)
+                return Fail("TtsManager reference is missing.");
+            if (ttsAudioSource == null)
+                return Fail("TTS AudioSource reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)
@@ -261,6 +274,14 @@ namespace VirtualPartner.Runtime
                 return Fail("Bone root must be inside the character root hierarchy.");
 
             return true;
+        }
+
+        private void ResolveRuntimeReferences()
+        {
+            if (ttsManager == null)
+                ttsManager = GetComponent<TtsManager>();
+            if (ttsAudioSource == null)
+                ttsAudioSource = GetComponent<AudioSource>();
         }
 
         private bool ValidateStaticBaseline()

@@ -86,6 +86,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
+        [SerializeField] private TtsManager ttsManager;
 
         [Header("Settings")]
         [SerializeField] private float debugSpeechDurationSeconds = 1f;
@@ -168,7 +169,8 @@ namespace VirtualPartner.Runtime
             SpeechBubbleView speechView,
             AutonomousBehaviorScheduler scheduler,
             ExpressionActionExecutor expressionExecutor,
-            SpeechMouthDriver mouthDriver)
+            SpeechMouthDriver mouthDriver,
+            TtsManager tts)
         {
             characterProfile = profile;
             boneMapProfile = boneProfile;
@@ -184,6 +186,7 @@ namespace VirtualPartner.Runtime
             autonomousBehaviorScheduler = scheduler;
             expressionActionExecutor = expressionExecutor;
             speechMouthDriver = mouthDriver;
+            ttsManager = tts;
             initialized = ValidateReferences();
 
             if (!initialized)
@@ -457,11 +460,19 @@ namespace VirtualPartner.Runtime
                 runningAction.StageIndex,
                 runningAction.ActionIndex,
                 runningAction.Action.text));
-            runningAction.Duration = speechMouthDriver != null
-                ? speechMouthDriver.EstimateDuration(runningAction.Action.text)
-                : DebugSpeechDurationSeconds;
-            if (speechMouthDriver != null)
-                speechMouthDriver.StartSpeech(runningAction.Action.text, runningAction.Duration);
+            if (ttsManager == null)
+            {
+                CompleteAction(runningAction, StageActionStatus.Failed, "TtsManager reference is missing.");
+                return;
+            }
+
+            if (!ttsManager.StartSpeech(runningAction.Action, DebugSpeechDurationSeconds, out var failureReason))
+            {
+                CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
+                return;
+            }
+
+            runningAction.Duration = ttsManager.Duration;
         }
 
         private void StartBonePoseAction(RunningStageAction runningAction)
@@ -595,6 +606,8 @@ namespace VirtualPartner.Runtime
                 switch (action.Kind)
                 {
                     case StageActionKind.Speech:
+                        UpdateSpeechAction(action, deltaTime);
+                        break;
                     case StageActionKind.BonePose:
                     case StageActionKind.Expression:
                         UpdateTimedAction(action, deltaTime);
@@ -611,10 +624,22 @@ namespace VirtualPartner.Runtime
                 }
             }
 
-            if (speechMouthDriver != null)
-                speechMouthDriver.ManualUpdate(deltaTime);
-
             StopPresetAnimationsThatLostOwnership();
+        }
+
+        private void UpdateSpeechAction(RunningStageAction action, float deltaTime)
+        {
+            action.Elapsed += deltaTime;
+            if (ttsManager == null)
+            {
+                if (action.Elapsed >= action.Duration)
+                    CompleteAction(action, StageActionStatus.Completed, "Completed.");
+                return;
+            }
+
+            action.Duration = Mathf.Max(action.Duration, ttsManager.Duration);
+            if (ttsManager.HasTerminalResult)
+                CompleteAction(action, ttsManager.TerminalStatus, ttsManager.TerminalMessage);
         }
 
         private void UpdateTimedAction(RunningStageAction action, float deltaTime)
@@ -746,7 +771,9 @@ namespace VirtualPartner.Runtime
 
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
-            if (speechMouthDriver != null)
+            if (ttsManager != null)
+                ttsManager.ReleaseSpeech();
+            else if (speechMouthDriver != null)
                 speechMouthDriver.StopSpeech();
             if (expressionActionExecutor != null)
                 expressionActionExecutor.ClearExpression();
@@ -773,7 +800,9 @@ namespace VirtualPartner.Runtime
                 rootOrientationController.StopStagePlanFacing();
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
-            if (speechMouthDriver != null)
+            if (ttsManager != null)
+                ttsManager.ReleaseSpeech();
+            else if (speechMouthDriver != null)
                 speechMouthDriver.StopSpeech();
             if (expressionActionExecutor != null)
                 expressionActionExecutor.ClearExpression();
@@ -846,8 +875,20 @@ namespace VirtualPartner.Runtime
             if (action == null || action.Result != null)
                 return;
 
-            if (action.Kind == StageActionKind.Speech && speechMouthDriver != null)
-                speechMouthDriver.StopSpeech();
+            if (action.Kind == StageActionKind.Speech)
+            {
+                if (ttsManager != null)
+                {
+                    if (status == StageActionStatus.Completed)
+                        ttsManager.ReleaseSpeech();
+                    else
+                        ttsManager.StopSpeech(message);
+                }
+                else if (speechMouthDriver != null)
+                {
+                    speechMouthDriver.StopSpeech();
+                }
+            }
 
             action.Result = new StageActionResult(action.StageIndex, action.ActionIndex, action.ActionType, status, message);
             terminalActionCount++;
@@ -1097,6 +1138,8 @@ namespace VirtualPartner.Runtime
                 return Fail("ExpressionActionExecutor reference is missing.");
             if (speechMouthDriver == null)
                 return Fail("SpeechMouthDriver reference is missing.");
+            if (ttsManager == null)
+                return Fail("TtsManager reference is missing.");
 
             initialized = true;
             return true;

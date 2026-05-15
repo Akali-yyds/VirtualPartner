@@ -22,3 +22,4 @@ MonoBehaviour:
   fsmProfile: {fileID: 11400000, guid: f8e651c8bb9f4e50a3a9c190b64f1529, type: 2}
   mouthPoseProfile: {fileID: 11400000, guid: 0c38a63a295bb7b448df2800fb183cde, type: 2}
   expressionProfile: {fileID: 11400000, guid: 7e39a0e0e9687e145bf3053e24053f99, type: 2}
+  voiceProfile: {fileID: 11400000, guid: a0849cb4161345cbbeafacf9366b4155, type: 2}

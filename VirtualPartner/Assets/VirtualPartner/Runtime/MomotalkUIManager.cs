@@ -1117,20 +1117,30 @@ namespace VirtualPartner.Runtime
 
         private void EnsureOpenButtonUnreadDot()
         {
-            if (openButtonUnreadDot != null || openButtonRoot == null)
-                return;
+            if (openButtonUnreadDot == null)
+            {
+                if (openButtonRoot == null)
+                    return;
 
-            var dotObject = new GameObject("UnreadDot", typeof(RectTransform), typeof(Image));
-            dotObject.transform.SetParent(openButtonRoot.transform, false);
-            var rect = dotObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1f, 1f);
-            rect.anchorMax = new Vector2(1f, 1f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(-10f, -10f);
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 22f);
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 22f);
+                var dotObject = new GameObject("UnreadDot", typeof(RectTransform), typeof(Image));
+                dotObject.transform.SetParent(openButtonRoot.transform, false);
+                openButtonUnreadDot = dotObject.GetComponent<Image>();
+            }
 
-            openButtonUnreadDot = dotObject.GetComponent<Image>();
+            var rect = openButtonUnreadDot.transform as RectTransform;
+            if (rect != null)
+            {
+                rect.anchorMin = new Vector2(1f, 1f);
+                rect.anchorMax = new Vector2(1f, 1f);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.anchoredPosition = new Vector2(-10f, -10f);
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 22f);
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 22f);
+            }
+
+            openButtonUnreadDot.sprite = MomotalkChatMessageView.GetCircleMaskSprite();
+            openButtonUnreadDot.type = Image.Type.Simple;
+            openButtonUnreadDot.preserveAspect = false;
             openButtonUnreadDot.color = new Color(0.95f, 0.18f, 0.28f, 1f);
             openButtonUnreadDot.raycastTarget = false;
         }

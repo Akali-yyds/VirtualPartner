@@ -445,35 +445,36 @@
 
 **前置条件**
 
-- [ ] 阶段 2.8 已完成。
-- [ ] 已确认本阶段不接真实语音克隆模型。
-- [ ] 已确认 MockTTS 可作为本阶段验收方式。
+- [x] 阶段 2.8 已完成。
+- [x] 已确认本阶段不接真实语音克隆模型。
+- [x] 已确认 MockTTS 可作为本阶段验收方式。
 
 **开发任务**
 
-- [ ] 建立 Unity 侧 TTS 调用入口。
-- [ ] 支持 TTS 服务状态展示。
-- [ ] 支持 speech action 请求 TTS 或 MockTTS。
-- [ ] 支持 AudioSource 播放入口。
-- [ ] 支持 TTS 失败时降级到文本估算嘴型。
-- [ ] 建立 TTS 缓存框架。
-- [ ] Debug 能显示 TTS 当前状态和最新错误。
+- [x] 建立 Unity 侧 TTS 调用入口。
+- [x] 支持 TTS 服务状态展示。
+- [x] 支持 speech action 请求 TTS 或 MockTTS。
+- [x] 支持 AudioSource 播放入口。
+- [x] 支持 TTS 失败时降级到文本估算嘴型。
+- [x] 建立 TTS 缓存框架。
+- [x] Debug 能显示 TTS 当前状态和最新错误。
 
 **手动验收标准**
 
-- [ ] 使用 MockTTS 时，speech action 能等待模拟音频或模拟时长完成。
-- [ ] MockTTS 完成后当前 stage 可以继续推进。
-- [ ] TTS 失败时 StagePlan 和 Momotalk 气泡仍继续。
-- [ ] 嘴型能在无真实音频时使用文本估算模式。
-- [ ] Debug 能看到 TTS 状态。
+- [x] 使用 MockTTS 时，speech action 能等待模拟音频或模拟时长完成。
+- [x] MockTTS 完成后当前 stage 可以继续推进。
+- [x] TTS 失败时 StagePlan 和 Momotalk 气泡仍继续。
+- [x] 嘴型能在无真实音频时使用文本估算模式。
+- [x] Debug 能看到 TTS 状态。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- [x] 用户已确认 Stage 2.10 手动验收通过。
+- [x] 已补充修复 Momotalk 未读红点圆形显示，以及等待 LLM 回复期间返回/关闭后重新进入聊天时 typing indicator 恢复的问题。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.11：TTS 真实语音克隆接入
 

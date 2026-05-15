@@ -87,6 +87,7 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < messages.Count; i++)
                 CreateMessageView(messages[i], context != null && context.Profile != null ? context.Profile.AvatarIcon : null);
 
+            RebuildPendingTypingViews(characterId, context != null && context.Profile != null ? context.Profile.AvatarIcon : null, messages);
             ScrollToBottom();
             FocusInputField();
             ContactsChanged?.Invoke();
@@ -224,6 +225,7 @@ namespace VirtualPartner.Runtime
 
             var record = MomotalkHistoryStore.CreateMessage("character", speech.Text, "shown", speech.RequestId, speech.StageIndex, speech.ActionIndex);
             historyStore.Append(characterId, record);
+            requestCharacterIds.Remove(speech.RequestId);
 
             var avatar = GetAvatarForCharacter(characterId);
             if (IsLoadedConversation(characterId))
@@ -278,6 +280,7 @@ namespace VirtualPartner.Runtime
                 var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
                 typingView.Bind(record, null);
                 typingViews.Remove(requestId);
+                requestCharacterIds.Remove(requestId);
                 if (save)
                     historyStore.Append(characterId, record);
                 ScrollToBottom();
@@ -287,12 +290,16 @@ namespace VirtualPartner.Runtime
 
             if (save)
                 AddSystemMessage(characterId, text, status, requestId);
+            else
+                requestCharacterIds.Remove(requestId);
         }
 
         private void AddSystemMessage(string characterId, string text, string status, int requestId)
         {
             var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
             historyStore.Append(characterId, record);
+            if (requestId > 0)
+                requestCharacterIds.Remove(requestId);
             if (IsLoadedConversation(characterId))
             {
                 CreateMessageView(record, null);
@@ -300,6 +307,50 @@ namespace VirtualPartner.Runtime
             }
 
             ContactsChanged?.Invoke();
+        }
+
+        private void RebuildPendingTypingViews(string characterId, Sprite avatar, List<MomotalkChatMessageRecord> visibleMessages)
+        {
+            if (string.IsNullOrWhiteSpace(characterId))
+                return;
+
+            var pendingRequestIds = new List<int>();
+            foreach (var pair in requestCharacterIds)
+            {
+                if (!SameCharacter(pair.Value, characterId))
+                    continue;
+                if (clearedRequestIds.Contains(pair.Key))
+                    continue;
+                if (HasResponseForRequest(pair.Key, visibleMessages))
+                    continue;
+
+                // Momotalk owns the pending visual state; LLM/StagePlan can briefly move
+                // between internal states before the first speech event arrives.
+                pendingRequestIds.Add(pair.Key);
+            }
+
+            for (var i = 0; i < pendingRequestIds.Count; i++)
+            {
+                var requestId = pendingRequestIds[i];
+                typingViews[requestId] = CreateTypingView(requestId, avatar);
+            }
+        }
+
+        private static bool HasResponseForRequest(int requestId, List<MomotalkChatMessageRecord> messages)
+        {
+            if (requestId <= 0 || messages == null)
+                return false;
+
+            for (var i = 0; i < messages.Count; i++)
+            {
+                var message = messages[i];
+                if (message == null || message.requestId != requestId)
+                    continue;
+                if (message.sender == "character" || message.sender == "system")
+                    return true;
+            }
+
+            return false;
         }
 
         private void IncrementUnread(string characterId)

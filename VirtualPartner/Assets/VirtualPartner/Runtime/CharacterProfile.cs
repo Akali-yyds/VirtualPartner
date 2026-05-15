@@ -15,6 +15,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private FSMProfile fsmProfile;
         [SerializeField] private MouthPoseProfile mouthPoseProfile;
         [SerializeField] private ExpressionProfile expressionProfile;
+        [SerializeField] private CharacterVoiceProfile voiceProfile;
 
         public string CharacterId => characterId;
         public string DisplayName => displayName;
@@ -26,6 +27,7 @@ namespace VirtualPartner.Runtime
         public FSMProfile FsmProfile => fsmProfile;
         public MouthPoseProfile MouthPoseProfile => mouthPoseProfile;
         public ExpressionProfile ExpressionProfile => expressionProfile;
+        public CharacterVoiceProfile VoiceProfile => voiceProfile;
 
         public bool TryValidate(out string failureReason)
         {

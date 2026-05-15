@@ -2968,6 +2968,8 @@ GameObject:
   - component: {fileID: 1195117207}
   - component: {fileID: 1195117206}
   - component: {fileID: 1195117205}
+  - component: {fileID: 1195117208}
+  - component: {fileID: 1195117209}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -3007,6 +3009,8 @@ MonoBehaviour:
   mouthTextureController: {fileID: 1195117207}
   expressionActionExecutor: {fileID: 1195117206}
   speechMouthDriver: {fileID: 1195117205}
+  ttsManager: {fileID: 0}
+  ttsAudioSource: {fileID: 0}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   llmRelay: {fileID: 1195117200}
   autonomousBehaviorDebugPanel: {fileID: 1195117197}
@@ -3312,6 +3316,7 @@ MonoBehaviour:
   mouthTextureController: {fileID: 1195117207}
   expressionActionExecutor: {fileID: 1195117206}
   speechMouthDriver: {fileID: 1195117205}
+  ttsManager: {fileID: 0}
   stagePlanPanel: {fileID: 0}
   llmPanel: {fileID: 1195117199}
   fsmPanel: {fileID: 1195117197}
@@ -3410,6 +3415,7 @@ MonoBehaviour:
   autonomousBehaviorScheduler: {fileID: 1195117198}
   expressionActionExecutor: {fileID: 1195117206}
   speechMouthDriver: {fileID: 1195117205}
+  ttsManager: {fileID: 0}
   debugSpeechDurationSeconds: 1
   defaultActionDurationSeconds: 1
   initialized: 0
@@ -3447,8 +3453,9 @@ MonoBehaviour:
   expressionActionExecutor: {fileID: 1195117206}
   minDuration: 1
   maxDuration: 6
-  secondsPerCharacter: 0.5
-  mouthCycleSeconds: 1
+  secondsPerCharacter: 0.1
+  mouthCycleSeconds: 0.1
+  randomizeOpenMouthIndex: 1
   initialized: 0
   active: 0
   elapsed: 0
@@ -3499,6 +3506,139 @@ MonoBehaviour:
   speechMouthActive: 0
   expressionMouthActive: 0
   lastMessage: Not initialized.
+--- !u!114 &1195117208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbffd85c1672433cb49b72ed95974683, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.TtsManager
+  characterProfile: {fileID: 11400000, guid: 787400ffb71c42f88a9687e059db585f, type: 2}
+  speechMouthDriver: {fileID: 1195117205}
+  audioSource: {fileID: 1195117209}
+  mockTtsEnabled: 1
+  forceMockFailure: 0
+  use3DAudio: 0
+  mockSampleRate: 16000
+  initialized: 0
+  active: 0
+  modeText: Idle
+  statusText: Not initialized.
+  currentTextSummary: '-'
+  currentCharacterId: '-'
+  currentProvider: '-'
+  currentVoiceId: '-'
+  currentEmotion: '-'
+  currentSpeed: 1
+  elapsed: 0
+  duration: 0
+  cacheKey: '-'
+  cachePath: '-'
+  cached: 0
+  latestError:
+  lastMessage:
+--- !u!82 &1195117209
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1242069892
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,7 @@ namespace VirtualPartner.Runtime
             Overview,
             Llm,
             StagePlan,
+            Tts,
             Fsm,
             Root,
             Bone,
@@ -27,6 +28,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private MouthTextureController mouthTextureController;
         [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
+        [SerializeField] private TtsManager ttsManager;
 
         [Header("Embedded Panels")]
         [SerializeField] private StagePlanDebugPanel stagePlanPanel;
@@ -45,6 +47,8 @@ namespace VirtualPartner.Runtime
         private Vector2 expandedWindowSize = new Vector2(780f, 620f);
         private int debugMouthIndex;
         private string mouthDebugMessage;
+        private string ttsDebugText = "Mock TTS debug test.";
+        private string ttsDebugMessage;
 
         private void Awake()
         {
@@ -66,7 +70,8 @@ namespace VirtualPartner.Runtime
             VirtualPartnerBoneDebugPanel boneDebugPanel,
             MouthTextureController mouthController,
             ExpressionActionExecutor expressionExecutor,
-            SpeechMouthDriver mouthDriver)
+            SpeechMouthDriver mouthDriver,
+            TtsManager tts)
         {
             llmRelay = relay;
             stagePlanPlayer = player;
@@ -83,6 +88,7 @@ namespace VirtualPartner.Runtime
             mouthTextureController = mouthController;
             expressionActionExecutor = expressionExecutor;
             speechMouthDriver = mouthDriver;
+            ttsManager = tts;
             ApplyLegacyPanelVisibility();
         }
 
@@ -140,6 +146,7 @@ namespace VirtualPartner.Runtime
             DrawSectionButton(DebugSection.Overview, "Overview");
             DrawSectionButton(DebugSection.Llm, "LLM");
             DrawSectionButton(DebugSection.StagePlan, "StagePlan");
+            DrawSectionButton(DebugSection.Tts, "TTS");
             DrawSectionButton(DebugSection.Fsm, "FSM");
             DrawSectionButton(DebugSection.Root, "Root");
             DrawSectionButton(DebugSection.Bone, "Bone");
@@ -169,6 +176,9 @@ namespace VirtualPartner.Runtime
                     break;
                 case DebugSection.StagePlan:
                     DrawEmbeddedStagePlan();
+                    break;
+                case DebugSection.Tts:
+                    DrawTts();
                     break;
                 case DebugSection.Fsm:
                     DrawEmbeddedFsm();
@@ -257,6 +267,8 @@ namespace VirtualPartner.Runtime
             GUILayout.Space(8f);
             DrawStagePlanOverview();
             GUILayout.Space(8f);
+            DrawTtsOverview();
+            GUILayout.Space(8f);
             DrawFsmOverview();
             GUILayout.Space(8f);
             DrawRootOverview();
@@ -299,6 +311,21 @@ namespace VirtualPartner.Runtime
                 $"Results C/F/I/S/O: {stagePlanPlayer.CompletedCount}/{stagePlanPlayer.FailedCount}/{stagePlanPlayer.InterruptedCount}/{stagePlanPlayer.SkippedCount}/{stagePlanPlayer.OwnershipDeniedCount}");
             if (!string.IsNullOrWhiteSpace(stagePlanPlayer.LastMessage))
                 GUILayout.Label($"Last: {stagePlanPlayer.LastMessage}");
+        }
+
+        private void DrawTtsOverview()
+        {
+            GUILayout.Label("TTS");
+            if (ttsManager == null)
+            {
+                GUILayout.Label("Missing");
+                return;
+            }
+
+            GUILayout.Label($"Status: {ttsManager.StatusText}  Mode: {ttsManager.ModeText}  Audio: {(ttsManager.AudioSourcePlaying ? "Playing" : "Stopped")}");
+            GUILayout.Label($"Voice: {ttsManager.CurrentVoiceId}  Emotion: {ttsManager.CurrentEmotion}  Duration: {ttsManager.Elapsed:0.00}/{ttsManager.Duration:0.00}s");
+            if (!string.IsNullOrWhiteSpace(ttsManager.LatestError))
+                GUILayout.Label($"Latest Error: {ttsManager.LatestError}");
         }
 
         private void DrawFsmOverview()
@@ -423,6 +450,50 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Last Debug: {mouthDebugMessage}");
         }
 
+        private void DrawTts()
+        {
+            GUILayout.Label("TTS");
+            DrawTtsOverview();
+            GUILayout.Space(8f);
+
+            if (ttsManager == null)
+                return;
+
+            var failMode = GUILayout.Toggle(ttsManager.ForceMockFailure, "Force Mock Failure");
+            if (failMode != ttsManager.ForceMockFailure)
+                ttsManager.SetMockFailureMode(failMode);
+
+            var use3D = GUILayout.Toggle(ttsManager.Use3DAudio, "Use 3D Audio");
+            if (use3D != ttsManager.Use3DAudio)
+                ttsManager.SetUse3DAudio(use3D);
+
+            GUILayout.Label($"MockTTS Enabled: {ttsManager.MockTtsEnabled}");
+            GUILayout.Label($"Text: {ttsManager.CurrentTextSummary}");
+            GUILayout.Label($"AudioSource: {ttsManager.AudioSourceState}");
+            GUILayout.Label($"Cache Key: {ttsManager.CacheKey}");
+            GUILayout.Label($"Cache Path: {ttsManager.CachePath}");
+            GUILayout.Label($"Cached: {ttsManager.Cached}");
+            GUILayout.Label($"Last: {ttsManager.LastMessage}");
+
+            GUILayout.Space(8f);
+            GUILayout.Label("Debug Test Text");
+            ttsDebugText = GUILayout.TextField(ttsDebugText);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Mock Success Test", GUILayout.Width(150f)))
+                StartDebugTts(false);
+            if (GUILayout.Button("Mock Failure Test", GUILayout.Width(150f)))
+                StartDebugTts(true);
+            if (GUILayout.Button("Stop TTS", GUILayout.Width(100f)))
+            {
+                ttsManager.StopSpeech("Stopped from TTS debug panel.");
+                ttsDebugMessage = ttsManager.LastMessage;
+            }
+            GUILayout.EndHorizontal();
+
+            if (!string.IsNullOrWhiteSpace(ttsDebugMessage))
+                GUILayout.Label($"Debug: {ttsDebugMessage}");
+        }
+
         private void DrawExpressionButton(string expressionName)
         {
             if (!GUILayout.Button(expressionName, GUILayout.Width(140f)))
@@ -438,6 +509,29 @@ namespace VirtualPartner.Runtime
                 mouthDebugMessage = expressionActionExecutor.LastMessage;
             else
                 mouthDebugMessage = failureReason;
+        }
+
+        private void StartDebugTts(bool fail)
+        {
+            if (ttsManager == null)
+            {
+                ttsDebugMessage = "TtsManager missing.";
+                return;
+            }
+
+            ttsManager.SetMockFailureMode(fail);
+            var action = new StagePlanActionDto
+            {
+                type = "speech",
+                text = string.IsNullOrWhiteSpace(ttsDebugText) ? "Mock TTS debug test." : ttsDebugText,
+                emotion = "neutral",
+                speed = 1f
+            };
+
+            if (ttsManager.StartSpeech(action, 1f, out var failureReason))
+                ttsDebugMessage = ttsManager.LastMessage;
+            else
+                ttsDebugMessage = failureReason;
         }
 
         private string FormatActiveBone()
@@ -485,6 +579,8 @@ namespace VirtualPartner.Runtime
                 expressionActionExecutor = GetComponent<ExpressionActionExecutor>();
             if (speechMouthDriver == null)
                 speechMouthDriver = GetComponent<SpeechMouthDriver>();
+            if (ttsManager == null)
+                ttsManager = GetComponent<TtsManager>();
         }
 
         private void ToggleMinimized()
