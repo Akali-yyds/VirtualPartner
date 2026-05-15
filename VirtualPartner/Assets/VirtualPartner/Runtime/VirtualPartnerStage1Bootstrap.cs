@@ -29,6 +29,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
         [SerializeField] private TtsManager ttsManager;
         [SerializeField] private AudioSource ttsAudioSource;
+        [SerializeField] private AsrManager asrManager;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
         [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
@@ -81,6 +82,7 @@ namespace VirtualPartner.Runtime
             expressionActionExecutor.Configure(characterProfile, mouthTextureController);
             speechMouthDriver.Configure(mouthTextureController, expressionActionExecutor);
             ttsManager.Configure(characterProfile, speechMouthDriver, ttsAudioSource);
+            asrManager.Configure();
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -130,7 +132,8 @@ namespace VirtualPartner.Runtime
                     mouthTextureController,
                     expressionActionExecutor,
                     speechMouthDriver,
-                    ttsManager);
+                    ttsManager,
+                    asrManager);
             }
 
             yield return null;
@@ -174,6 +177,7 @@ namespace VirtualPartner.Runtime
 
             ApplyIdleFrame(Time.deltaTime);
             ttsManager.ManualUpdate(Time.deltaTime);
+            asrManager.ManualUpdate(Time.deltaTime);
             var wasStagePlanPlaying = stagePlanPlayer.IsPlaying;
             stagePlanPlayer.ManualUpdate(Time.deltaTime, idleBaseProvider.Clip, currentIdleTime);
             if (!wasStagePlanPlaying && rootOrientationController != null)
@@ -195,6 +199,8 @@ namespace VirtualPartner.Runtime
                 stagePlanPlayer.StopStagePlan();
             if (ttsManager != null)
                 ttsManager.ReleaseSpeech();
+            if (asrManager != null)
+                asrManager.CancelRecognition();
             if (actionCoordinator != null)
                 actionCoordinator.ReleaseAllDebug();
             if (locomotionActionExecutor != null)
@@ -256,6 +262,8 @@ namespace VirtualPartner.Runtime
                 return Fail("TtsManager reference is missing.");
             if (ttsAudioSource == null)
                 return Fail("TTS AudioSource reference is missing.");
+            if (asrManager == null)
+                return Fail("AsrManager reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)
@@ -282,6 +290,10 @@ namespace VirtualPartner.Runtime
                 ttsManager = GetComponent<TtsManager>();
             if (ttsAudioSource == null)
                 ttsAudioSource = GetComponent<AudioSource>();
+            if (asrManager == null)
+                asrManager = GetComponent<AsrManager>();
+            if (asrManager == null)
+                asrManager = gameObject.AddComponent<AsrManager>();
         }
 
         private bool ValidateStaticBaseline()

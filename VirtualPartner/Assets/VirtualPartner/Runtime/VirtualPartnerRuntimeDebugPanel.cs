@@ -11,6 +11,7 @@ namespace VirtualPartner.Runtime
             Llm,
             StagePlan,
             Tts,
+            Asr,
             Fsm,
             Root,
             Bone,
@@ -29,6 +30,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
         [SerializeField] private TtsManager ttsManager;
+        [SerializeField] private AsrManager asrManager;
 
         [Header("Embedded Panels")]
         [SerializeField] private StagePlanDebugPanel stagePlanPanel;
@@ -49,6 +51,7 @@ namespace VirtualPartner.Runtime
         private string mouthDebugMessage;
         private string ttsDebugText = "Teacher, we can continue now.";
         private string ttsDebugMessage;
+        private string asrDebugMessage;
 
         private void Awake()
         {
@@ -71,7 +74,8 @@ namespace VirtualPartner.Runtime
             MouthTextureController mouthController,
             ExpressionActionExecutor expressionExecutor,
             SpeechMouthDriver mouthDriver,
-            TtsManager tts)
+            TtsManager tts,
+            AsrManager asr)
         {
             llmRelay = relay;
             stagePlanPlayer = player;
@@ -89,6 +93,7 @@ namespace VirtualPartner.Runtime
             expressionActionExecutor = expressionExecutor;
             speechMouthDriver = mouthDriver;
             ttsManager = tts;
+            asrManager = asr;
             ApplyLegacyPanelVisibility();
         }
 
@@ -147,6 +152,7 @@ namespace VirtualPartner.Runtime
             DrawSectionButton(DebugSection.Llm, "LLM");
             DrawSectionButton(DebugSection.StagePlan, "StagePlan");
             DrawSectionButton(DebugSection.Tts, "TTS");
+            DrawSectionButton(DebugSection.Asr, "ASR");
             DrawSectionButton(DebugSection.Fsm, "FSM");
             DrawSectionButton(DebugSection.Root, "Root");
             DrawSectionButton(DebugSection.Bone, "Bone");
@@ -179,6 +185,9 @@ namespace VirtualPartner.Runtime
                     break;
                 case DebugSection.Tts:
                     DrawTts();
+                    break;
+                case DebugSection.Asr:
+                    DrawAsr();
                     break;
                 case DebugSection.Fsm:
                     DrawEmbeddedFsm();
@@ -269,6 +278,8 @@ namespace VirtualPartner.Runtime
             GUILayout.Space(8f);
             DrawTtsOverview();
             GUILayout.Space(8f);
+            DrawAsrOverview();
+            GUILayout.Space(8f);
             DrawFsmOverview();
             GUILayout.Space(8f);
             DrawRootOverview();
@@ -328,6 +339,24 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Health: {ttsManager.HealthStatusText}");
             if (!string.IsNullOrWhiteSpace(ttsManager.LatestError))
                 GUILayout.Label($"Latest Error: {ttsManager.LatestError}");
+        }
+
+        private void DrawAsrOverview()
+        {
+            GUILayout.Label("ASR");
+            if (asrManager == null)
+            {
+                GUILayout.Label("Missing");
+                return;
+            }
+
+            GUILayout.Label($"Status: {asrManager.Status}  Mode: {asrManager.ResultMode}  Active: {asrManager.Active}");
+            GUILayout.Label($"Session: {asrManager.CurrentSessionId}  Mock: {(asrManager.MockAsrEnabled ? "Enabled" : "Disabled")}");
+            GUILayout.Label($"Elapsed: {asrManager.Elapsed:0.00}s  Text: {asrManager.LatestText}");
+            if (!string.IsNullOrWhiteSpace(asrManager.LatestError))
+                GUILayout.Label($"Latest Error: {asrManager.LatestError}");
+            if (!string.IsNullOrWhiteSpace(asrManager.LastMessage))
+                GUILayout.Label($"Last: {asrManager.LastMessage}");
         }
 
         private void DrawFsmOverview()
@@ -508,6 +537,53 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Debug: {ttsDebugMessage}");
         }
 
+        private void DrawAsr()
+        {
+            GUILayout.Label("ASR");
+            DrawAsrOverview();
+            GUILayout.Space(8f);
+
+            if (asrManager == null)
+                return;
+
+            var autoSend = GUILayout.Toggle(asrManager.ResultMode == AsrResultMode.AutoSendToLlm, "AutoSendToLlm");
+            var targetMode = autoSend ? AsrResultMode.AutoSendToLlm : AsrResultMode.FillInputOnly;
+            if (targetMode != asrManager.ResultMode)
+                asrManager.SetResultMode(targetMode);
+
+            var unavailable = GUILayout.Toggle(asrManager.AsrUnavailable, "ASR Unavailable");
+            if (unavailable != asrManager.AsrUnavailable)
+                asrManager.SetUnavailable(unavailable);
+
+            var failMode = GUILayout.Toggle(asrManager.ForceMockFailure, "Force Mock Failure");
+            if (failMode != asrManager.ForceMockFailure)
+                asrManager.SetMockFailureMode(failMode);
+
+            GUILayout.Label("Mock Text");
+            var mockText = GUILayout.TextField(asrManager.MockText);
+            if (mockText != asrManager.MockText)
+                asrManager.SetMockText(mockText);
+
+            GUILayout.Label($"Durations: listening={asrManager.ListeningSeconds:0.00}s recognizing={asrManager.RecognizingSeconds:0.00}s");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Start Mock", GUILayout.Width(120f)))
+            {
+                if (asrManager.StartMockRecognition(out var failureReason))
+                    asrDebugMessage = asrManager.LastMessage;
+                else
+                    asrDebugMessage = failureReason;
+            }
+            if (GUILayout.Button("Cancel", GUILayout.Width(100f)))
+            {
+                asrManager.CancelRecognition();
+                asrDebugMessage = asrManager.LastMessage;
+            }
+            GUILayout.EndHorizontal();
+
+            if (!string.IsNullOrWhiteSpace(asrDebugMessage))
+                GUILayout.Label($"Debug: {asrDebugMessage}");
+        }
+
         private void DrawExpressionButton(string expressionName)
         {
             if (!GUILayout.Button(expressionName, GUILayout.Width(140f)))
@@ -595,6 +671,8 @@ namespace VirtualPartner.Runtime
                 speechMouthDriver = GetComponent<SpeechMouthDriver>();
             if (ttsManager == null)
                 ttsManager = GetComponent<TtsManager>();
+            if (asrManager == null)
+                asrManager = GetComponent<AsrManager>();
         }
 
         private void ToggleMinimized()

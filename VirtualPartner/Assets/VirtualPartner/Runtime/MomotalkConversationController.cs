@@ -28,15 +28,28 @@ namespace VirtualPartner.Runtime
         private LlmRelay llmRelay;
         private StagePlanPlayer stagePlanPlayer;
         private SpeechBubbleView speechBubbleView;
+        private AsrManager asrManager;
         private CanvasGroup chatView;
         private CharacterRuntimeContext currentContext;
         private RectTransform scrollContent;
         private ScrollRect scrollRect;
         private InputField inputField;
         private Button sendButton;
+        private Button micButton;
+        private Button voiceCancelButton;
+        private CanvasGroup voiceModeView;
+        private Text voiceModeStatusText;
+        private Text voiceModeBodyText;
+        private Text voiceModeCancelText;
+        private Image voiceModeBackground;
+        private Graphic micGraphic;
         private Font uiFont;
+        private Color micDefaultColor = Color.white;
+        private bool micDefaultColorCaptured;
+        private Coroutine hideVoiceModeRoutine;
         private bool subscribedToLlmRelay;
         private bool subscribedToStagePlanPlayer;
+        private bool subscribedToAsrManager;
 
         public string LastHistoryPath => historyStore.LastResolvedPath;
 
@@ -49,6 +62,7 @@ namespace VirtualPartner.Runtime
             llmRelay = UnityEngine.Object.FindFirstObjectByType<LlmRelay>();
             stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
             speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
+            asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
             EnsureSubscriptions();
             EnsureChatUi();
         }
@@ -59,10 +73,22 @@ namespace VirtualPartner.Runtime
                 sendButton.onClick.RemoveListener(SendCurrentInput);
             if (inputField != null)
                 inputField.onSubmit.RemoveListener(HandleInputSubmit);
+            if (micButton != null)
+                micButton.onClick.RemoveListener(StartVoiceMode);
+            if (voiceCancelButton != null)
+                voiceCancelButton.onClick.RemoveListener(CancelOrCloseVoiceMode);
             if (llmRelay != null && subscribedToLlmRelay)
                 llmRelay.RequestFailed -= HandleLlmRequestFailed;
             if (stagePlanPlayer != null && subscribedToStagePlanPlayer)
                 stagePlanPlayer.SpeechActionStarted -= HandleSpeechActionStarted;
+            if (asrManager != null && subscribedToAsrManager)
+                asrManager.RecognitionFinished -= HandleAsrRecognitionFinished;
+        }
+
+        private void Update()
+        {
+            if (asrManager != null && asrManager.Active && voiceModeView != null && voiceModeView.alpha > 0f)
+                RefreshVoiceModeFromAsr();
         }
 
         public void SetPhoneOpen(bool open, MomotalkSceneSpeechBubbleMode speechBubbleMode)
@@ -184,6 +210,91 @@ namespace VirtualPartner.Runtime
         private void HandleInputSubmit(string text)
         {
             SendCurrentInput();
+        }
+
+        private void StartVoiceMode()
+        {
+            EnsureSubscriptions();
+            EnsureChatUi();
+
+            if (asrManager == null)
+            {
+                ShowVoiceMode("ASR unavailable", "ASR manager is missing.", true);
+                return;
+            }
+
+            if (asrManager.Active)
+            {
+                RefreshVoiceModeFromAsr();
+                return;
+            }
+
+            ShowVoiceMode("Listening", "Starting voice input...", false);
+            if (!asrManager.StartMockRecognition(out var failureReason))
+            {
+                ShowVoiceMode("ASR unavailable", failureReason, true);
+                return;
+            }
+
+            RefreshVoiceModeFromAsr();
+        }
+
+        private void CancelOrCloseVoiceMode()
+        {
+            if (asrManager != null && asrManager.Active)
+            {
+                asrManager.CancelRecognition();
+                return;
+            }
+
+            HideVoiceMode();
+        }
+
+        private void HandleAsrRecognitionFinished(AsrRecognitionResult result)
+        {
+            if (result == null)
+                return;
+
+            switch (result.Status)
+            {
+                case AsrRecognitionStatus.Done:
+                    HandleAsrDone(result);
+                    break;
+                case AsrRecognitionStatus.Error:
+                    ShowVoiceMode("ASR error", string.IsNullOrWhiteSpace(result.Error) ? "ASR failed." : result.Error, true);
+                    break;
+                case AsrRecognitionStatus.Canceled:
+                    ShowVoiceMode("Canceled", "Voice input canceled.", false);
+                    ScheduleVoiceModeHide(0.5f);
+                    break;
+            }
+
+            RefreshMicButtonState();
+        }
+
+        private void HandleAsrDone(AsrRecognitionResult result)
+        {
+            var recognizedText = result.Text == null ? string.Empty : result.Text.Trim();
+            if (string.IsNullOrWhiteSpace(recognizedText))
+            {
+                ShowVoiceMode("No speech recognized", "No speech recognized.", true);
+                return;
+            }
+
+            if (inputField != null)
+                inputField.text = recognizedText;
+
+            if (result.ResultMode == AsrResultMode.AutoSendToLlm)
+            {
+                ShowVoiceMode("Done", "Sending recognized text...", false);
+                SendCurrentInput();
+                ScheduleVoiceModeHide(0.75f);
+                return;
+            }
+
+            ShowVoiceMode("Done", recognizedText, false);
+            FocusInputField();
+            ScheduleVoiceModeHide(0.75f);
         }
 
         private void HandleLlmRequestFailed(LlmRequestFailure failure)
@@ -433,6 +544,8 @@ namespace VirtualPartner.Runtime
                 stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
             if (speechBubbleView == null)
                 speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
+            if (asrManager == null)
+                asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
 
             if (llmRelay != null && !subscribedToLlmRelay)
             {
@@ -444,6 +557,12 @@ namespace VirtualPartner.Runtime
             {
                 stagePlanPlayer.SpeechActionStarted += HandleSpeechActionStarted;
                 subscribedToStagePlanPlayer = true;
+            }
+
+            if (asrManager != null && !subscribedToAsrManager)
+            {
+                asrManager.RecognitionFinished += HandleAsrRecognitionFinished;
+                subscribedToAsrManager = true;
             }
         }
 
@@ -465,6 +584,7 @@ namespace VirtualPartner.Runtime
 
             EnsureScrollView(chatRoot);
             EnsureInputBar(chatRoot);
+            RefreshMicButtonState();
         }
 
         private void EnsureScrollView(RectTransform chatRoot)
@@ -621,6 +741,196 @@ namespace VirtualPartner.Runtime
                 sendButton.onClick.RemoveListener(SendCurrentInput);
                 sendButton.onClick.AddListener(SendCurrentInput);
             }
+
+            var micTransform = inputBar.Find("MicIcon");
+            if (micTransform != null)
+            {
+                micButton = micTransform.GetComponent<Button>();
+                if (micButton == null)
+                    micButton = micTransform.gameObject.AddComponent<Button>();
+                micGraphic = micTransform.GetComponent<Graphic>();
+                if (micGraphic != null)
+                {
+                    if (!micDefaultColorCaptured)
+                    {
+                        micDefaultColor = micGraphic.color;
+                        micDefaultColorCaptured = true;
+                    }
+
+                    micGraphic.raycastTarget = true;
+                    micButton.targetGraphic = micGraphic;
+                }
+
+                micButton.onClick.RemoveListener(StartVoiceMode);
+                micButton.onClick.AddListener(StartVoiceMode);
+            }
+
+            EnsureVoiceModePanel(chatRoot, inputBar);
+            RefreshMicButtonState();
+        }
+
+        private void EnsureVoiceModePanel(RectTransform chatRoot, RectTransform inputBar)
+        {
+            if (voiceModeView != null)
+                return;
+
+            var panel = chatRoot.Find("VoiceModePanel") as RectTransform;
+            if (panel == null)
+            {
+                panel = new GameObject("VoiceModePanel", typeof(RectTransform), typeof(CanvasGroup), typeof(Image)).GetComponent<RectTransform>();
+                panel.SetParent(chatRoot, false);
+            }
+
+            panel.anchorMin = new Vector2(0f, 0f);
+            panel.anchorMax = new Vector2(1f, 0f);
+            panel.pivot = new Vector2(0.5f, 0f);
+            panel.offsetMin = new Vector2(44f, 118f);
+            panel.offsetMax = new Vector2(-44f, 218f);
+            if (inputBar != null)
+                panel.SetSiblingIndex(inputBar.GetSiblingIndex());
+
+            voiceModeView = panel.GetComponent<CanvasGroup>();
+            voiceModeBackground = panel.GetComponent<Image>();
+            voiceModeBackground.color = new Color(0.96f, 0.98f, 1f, 0.96f);
+            voiceModeBackground.raycastTarget = true;
+
+            voiceModeStatusText = EnsurePanelText(panel, "Status", 26, TextAnchor.MiddleLeft, new Vector2(24f, 48f), new Vector2(-160f, 92f));
+            voiceModeBodyText = EnsurePanelText(panel, "Body", 22, TextAnchor.MiddleLeft, new Vector2(24f, 10f), new Vector2(-160f, 52f));
+
+            var cancelRect = panel.Find("CancelButton") as RectTransform;
+            if (cancelRect == null)
+            {
+                cancelRect = new GameObject("CancelButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(MomotalkUIButtonFeedback)).GetComponent<RectTransform>();
+                cancelRect.SetParent(panel, false);
+            }
+
+            cancelRect.anchorMin = new Vector2(1f, 0.5f);
+            cancelRect.anchorMax = new Vector2(1f, 0.5f);
+            cancelRect.pivot = new Vector2(1f, 0.5f);
+            cancelRect.anchoredPosition = new Vector2(-18f, 0f);
+            cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 122f);
+            cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 54f);
+            var cancelImage = cancelRect.GetComponent<Image>();
+            cancelImage.color = new Color(0.88f, 0.91f, 0.96f, 1f);
+            voiceCancelButton = cancelRect.GetComponent<Button>();
+            voiceCancelButton.targetGraphic = cancelImage;
+            voiceCancelButton.onClick.RemoveListener(CancelOrCloseVoiceMode);
+            voiceCancelButton.onClick.AddListener(CancelOrCloseVoiceMode);
+
+            voiceModeCancelText = EnsurePanelText(cancelRect, "Text", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.zero);
+            voiceModeCancelText.text = "Cancel";
+            HideVoiceMode();
+        }
+
+        private Text EnsurePanelText(RectTransform parent, string name, int fontSize, TextAnchor alignment, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            var textRect = parent.Find(name) as RectTransform;
+            if (textRect == null)
+            {
+                textRect = new GameObject(name, typeof(RectTransform), typeof(Text)).GetComponent<RectTransform>();
+                textRect.SetParent(parent, false);
+            }
+
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = offsetMin;
+            textRect.offsetMax = offsetMax;
+            var text = textRect.GetComponent<Text>();
+            text.alignment = alignment;
+            text.fontSize = fontSize;
+            text.color = new Color(0.16f, 0.2f, 0.26f, 1f);
+            text.raycastTarget = false;
+            text.supportRichText = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            if (uiFont != null)
+                text.font = uiFont;
+            return text;
+        }
+
+        private void ShowVoiceMode(string title, string body, bool error)
+        {
+            if (hideVoiceModeRoutine != null)
+            {
+                StopCoroutine(hideVoiceModeRoutine);
+                hideVoiceModeRoutine = null;
+            }
+
+            if (voiceModeView == null)
+                return;
+
+            voiceModeView.alpha = 1f;
+            voiceModeView.interactable = true;
+            voiceModeView.blocksRaycasts = true;
+            if (voiceModeStatusText != null)
+                voiceModeStatusText.text = title ?? string.Empty;
+            if (voiceModeBodyText != null)
+                voiceModeBodyText.text = body ?? string.Empty;
+            if (voiceModeCancelText != null)
+                voiceModeCancelText.text = error ? "Close" : "Cancel";
+            if (voiceModeBackground != null)
+                voiceModeBackground.color = error ? new Color(1f, 0.93f, 0.94f, 0.98f) : new Color(0.96f, 0.98f, 1f, 0.96f);
+        }
+
+        private void HideVoiceMode()
+        {
+            if (hideVoiceModeRoutine != null)
+            {
+                StopCoroutine(hideVoiceModeRoutine);
+                hideVoiceModeRoutine = null;
+            }
+
+            if (voiceModeView == null)
+                return;
+
+            voiceModeView.alpha = 0f;
+            voiceModeView.interactable = false;
+            voiceModeView.blocksRaycasts = false;
+            RefreshMicButtonState();
+        }
+
+        private void ScheduleVoiceModeHide(float delay)
+        {
+            if (hideVoiceModeRoutine != null)
+                StopCoroutine(hideVoiceModeRoutine);
+            hideVoiceModeRoutine = StartCoroutine(HideVoiceModeAfterDelay(delay));
+        }
+
+        private System.Collections.IEnumerator HideVoiceModeAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(Mathf.Max(0f, delay));
+            hideVoiceModeRoutine = null;
+            HideVoiceMode();
+        }
+
+        private void RefreshVoiceModeFromAsr()
+        {
+            if (asrManager == null)
+                return;
+
+            switch (asrManager.Status)
+            {
+                case AsrRecognitionStatus.Listening:
+                    ShowVoiceMode("Listening", "Listening for your voice...", false);
+                    break;
+                case AsrRecognitionStatus.Recognizing:
+                    ShowVoiceMode("Recognizing", "Recognizing speech...", false);
+                    break;
+                case AsrRecognitionStatus.Error:
+                    ShowVoiceMode("ASR error", asrManager.LatestError, true);
+                    break;
+            }
+
+            RefreshMicButtonState();
+        }
+
+        private void RefreshMicButtonState()
+        {
+            var active = asrManager != null && asrManager.Active;
+            if (micButton != null)
+                micButton.interactable = !active;
+            if (micGraphic != null)
+                micGraphic.color = active ? new Color(0.38f, 0.65f, 1f, 1f) : micDefaultColor;
         }
 
         private MomotalkChatMessageView CreateTypingView(int requestId, Sprite avatar)
