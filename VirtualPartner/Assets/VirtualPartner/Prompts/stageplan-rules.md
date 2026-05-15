@@ -13,7 +13,7 @@ Supported actions:
 - `animation`: call one registered preset animation by name.
 - `facing`: turn the character root toward one target.
 - `locomotion`: move along the character's current forward using walk/run.
-- `expression`: accepted for future expression playback, but currently only records intent.
+- `expression`: set one registered lightweight expression until the current stage ends.
 
 Stage execution:
 - `stages` run in array order.
@@ -43,6 +43,7 @@ Composition rules:
 - `facing` should usually be its own stage before locomotion.
 - `locomotion` may be combined with `speech` when the character should speak while moving.
 - Use `speech` when replying to the user, but keep text concise.
+- Use `expression` lightly. Ordinary chat can be speech only; add expression only when emotion or intent clearly benefits, and only use expressions listed in Runtime Generated Capabilities.
 - Do not combine a full-body preset animation with `bonePose` in the same stage.
 - For sequential `bonePose` motions, each later stage should contain the complete desired pose for all bones that should remain active.
 - To keep a previous pose, repeat the same bone rotations in the later stage.

@@ -261,6 +261,146 @@
             "stageIndex": 7,
             "actionIndex": 0,
             "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515042442598",
+            "sender": "user",
+            "text": "早上好",
+            "timestampUtc": "2026-05-15T04:24:42.6074969Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515042446047",
+            "sender": "character",
+            "text": "早上好！今天也一起加油吧。",
+            "timestampUtc": "2026-05-15T04:24:46.0478543Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515042452702",
+            "sender": "user",
+            "text": "能给我讲个故事吗",
+            "timestampUtc": "2026-05-15T04:24:52.7026212Z",
+            "requestId": 2,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515042457143",
+            "sender": "character",
+            "text": "当然。从前有一只小猫迷路了，月亮为它点亮小路。它遇见萤火虫、老树和一颗会唱歌的星星，最后发现，回家的方向就在勇气里。",
+            "timestampUtc": "2026-05-15T04:24:57.1439354Z",
+            "requestId": 2,
+            "stageIndex": 0,
+            "actionIndex": 1,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515045220372",
+            "sender": "user",
+            "text": "你好",
+            "timestampUtc": "2026-05-15T04:52:20.3801104Z",
+            "requestId": 1,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515045225792",
+            "sender": "character",
+            "text": "你好，我在这里。",
+            "timestampUtc": "2026-05-15T04:52:25.7921229Z",
+            "requestId": 1,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515045239595",
+            "sender": "user",
+            "text": "早上吃的什么",
+            "timestampUtc": "2026-05-15T04:52:39.5959662Z",
+            "requestId": 2,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515045244315",
+            "sender": "character",
+            "text": "早上我还没吃呢，不过如果可以选，我想吃一份热乎乎的早餐。",
+            "timestampUtc": "2026-05-15T04:52:44.3156773Z",
+            "requestId": 2,
+            "stageIndex": 0,
+            "actionIndex": 1,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515045254906",
+            "sender": "user",
+            "text": "在减肥吗",
+            "timestampUtc": "2026-05-15T04:52:54.9064066Z",
+            "requestId": 3,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515045258378",
+            "sender": "character",
+            "text": "没有啦，我只是保持轻盈，方便行动。",
+            "timestampUtc": "2026-05-15T04:52:58.3781933Z",
+            "requestId": 3,
+            "stageIndex": 0,
+            "actionIndex": 1,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515045308259",
+            "sender": "user",
+            "text": "现在吗",
+            "timestampUtc": "2026-05-15T04:53:08.2592384Z",
+            "requestId": 4,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515045312637",
+            "sender": "character",
+            "text": "现在就可以。",
+            "timestampUtc": "2026-05-15T04:53:12.6377671Z",
+            "requestId": 4,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
+        },
+        {
+            "messageId": "msg_20260515045321095",
+            "sender": "user",
+            "text": "你今年多大",
+            "timestampUtc": "2026-05-15T04:53:21.0959857Z",
+            "requestId": 5,
+            "stageIndex": -1,
+            "actionIndex": -1,
+            "status": "sent"
+        },
+        {
+            "messageId": "msg_20260515045325054",
+            "sender": "character",
+            "text": "我没有真实年龄哦，但我会一直以最好的状态陪着你。",
+            "timestampUtc": "2026-05-15T04:53:25.0544222Z",
+            "requestId": 5,
+            "stageIndex": 0,
+            "actionIndex": 0,
+            "status": "shown"
         }
     ]
 }

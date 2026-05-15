@@ -24,6 +24,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private MovementConstraintController movementConstraintController;
         [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private SpeechBubbleView speechBubbleView;
+        [SerializeField] private MouthTextureController mouthTextureController;
+        [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
+        [SerializeField] private SpeechMouthDriver speechMouthDriver;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
         [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
@@ -67,6 +70,13 @@ namespace VirtualPartner.Runtime
                 movementConstraintController);
             if (speechBubbleView != null)
                 speechBubbleView.Configure(characterRoot.transform);
+            if (!mouthTextureController.Configure())
+            {
+                Fail($"MouthTextureController configure failed: {mouthTextureController.LastMessage}");
+                yield break;
+            }
+            expressionActionExecutor.Configure(characterProfile, mouthTextureController);
+            speechMouthDriver.Configure(mouthTextureController, expressionActionExecutor);
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -79,7 +89,9 @@ namespace VirtualPartner.Runtime
                 rootOrientationController,
                 locomotionActionExecutor,
                 speechBubbleView,
-                autonomousBehaviorScheduler);
+                autonomousBehaviorScheduler,
+                expressionActionExecutor,
+                speechMouthDriver);
             autonomousBehaviorScheduler.Configure(
                 fsmProfile,
                 stagePlanPlayer,
@@ -109,7 +121,10 @@ namespace VirtualPartner.Runtime
                     llmInteractionDebugPanel,
                     autonomousBehaviorDebugPanel,
                     rootLocomotionDebugPanel,
-                    boneDebugPanel);
+                    boneDebugPanel,
+                    mouthTextureController,
+                    expressionActionExecutor,
+                    speechMouthDriver);
             }
 
             yield return null;
@@ -175,6 +190,8 @@ namespace VirtualPartner.Runtime
                 actionCoordinator.ReleaseAllDebug();
             if (locomotionActionExecutor != null)
                 locomotionActionExecutor.StopLocomotion();
+            if (mouthTextureController != null)
+                mouthTextureController.ClearAllRuntimeMouth();
             if (idleBaseProvider != null)
                 idleBaseProvider.Stop();
         }
@@ -220,6 +237,12 @@ namespace VirtualPartner.Runtime
                 return Fail("StagePlanPlayer reference is missing.");
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.");
+            if (mouthTextureController == null)
+                return Fail("MouthTextureController reference is missing.");
+            if (expressionActionExecutor == null)
+                return Fail("ExpressionActionExecutor reference is missing.");
+            if (speechMouthDriver == null)
+                return Fail("SpeechMouthDriver reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)

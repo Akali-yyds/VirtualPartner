@@ -261,9 +261,9 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 194989521}
   m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &206615091
 GameObject:
@@ -282,7 +282,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &206615092
 RectTransform:
   m_ObjectHideFlags: 0
@@ -570,7 +570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &299490357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1036,7 +1036,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &359609998
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1046,7 +1046,7 @@ RectTransform:
   m_GameObject: {fileID: 359609997}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.47409585, y: 0.47409585, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1242069893}
@@ -1055,7 +1055,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 300, y: 0}
+  m_AnchoredPosition: {x: -280.01175, y: 0}
   m_SizeDelta: {x: 1080, y: 1920}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &410087039
@@ -1204,7 +1204,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &412082316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1929,6 +1929,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 1847907828}
   m_ActionId: 24908448-c609-4bc3-a128-ea258674378a
+--- !u!137 &792580356 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 137870947366518887, guid: d01601dea30f94e4a9716782c0699452, type: 3}
+  m_PrefabInstance: {fileID: 1274239514}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &794545724
 GameObject:
   m_ObjectHideFlags: 0
@@ -2960,6 +2965,9 @@ GameObject:
   - component: {fileID: 1195117202}
   - component: {fileID: 1195117203}
   - component: {fileID: 1195117204}
+  - component: {fileID: 1195117207}
+  - component: {fileID: 1195117206}
+  - component: {fileID: 1195117205}
   m_Layer: 0
   m_Name: VirtualPartnerBootstrap
   m_TagString: Untagged
@@ -2996,6 +3004,9 @@ MonoBehaviour:
   movementConstraintController: {fileID: 1195117196}
   stagePlanPlayer: {fileID: 1195117204}
   speechBubbleView: {fileID: 1195117192}
+  mouthTextureController: {fileID: 1195117207}
+  expressionActionExecutor: {fileID: 1195117206}
+  speechMouthDriver: {fileID: 1195117205}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   llmRelay: {fileID: 1195117200}
   autonomousBehaviorDebugPanel: {fileID: 1195117197}
@@ -3076,6 +3087,7 @@ MonoBehaviour:
   worldOffset: {x: 0, y: 0.28, z: 0}
   bubbleSize: {x: 320, y: 86}
   visible: 0
+  suppressed: 0
   currentText: 
 --- !u!114 &1195117193
 MonoBehaviour:
@@ -3297,6 +3309,9 @@ MonoBehaviour:
   locomotionActionExecutor: {fileID: 1195117194}
   movementConstraintController: {fileID: 1195117196}
   actionCoordinator: {fileID: 1195117183}
+  mouthTextureController: {fileID: 1195117207}
+  expressionActionExecutor: {fileID: 1195117206}
+  speechMouthDriver: {fileID: 1195117205}
   stagePlanPanel: {fileID: 0}
   llmPanel: {fileID: 1195117199}
   fsmPanel: {fileID: 1195117197}
@@ -3332,6 +3347,9 @@ MonoBehaviour:
   locomotionActionExecutor: {fileID: 1195117194}
   autonomousBehaviorScheduler: {fileID: 1195117198}
   speechBubbleView: {fileID: 1195117192}
+  mouthTextureController: {fileID: 1195117207}
+  expressionActionExecutor: {fileID: 1195117206}
+  speechMouthDriver: {fileID: 1195117205}
   registered: 0
   registeredCharacterId: 
   lastMessage: 
@@ -3390,6 +3408,8 @@ MonoBehaviour:
   locomotionActionExecutor: {fileID: 1195117194}
   speechBubbleView: {fileID: 1195117192}
   autonomousBehaviorScheduler: {fileID: 1195117198}
+  expressionActionExecutor: {fileID: 1195117206}
+  speechMouthDriver: {fileID: 1195117205}
   debugSpeechDurationSeconds: 1
   defaultActionDurationSeconds: 1
   initialized: 0
@@ -3409,6 +3429,76 @@ MonoBehaviour:
   statusText: Idle
   lastMessage: 
   activeOwnerId: 
+  activeRequestId: 0
+  activePlanId:
+--- !u!114 &1195117205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a3ff54c5247004e8ceee781ff5ab1b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.SpeechMouthDriver
+  mouthTextureController: {fileID: 1195117207}
+  expressionActionExecutor: {fileID: 1195117206}
+  minDuration: 1
+  maxDuration: 6
+  secondsPerCharacter: 0.5
+  mouthCycleSeconds: 1
+  initialized: 0
+  active: 0
+  elapsed: 0
+  duration: 0
+  currentMouthIndex: -1
+  currentPoseSet: '-'
+  lastMessage: Not initialized.
+--- !u!114 &1195117206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b841a04474b774d9a29591bf1eff5a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.ExpressionActionExecutor
+  characterProfile: {fileID: 11400000, guid: 787400ffb71c42f88a9687e059db585f, type: 2}
+  mouthTextureController: {fileID: 1195117207}
+  initialized: 0
+  expressionActive: 0
+  currentExpression: '-'
+  currentMouthPose: '-'
+  lastMessage: Not initialized.
+--- !u!114 &1195117207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195117185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78039ddb357faa4d82f0605c8bbb874, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.MouthTextureController
+  mouthRenderer: {fileID: 792580356}
+  mouthTexture: {fileID: 2800000, guid: 1e48947ee23c42748bf3be4bb733d0f4, type: 3}
+  mouthMaterialIndex: 3
+  tileColumns: 8
+  tileRows: 8
+  initialized: 0
+  currentSource: 0
+  currentMouthIndex: -1
+  debugOverrideActive: 0
+  speechMouthActive: 0
+  expressionMouthActive: 0
+  lastMessage: Not initialized.
 --- !u!1 &1242069892
 GameObject:
   m_ObjectHideFlags: 0
@@ -3760,12 +3850,17 @@ MonoBehaviour:
   loadingIcon: {fileID: 2059683486}
   contactListView: {fileID: 1172822877}
   chatView: {fileID: 1715206710}
+  chatInfoView: {fileID: 0}
   contactListRoot: {fileID: 2131777311}
   contactItemTemplate: {fileID: 1813540017}
   emptyContactsText: {fileID: 206615094}
   chatAvatarImage: {fileID: 1438817317}
   chatNameText: {fileID: 1189373625}
   chatStatusText: {fileID: 1372096687}
+  llmHistoryContextMessageCount: 0
+  showReplacedSystemMessage: 1
+  sceneSpeechBubbleModeWhenMomotalkOpen: 0
+  openButtonUnreadDot: {fileID: 0}
 --- !u!114 &1324892018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4421,9 +4516,9 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715206706}
   m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1813540016
 GameObject:
@@ -4462,6 +4557,9 @@ MonoBehaviour:
   avatarImage: {fileID: 704179198}
   nameText: {fileID: 250854675}
   statusText: {fileID: 1326521181}
+  unreadText: {fileID: 0}
+  unreadBackground: {fileID: 0}
+  stickyPinImage: {fileID: 0}
 --- !u!224 &1813540018
 RectTransform:
   m_ObjectHideFlags: 0

@@ -13,7 +13,10 @@ namespace VirtualPartner.Runtime
             RootOrientationController rootOrientationController,
             LocomotionActionExecutor locomotionActionExecutor,
             AutonomousBehaviorScheduler autonomousBehaviorScheduler,
-            SpeechBubbleView speechBubbleView)
+            SpeechBubbleView speechBubbleView,
+            MouthTextureController mouthTextureController,
+            ExpressionActionExecutor expressionActionExecutor,
+            SpeechMouthDriver speechMouthDriver)
         {
             Profile = profile;
             RuntimeRoot = runtimeRoot;
@@ -24,6 +27,9 @@ namespace VirtualPartner.Runtime
             LocomotionActionExecutor = locomotionActionExecutor;
             AutonomousBehaviorScheduler = autonomousBehaviorScheduler;
             SpeechBubbleView = speechBubbleView;
+            MouthTextureController = mouthTextureController;
+            ExpressionActionExecutor = expressionActionExecutor;
+            SpeechMouthDriver = speechMouthDriver;
         }
 
         public string CharacterId => Profile != null ? Profile.CharacterId : string.Empty;
@@ -36,5 +42,8 @@ namespace VirtualPartner.Runtime
         public LocomotionActionExecutor LocomotionActionExecutor { get; }
         public AutonomousBehaviorScheduler AutonomousBehaviorScheduler { get; }
         public SpeechBubbleView SpeechBubbleView { get; }
+        public MouthTextureController MouthTextureController { get; }
+        public ExpressionActionExecutor ExpressionActionExecutor { get; }
+        public SpeechMouthDriver SpeechMouthDriver { get; }
     }
 }

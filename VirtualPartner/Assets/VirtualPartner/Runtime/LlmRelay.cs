@@ -485,6 +485,34 @@ namespace VirtualPartner.Runtime
             builder.AppendLine();
             builder.AppendLine("### Locomotion Modes");
             AppendLocomotionModes(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Expressions");
+            AppendExpressions(builder);
+        }
+
+        private void AppendExpressions(StringBuilder builder)
+        {
+            var expressionProfile = characterProfile != null ? characterProfile.ExpressionProfile : null;
+            if (expressionProfile == null || expressionProfile.Entries == null)
+            {
+                builder.AppendLine("- none configured");
+                return;
+            }
+
+            var wroteAny = false;
+            for (var i = 0; i < expressionProfile.Entries.Count; i++)
+            {
+                var entry = expressionProfile.Entries[i];
+                if (entry == null || !entry.Enabled || string.IsNullOrWhiteSpace(entry.ExpressionName))
+                    continue;
+
+                builder.AppendLine("- " + entry.ExpressionName.Trim());
+                wroteAny = true;
+            }
+
+            if (!wroteAny)
+                builder.AppendLine("- none configured");
         }
 
         private void AppendLocomotionModes(StringBuilder builder)

@@ -13,6 +13,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private PresetAnimationProfile presetAnimationProfile;
         [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private FSMProfile fsmProfile;
+        [SerializeField] private MouthPoseProfile mouthPoseProfile;
+        [SerializeField] private ExpressionProfile expressionProfile;
 
         public string CharacterId => characterId;
         public string DisplayName => displayName;
@@ -22,6 +24,8 @@ namespace VirtualPartner.Runtime
         public PresetAnimationProfile PresetAnimationProfile => presetAnimationProfile;
         public LocomotionProfile LocomotionProfile => locomotionProfile;
         public FSMProfile FsmProfile => fsmProfile;
+        public MouthPoseProfile MouthPoseProfile => mouthPoseProfile;
+        public ExpressionProfile ExpressionProfile => expressionProfile;
 
         public bool TryValidate(out string failureReason)
         {

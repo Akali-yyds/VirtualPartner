@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ade9b0440d4a64fa34e1f582e402d8, type: 3}
+  m_Name: Toki_MouthPoseProfile
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.MouthPoseProfile
+  poseSets:
+  - poseName: neutral
+    closed: -1
+    openSmall: 45
+    openMid: 47
+    openLarge: 46
+  - poseName: smile
+    closed: 60
+    openSmall: 61
+    openMid: 63
+    openLarge: 62
+  - poseName: thinking
+    closed: 52
+    openSmall: 38
+    openMid: 35
+    openLarge: 46
+  - poseName: surprised
+    closed: 41
+    openSmall: 44
+    openMid: 45
+    openLarge: 47
+  - poseName: embarrassed
+    closed: 50
+    openSmall: 53
+    openMid: 55
+    openLarge: 54

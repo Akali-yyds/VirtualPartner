@@ -84,6 +84,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private SpeechBubbleView speechBubbleView;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
+        [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
+        [SerializeField] private SpeechMouthDriver speechMouthDriver;
 
         [Header("Settings")]
         [SerializeField] private float debugSpeechDurationSeconds = 1f;
@@ -164,7 +166,9 @@ namespace VirtualPartner.Runtime
             RootOrientationController orientationController,
             LocomotionActionExecutor locomotionExecutor,
             SpeechBubbleView speechView,
-            AutonomousBehaviorScheduler scheduler)
+            AutonomousBehaviorScheduler scheduler,
+            ExpressionActionExecutor expressionExecutor,
+            SpeechMouthDriver mouthDriver)
         {
             characterProfile = profile;
             boneMapProfile = boneProfile;
@@ -178,6 +182,8 @@ namespace VirtualPartner.Runtime
             locomotionActionExecutor = locomotionExecutor;
             speechBubbleView = speechView;
             autonomousBehaviorScheduler = scheduler;
+            expressionActionExecutor = expressionExecutor;
+            speechMouthDriver = mouthDriver;
             initialized = ValidateReferences();
 
             if (!initialized)
@@ -412,7 +418,7 @@ namespace VirtualPartner.Runtime
                     StartLocomotionAction(runningAction);
                     break;
                 case StageActionKind.Expression:
-                    CompleteAction(runningAction, StageActionStatus.Skipped, "Expression playback is deferred to Stage 2.9.");
+                    StartExpressionAction(runningAction);
                     break;
                 default:
                     CompleteAction(runningAction, StageActionStatus.Skipped, $"Unknown action type '{action.type}'.");
@@ -451,7 +457,11 @@ namespace VirtualPartner.Runtime
                 runningAction.StageIndex,
                 runningAction.ActionIndex,
                 runningAction.Action.text));
-            runningAction.Duration = DebugSpeechDurationSeconds;
+            runningAction.Duration = speechMouthDriver != null
+                ? speechMouthDriver.EstimateDuration(runningAction.Action.text)
+                : DebugSpeechDurationSeconds;
+            if (speechMouthDriver != null)
+                speechMouthDriver.StartSpeech(runningAction.Action.text, runningAction.Duration);
         }
 
         private void StartBonePoseAction(RunningStageAction runningAction)
@@ -555,6 +565,25 @@ namespace VirtualPartner.Runtime
             }
         }
 
+        private void StartExpressionAction(RunningStageAction runningAction)
+        {
+            if (expressionActionExecutor == null)
+            {
+                CompleteAction(runningAction, StageActionStatus.Failed, "ExpressionActionExecutor reference is missing.");
+                return;
+            }
+
+            runningAction.Duration = GetDefaultedDuration(runningAction.Action.duration);
+            if (!expressionActionExecutor.StartExpression(runningAction.Action.name, runningAction.Duration, out var failureReason))
+            {
+                CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
+                return;
+            }
+
+            if (speechMouthDriver != null)
+                speechMouthDriver.RefreshSpeakingPoseSet();
+        }
+
         private void UpdateRunningActions(float deltaTime, AnimationClip idleClip, float idleTime)
         {
             for (var i = 0; i < runningActions.Count; i++)
@@ -567,6 +596,7 @@ namespace VirtualPartner.Runtime
                 {
                     case StageActionKind.Speech:
                     case StageActionKind.BonePose:
+                    case StageActionKind.Expression:
                         UpdateTimedAction(action, deltaTime);
                         break;
                     case StageActionKind.Animation:
@@ -580,6 +610,9 @@ namespace VirtualPartner.Runtime
                         break;
                 }
             }
+
+            if (speechMouthDriver != null)
+                speechMouthDriver.ManualUpdate(deltaTime);
 
             StopPresetAnimationsThatLostOwnership();
         }
@@ -691,6 +724,7 @@ namespace VirtualPartner.Runtime
         private void CompleteCurrentStage()
         {
             ReleaseStageOwners();
+            ReleaseStageExpression();
             StartNextStage();
         }
 
@@ -712,6 +746,10 @@ namespace VirtualPartner.Runtime
 
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
+            if (speechMouthDriver != null)
+                speechMouthDriver.StopSpeech();
+            if (expressionActionExecutor != null)
+                expressionActionExecutor.ClearExpression();
             if (autonomousBehaviorScheduler != null && exitInteraction)
                 autonomousBehaviorScheduler.ExitUserInteraction();
         }
@@ -735,6 +773,10 @@ namespace VirtualPartner.Runtime
                 rootOrientationController.StopStagePlanFacing();
             if (speechBubbleView != null)
                 speechBubbleView.Clear();
+            if (speechMouthDriver != null)
+                speechMouthDriver.StopSpeech();
+            if (expressionActionExecutor != null)
+                expressionActionExecutor.ClearExpression();
 
             playing = false;
             activeStages = null;
@@ -755,6 +797,12 @@ namespace VirtualPartner.Runtime
         {
             ReleaseBones(stageOwnedBones);
             stageOwnedBones.Clear();
+        }
+
+        private void ReleaseStageExpression()
+        {
+            if (expressionActionExecutor != null)
+                expressionActionExecutor.ClearExpression();
         }
 
         private void ReleaseBones(List<BoneMapInstance> bones)
@@ -797,6 +845,9 @@ namespace VirtualPartner.Runtime
         {
             if (action == null || action.Result != null)
                 return;
+
+            if (action.Kind == StageActionKind.Speech && speechMouthDriver != null)
+                speechMouthDriver.StopSpeech();
 
             action.Result = new StageActionResult(action.StageIndex, action.ActionIndex, action.ActionType, status, message);
             terminalActionCount++;
@@ -1042,6 +1093,10 @@ namespace VirtualPartner.Runtime
                 return Fail("SpeechBubbleView reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
+            if (expressionActionExecutor == null)
+                return Fail("ExpressionActionExecutor reference is missing.");
+            if (speechMouthDriver == null)
+                return Fail("SpeechMouthDriver reference is missing.");
 
             initialized = true;
             return true;

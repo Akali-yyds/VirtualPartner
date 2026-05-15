@@ -12,7 +12,8 @@ namespace VirtualPartner.Runtime
             StagePlan,
             Fsm,
             Root,
-            Bone
+            Bone,
+            ExpressionMouth
         }
 
         [Header("Runtime References")]
@@ -23,6 +24,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private MovementConstraintController movementConstraintController;
         [SerializeField] private ActionCoordinator actionCoordinator;
+        [SerializeField] private MouthTextureController mouthTextureController;
+        [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
+        [SerializeField] private SpeechMouthDriver speechMouthDriver;
 
         [Header("Embedded Panels")]
         [SerializeField] private StagePlanDebugPanel stagePlanPanel;
@@ -39,6 +43,8 @@ namespace VirtualPartner.Runtime
 
         private Vector2 contentScroll;
         private Vector2 expandedWindowSize = new Vector2(780f, 620f);
+        private int debugMouthIndex;
+        private string mouthDebugMessage;
 
         private void Awake()
         {
@@ -57,7 +63,10 @@ namespace VirtualPartner.Runtime
             LlmInteractionDebugPanel llmDebugPanel,
             AutonomousBehaviorDebugPanel fsmDebugPanel,
             RootLocomotionDebugPanel rootDebugPanel,
-            VirtualPartnerBoneDebugPanel boneDebugPanel)
+            VirtualPartnerBoneDebugPanel boneDebugPanel,
+            MouthTextureController mouthController,
+            ExpressionActionExecutor expressionExecutor,
+            SpeechMouthDriver mouthDriver)
         {
             llmRelay = relay;
             stagePlanPlayer = player;
@@ -71,6 +80,9 @@ namespace VirtualPartner.Runtime
             fsmPanel = fsmDebugPanel;
             rootPanel = rootDebugPanel;
             bonePanel = boneDebugPanel;
+            mouthTextureController = mouthController;
+            expressionActionExecutor = expressionExecutor;
+            speechMouthDriver = mouthDriver;
             ApplyLegacyPanelVisibility();
         }
 
@@ -131,6 +143,7 @@ namespace VirtualPartner.Runtime
             DrawSectionButton(DebugSection.Fsm, "FSM");
             DrawSectionButton(DebugSection.Root, "Root");
             DrawSectionButton(DebugSection.Bone, "Bone");
+            DrawSectionButton(DebugSection.ExpressionMouth, "Expr/Mouth");
             GUILayout.FlexibleSpace();
             GUILayout.EndVertical();
         }
@@ -165,6 +178,9 @@ namespace VirtualPartner.Runtime
                     break;
                 case DebugSection.Bone:
                     DrawEmbeddedBone();
+                    break;
+                case DebugSection.ExpressionMouth:
+                    DrawExpressionMouth();
                     break;
                 default:
                     DrawOverview();
@@ -246,6 +262,8 @@ namespace VirtualPartner.Runtime
             DrawRootOverview();
             GUILayout.Space(8f);
             DrawBoneOverview();
+            GUILayout.Space(8f);
+            DrawMouthOverview();
         }
 
         private void DrawLlmOverview()
@@ -336,6 +354,92 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Transitions: {actionCoordinator.ActiveTransitionCount}  Active: {FormatActiveBone()}");
         }
 
+        private void DrawMouthOverview()
+        {
+            GUILayout.Label("Expression/Mouth");
+            if (mouthTextureController == null)
+            {
+                GUILayout.Label("Mouth: Missing");
+                return;
+            }
+
+            GUILayout.Label($"Mouth: {mouthTextureController.CurrentSource} index={mouthTextureController.CurrentMouthIndex}");
+            if (expressionActionExecutor != null)
+                GUILayout.Label($"Expression: {expressionActionExecutor.CurrentExpression} pose={expressionActionExecutor.CurrentMouthPose}");
+            if (speechMouthDriver != null)
+                GUILayout.Label($"Speech Mouth: {(speechMouthDriver.Active ? "Active" : "Idle")} {speechMouthDriver.Elapsed:0.00}/{speechMouthDriver.Duration:0.00}s pose={speechMouthDriver.CurrentPoseSet}");
+        }
+
+        private void DrawExpressionMouth()
+        {
+            GUILayout.Label("Expression/Mouth");
+            DrawMouthOverview();
+            GUILayout.Space(8f);
+
+            if (mouthTextureController == null)
+                return;
+
+            GUILayout.Label("Debug Mouth Override");
+            debugMouthIndex = Mathf.RoundToInt(GUILayout.HorizontalSlider(debugMouthIndex, -1, 63, GUILayout.Width(300f)));
+            GUILayout.Label($"Index: {debugMouthIndex}");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Apply Debug", GUILayout.Width(120f)))
+            {
+                mouthTextureController.SetDebugMouthIndex(debugMouthIndex);
+                mouthDebugMessage = mouthTextureController.LastMessage;
+            }
+            if (GUILayout.Button("Release Debug", GUILayout.Width(120f)))
+            {
+                mouthTextureController.ReleaseDebugOverride();
+                mouthDebugMessage = mouthTextureController.LastMessage;
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(8f);
+            GUILayout.Label("Expression Test");
+            DrawExpressionButton("neutral");
+            DrawExpressionButton("smile");
+            DrawExpressionButton("thinking");
+            DrawExpressionButton("surprised");
+            DrawExpressionButton("embarrassed");
+            if (GUILayout.Button("Clear Expression", GUILayout.Width(140f)) && expressionActionExecutor != null)
+            {
+                expressionActionExecutor.ClearExpression();
+                mouthDebugMessage = expressionActionExecutor.LastMessage;
+            }
+
+            GUILayout.Space(8f);
+            if (speechMouthDriver != null)
+            {
+                GUILayout.Label($"Fallback Duration: min={speechMouthDriver.MinDuration:0.##}s max={speechMouthDriver.MaxDuration:0.##}s sec/char={speechMouthDriver.SecondsPerCharacter:0.###}");
+                GUILayout.Label($"Random Open Mouth: {speechMouthDriver.RandomizeOpenMouthIndex}");
+                GUILayout.Label($"Speech Driver: {speechMouthDriver.LastMessage}");
+            }
+
+            if (expressionActionExecutor != null)
+                GUILayout.Label($"Expression Executor: {expressionActionExecutor.LastMessage}");
+            GUILayout.Label($"Mouth Controller: {mouthTextureController.LastMessage}");
+            if (!string.IsNullOrWhiteSpace(mouthDebugMessage))
+                GUILayout.Label($"Last Debug: {mouthDebugMessage}");
+        }
+
+        private void DrawExpressionButton(string expressionName)
+        {
+            if (!GUILayout.Button(expressionName, GUILayout.Width(140f)))
+                return;
+
+            if (expressionActionExecutor == null)
+            {
+                mouthDebugMessage = "ExpressionActionExecutor missing.";
+                return;
+            }
+
+            if (expressionActionExecutor.StartExpression(expressionName, 0.3f, out var failureReason))
+                mouthDebugMessage = expressionActionExecutor.LastMessage;
+            else
+                mouthDebugMessage = failureReason;
+        }
+
         private string FormatActiveBone()
         {
             if (actionCoordinator == null || string.IsNullOrWhiteSpace(actionCoordinator.ActiveBoneName))
@@ -375,6 +479,12 @@ namespace VirtualPartner.Runtime
                 rootPanel = GetComponent<RootLocomotionDebugPanel>();
             if (bonePanel == null)
                 bonePanel = GetComponent<VirtualPartnerBoneDebugPanel>();
+            if (mouthTextureController == null)
+                mouthTextureController = GetComponent<MouthTextureController>();
+            if (expressionActionExecutor == null)
+                expressionActionExecutor = GetComponent<ExpressionActionExecutor>();
+            if (speechMouthDriver == null)
+                speechMouthDriver = GetComponent<SpeechMouthDriver>();
         }
 
         private void ToggleMinimized()

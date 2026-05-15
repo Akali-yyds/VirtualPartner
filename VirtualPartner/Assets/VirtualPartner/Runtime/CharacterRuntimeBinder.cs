@@ -17,6 +17,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionActionExecutor locomotionActionExecutor;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private SpeechBubbleView speechBubbleView;
+        [SerializeField] private MouthTextureController mouthTextureController;
+        [SerializeField] private ExpressionActionExecutor expressionActionExecutor;
+        [SerializeField] private SpeechMouthDriver speechMouthDriver;
 
         [Header("Runtime Status")]
         [SerializeField] private bool registered;
@@ -50,7 +53,10 @@ namespace VirtualPartner.Runtime
                 rootOrientationController,
                 locomotionActionExecutor,
                 autonomousBehaviorScheduler,
-                speechBubbleView);
+                speechBubbleView,
+                mouthTextureController,
+                expressionActionExecutor,
+                speechMouthDriver);
 
             if (!CharacterRegistry.TryRegister(context, out failureReason))
             {
@@ -98,6 +104,12 @@ namespace VirtualPartner.Runtime
                 return Fail("AutonomousBehaviorScheduler reference is missing.", out failureReason);
             if (speechBubbleView == null)
                 return Fail("SpeechBubbleView reference is missing.", out failureReason);
+            if (mouthTextureController == null)
+                return Fail("MouthTextureController reference is missing.", out failureReason);
+            if (expressionActionExecutor == null)
+                return Fail("ExpressionActionExecutor reference is missing.", out failureReason);
+            if (speechMouthDriver == null)
+                return Fail("SpeechMouthDriver reference is missing.", out failureReason);
 
             failureReason = string.Empty;
             return true;

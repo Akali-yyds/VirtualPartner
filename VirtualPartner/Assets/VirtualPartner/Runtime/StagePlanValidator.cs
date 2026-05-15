@@ -156,7 +156,7 @@ namespace VirtualPartner.Runtime
                 case "speech":
                     return ValidateSpeechAction(stageLabel, actionIndex, action, errors, warnings);
                 case "expression":
-                    return ValidateExpressionAction(stageLabel, actionIndex, action, warnings);
+                    return ValidateExpressionAction(stageLabel, actionIndex, action, characterProfile, warnings);
                 case "bonepose":
                     return ValidateBonePoseAction(stageLabel, actionIndex, action, characterProfile, warnings);
                 case "animation":
@@ -203,17 +203,30 @@ namespace VirtualPartner.Runtime
             string stageLabel,
             int actionIndex,
             StagePlanActionDto action,
+            CharacterProfile characterProfile,
             List<string> warnings)
         {
+            if (characterProfile.ExpressionProfile == null)
+            {
+                warnings.Add($"{stageLabel} expression action {actionIndex} requires ExpressionProfile and will be skipped.");
+                return false;
+            }
+
             if (string.IsNullOrWhiteSpace(action.name))
             {
                 warnings.Add($"{stageLabel} expression action {actionIndex} is missing name and will be skipped.");
                 return false;
             }
 
-            if (!IsSupportedExpression(action.name))
+            if (!characterProfile.ExpressionProfile.TryFindEntry(action.name, out var expressionEntry))
             {
                 warnings.Add($"{stageLabel} expression '{action.name}' is unknown and will be skipped.");
+                return false;
+            }
+
+            if (!expressionEntry.Enabled)
+            {
+                warnings.Add($"{stageLabel} expression '{action.name}' is disabled and will be skipped.");
                 return false;
             }
 
@@ -497,16 +510,6 @@ namespace VirtualPartner.Runtime
                 return;
 
             warnings.Add($"{stageLabel} action {actionIndex} has duration <= 0. Later runtime should default this to 1 second.");
-        }
-
-        private static bool IsSupportedExpression(string expression)
-        {
-            var normalized = NormalizeType(expression);
-            return normalized == "neutral"
-                || normalized == "smile"
-                || normalized == "thinking"
-                || normalized == "surprised"
-                || normalized == "embarrassed";
         }
 
         private static bool IsSupportedFacingTarget(string target)
