@@ -1054,21 +1054,71 @@ namespace VirtualPartner.Runtime
                 return false;
             }
 
-            if (trimmed.StartsWith("{", StringComparison.Ordinal) && trimmed.EndsWith("}", StringComparison.Ordinal))
-            {
-                stagePlanJson = trimmed;
+            if (TryExtractFirstJsonObject(trimmed, out stagePlanJson))
                 return true;
-            }
-
-            var start = trimmed.IndexOf('{');
-            var end = trimmed.LastIndexOf('}');
-            if (start >= 0 && end > start)
-            {
-                stagePlanJson = trimmed.Substring(start, end - start + 1);
-                return true;
-            }
 
             failureReason = "LLM content does not contain a JSON object.";
+            return false;
+        }
+
+        private static bool TryExtractFirstJsonObject(string content, out string json)
+        {
+            json = string.Empty;
+            if (string.IsNullOrWhiteSpace(content))
+                return false;
+
+            var start = content.IndexOf('{');
+            if (start < 0)
+                return false;
+
+            var depth = 0;
+            var inString = false;
+            var escaping = false;
+            for (var i = start; i < content.Length; i++)
+            {
+                var c = content[i];
+                if (inString)
+                {
+                    if (escaping)
+                    {
+                        escaping = false;
+                        continue;
+                    }
+
+                    if (c == '\\')
+                    {
+                        escaping = true;
+                        continue;
+                    }
+
+                    if (c == '"')
+                        inString = false;
+                    continue;
+                }
+
+                if (c == '"')
+                {
+                    inString = true;
+                    continue;
+                }
+
+                if (c == '{')
+                {
+                    depth++;
+                    continue;
+                }
+
+                if (c != '}')
+                    continue;
+
+                depth--;
+                if (depth == 0)
+                {
+                    json = content.Substring(start, i - start + 1);
+                    return true;
+                }
+            }
+
             return false;
         }
 

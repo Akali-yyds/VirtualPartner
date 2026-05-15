@@ -14,6 +14,9 @@ VirtualPartner/[Ll]ibrary/AI.MCP/
 VirtualPartner/[Ll]ogs/traces.jsonl
 VirtualPartner/[Ll]ogs/trace-config.json
 
+# VirtualPartner runtime user data and generated caches
+VirtualPartner/[Uu]ser[Dd]ata/
+
 # Unity generated files
 *.csproj
 *.sln

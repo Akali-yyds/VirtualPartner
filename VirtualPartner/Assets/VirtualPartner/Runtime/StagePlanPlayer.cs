@@ -113,6 +113,10 @@ namespace VirtualPartner.Runtime
         [SerializeField] private int activeRequestId;
         [SerializeField] private string activePlanId;
 
+        private RunningStageAction pendingSpeechPlaybackAction;
+        private bool subscribedToTtsPlaybackStarted;
+        private bool currentStageSpeechPlaybackStarted;
+
         private enum StageActionKind
         {
             Speech,
@@ -153,7 +157,13 @@ namespace VirtualPartner.Runtime
         public int CurrentLlmStagePlanRequestId => IsOwnerPlaying(LlmRelay.LlmOwnerId) ? activeRequestId : 0;
         public float DebugSpeechDurationSeconds => Mathf.Max(0.01f, debugSpeechDurationSeconds);
 
+        // Raised when speech output actually begins, so chat/scene bubbles stay aligned with TTS playback or fallback.
         public event Action<StagePlanSpeechEvent> SpeechActionStarted;
+
+        private void OnDisable()
+        {
+            ClearPendingSpeechPlayback(null);
+        }
 
         public void Configure(
             CharacterProfile profile,
@@ -335,6 +345,7 @@ namespace VirtualPartner.Runtime
                 runningActions.Clear();
                 terminalActionCount = 0;
                 activeActionCount = 0;
+                currentStageSpeechPlaybackStarted = false;
 
                 var stage = activeStages[currentStageIndex];
                 currentStageStatus = $"Stage {currentStageIndex + 1}";
@@ -364,11 +375,13 @@ namespace VirtualPartner.Runtime
         {
             var locomotionStarted = false;
             var facingStarted = false;
+            var syncBodyActionsToSpeech = StageHasSpeech(stage);
 
             for (var actionIndex = 0; actionIndex < stage.actions.Length; actionIndex++)
             {
                 var action = stage.actions[actionIndex];
                 var actionType = NormalizeType(action != null ? action.type : string.Empty);
+                var actionKind = GetActionKind(actionType);
 
                 if (actionType == "locomotion" && locomotionStarted)
                 {
@@ -382,7 +395,18 @@ namespace VirtualPartner.Runtime
                     continue;
                 }
 
-                var runningAction = StartAction(actionIndex, action);
+                var runningAction = new RunningStageAction(currentStageIndex, actionIndex, action != null ? action.type : string.Empty, actionKind, action);
+                if (syncBodyActionsToSpeech
+                    && !currentStageSpeechPlaybackStarted
+                    && ShouldDelayForSpeechPlayback(actionKind))
+                {
+                    runningAction.WaitingForSpeechPlaybackStart = true;
+                }
+                else
+                {
+                    StartAction(runningAction);
+                }
+
                 runningActions.Add(runningAction);
 
                 if (runningAction.Kind == StageActionKind.Locomotion && runningAction.Result == null)
@@ -392,15 +416,16 @@ namespace VirtualPartner.Runtime
             }
         }
 
-        private RunningStageAction StartAction(int actionIndex, StagePlanActionDto action)
+        private void StartAction(RunningStageAction runningAction)
         {
-            var actionType = action != null ? action.type : string.Empty;
-            var runningAction = new RunningStageAction(currentStageIndex, actionIndex, actionType, GetActionKind(actionType), action);
+            if (runningAction == null || runningAction.Result != null)
+                return;
 
-            if (action == null)
+            runningAction.WaitingForSpeechPlaybackStart = false;
+            if (runningAction.Action == null)
             {
                 CompleteAction(runningAction, StageActionStatus.Skipped, "Action is null.");
-                return runningAction;
+                return;
             }
 
             switch (runningAction.Kind)
@@ -424,11 +449,9 @@ namespace VirtualPartner.Runtime
                     StartExpressionAction(runningAction);
                     break;
                 default:
-                    CompleteAction(runningAction, StageActionStatus.Skipped, $"Unknown action type '{action.type}'.");
+                    CompleteAction(runningAction, StageActionStatus.Skipped, $"Unknown action type '{runningAction.Action.type}'.");
                     break;
             }
-
-            return runningAction;
         }
 
         private void AddImmediateResult(int actionIndex, StagePlanActionDto action, StageActionStatus status, string message)
@@ -451,6 +474,54 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
+            if (ttsManager == null)
+            {
+                CompleteAction(runningAction, StageActionStatus.Failed, "TtsManager reference is missing.");
+                return;
+            }
+
+            WatchSpeechPlaybackStart(runningAction);
+            if (!ttsManager.StartSpeech(runningAction.Action, DebugSpeechDurationSeconds, out var failureReason))
+            {
+                ClearPendingSpeechPlayback(runningAction);
+                CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
+                return;
+            }
+
+            runningAction.Duration = ttsManager.Duration;
+        }
+
+        private void WatchSpeechPlaybackStart(RunningStageAction runningAction)
+        {
+            pendingSpeechPlaybackAction = runningAction;
+            if (ttsManager == null || subscribedToTtsPlaybackStarted)
+                return;
+
+            ttsManager.SpeechPlaybackStarted += HandleTtsSpeechPlaybackStarted;
+            subscribedToTtsPlaybackStarted = true;
+        }
+
+        private void ClearPendingSpeechPlayback(RunningStageAction runningAction)
+        {
+            if (runningAction != null && pendingSpeechPlaybackAction != runningAction)
+                return;
+
+            if (ttsManager != null && subscribedToTtsPlaybackStarted)
+                ttsManager.SpeechPlaybackStarted -= HandleTtsSpeechPlaybackStarted;
+
+            subscribedToTtsPlaybackStarted = false;
+            pendingSpeechPlaybackAction = null;
+        }
+
+        private void HandleTtsSpeechPlaybackStarted()
+        {
+            var runningAction = pendingSpeechPlaybackAction;
+            if (runningAction == null || runningAction.Result != null || runningAction.SpeechEventRaised)
+                return;
+
+            runningAction.SpeechEventRaised = true;
+            currentStageSpeechPlaybackStarted = true;
+            StartDelayedActionsForSpeechPlayback();
             speechBubbleView.Show(runningAction.Action.text);
             SpeechActionStarted?.Invoke(new StagePlanSpeechEvent(
                 activeOwnerId,
@@ -460,19 +531,20 @@ namespace VirtualPartner.Runtime
                 runningAction.StageIndex,
                 runningAction.ActionIndex,
                 runningAction.Action.text));
-            if (ttsManager == null)
-            {
-                CompleteAction(runningAction, StageActionStatus.Failed, "TtsManager reference is missing.");
-                return;
-            }
+            ClearPendingSpeechPlayback(runningAction);
+        }
 
-            if (!ttsManager.StartSpeech(runningAction.Action, DebugSpeechDurationSeconds, out var failureReason))
+        private void StartDelayedActionsForSpeechPlayback()
+        {
+            currentStageSpeechPlaybackStarted = true;
+            for (var i = 0; i < runningActions.Count; i++)
             {
-                CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
-                return;
-            }
+                var action = runningActions[i];
+                if (action.Result != null || !action.WaitingForSpeechPlaybackStart)
+                    continue;
 
-            runningAction.Duration = ttsManager.Duration;
+                StartAction(action);
+            }
         }
 
         private void StartBonePoseAction(RunningStageAction runningAction)
@@ -601,6 +673,8 @@ namespace VirtualPartner.Runtime
             {
                 var action = runningActions[i];
                 if (action.Result != null)
+                    continue;
+                if (action.WaitingForSpeechPlaybackStart)
                     continue;
 
                 switch (action.Kind)
@@ -877,6 +951,10 @@ namespace VirtualPartner.Runtime
 
             if (action.Kind == StageActionKind.Speech)
             {
+                if (!action.SpeechEventRaised && status != StageActionStatus.Interrupted)
+                    StartDelayedActionsForSpeechPlayback();
+
+                ClearPendingSpeechPlayback(action);
                 if (ttsManager != null)
                 {
                     if (status == StageActionStatus.Completed)
@@ -1228,6 +1306,20 @@ namespace VirtualPartner.Runtime
             }
         }
 
+        private static bool ShouldDelayForSpeechPlayback(StageActionKind kind)
+        {
+            switch (kind)
+            {
+                case StageActionKind.BonePose:
+                case StageActionKind.Animation:
+                case StageActionKind.Facing:
+                case StageActionKind.Locomotion:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private static string NormalizeType(string actionType)
         {
             return string.IsNullOrWhiteSpace(actionType)
@@ -1294,6 +1386,8 @@ namespace VirtualPartner.Runtime
             public PresetAnimationClipBinding PresetBinding { get; set; }
             public bool PresetStarted { get; set; }
             public bool LocomotionObservedActive { get; set; }
+            public bool SpeechEventRaised { get; set; }
+            public bool WaitingForSpeechPlaybackStart { get; set; }
             public StageActionResult Result { get; set; }
             public List<BoneMapInstance> OwnedBones { get; } = new List<BoneMapInstance>();
         }

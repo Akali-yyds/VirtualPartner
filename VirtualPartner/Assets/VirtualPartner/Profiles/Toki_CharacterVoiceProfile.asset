@@ -16,4 +16,4 @@ MonoBehaviour:
   defaultVoiceId: toki_default
   defaultSpeed: 1
   defaultEmotion: neutral
-  ttsProvider: MockTTS
+  ttsProvider: GptSoVits

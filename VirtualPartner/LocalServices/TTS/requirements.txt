@@ -1,0 +1,2 @@
+# Stage 2.11 wrapper uses only Python standard library.
+# GPT-SoVITS and its dependencies run as a separate upstream service.

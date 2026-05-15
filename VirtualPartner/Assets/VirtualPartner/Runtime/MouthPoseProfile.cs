@@ -69,6 +69,18 @@ namespace VirtualPartner.Runtime
             return ResolveOpen(openLarge, openMid, openSmall);
         }
 
+        public int GetSpeechIndex(float openness, float smallThreshold, float midThreshold, float largeThreshold)
+        {
+            if (openness < smallThreshold)
+                return closed;
+            if (openness < midThreshold)
+                return ResolveOpen(openSmall, openMid, openLarge);
+            if (openness < largeThreshold)
+                return ResolveOpen(openMid, openLarge, openSmall);
+
+            return ResolveOpen(openLarge, openMid, openSmall);
+        }
+
         public int GetRandomOpenIndex()
         {
             var validCount = 0;

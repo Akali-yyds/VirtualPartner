@@ -47,7 +47,7 @@ namespace VirtualPartner.Runtime
         private Vector2 expandedWindowSize = new Vector2(780f, 620f);
         private int debugMouthIndex;
         private string mouthDebugMessage;
-        private string ttsDebugText = "Mock TTS debug test.";
+        private string ttsDebugText = "Teacher, we can continue now.";
         private string ttsDebugMessage;
 
         private void Awake()
@@ -323,7 +323,9 @@ namespace VirtualPartner.Runtime
             }
 
             GUILayout.Label($"Status: {ttsManager.StatusText}  Mode: {ttsManager.ModeText}  Audio: {(ttsManager.AudioSourcePlaying ? "Playing" : "Stopped")}");
-            GUILayout.Label($"Voice: {ttsManager.CurrentVoiceId}  Emotion: {ttsManager.CurrentEmotion}  Duration: {ttsManager.Elapsed:0.00}/{ttsManager.Duration:0.00}s");
+            GUILayout.Label($"Provider: {ttsManager.CurrentProvider}  Voice: {ttsManager.CurrentVoiceId}  Emotion: {ttsManager.CurrentEmotion}");
+            GUILayout.Label($"Duration: {ttsManager.Elapsed:0.00}/{ttsManager.Duration:0.00}s  Cached: {ttsManager.Cached}");
+            GUILayout.Label($"Health: {ttsManager.HealthStatusText}");
             if (!string.IsNullOrWhiteSpace(ttsManager.LatestError))
                 GUILayout.Label($"Latest Error: {ttsManager.LatestError}");
         }
@@ -394,7 +396,7 @@ namespace VirtualPartner.Runtime
             if (expressionActionExecutor != null)
                 GUILayout.Label($"Expression: {expressionActionExecutor.CurrentExpression} pose={expressionActionExecutor.CurrentMouthPose}");
             if (speechMouthDriver != null)
-                GUILayout.Label($"Speech Mouth: {(speechMouthDriver.Active ? "Active" : "Idle")} {speechMouthDriver.Elapsed:0.00}/{speechMouthDriver.Duration:0.00}s pose={speechMouthDriver.CurrentPoseSet}");
+                GUILayout.Label($"Speech Mouth: {(speechMouthDriver.Active ? "Active" : "Idle")} {(speechMouthDriver.AudioRmsMode ? "RMS" : "Text")} {speechMouthDriver.Elapsed:0.00}/{speechMouthDriver.Duration:0.00}s pose={speechMouthDriver.CurrentPoseSet}");
         }
 
         private void DrawExpressionMouth()
@@ -440,6 +442,7 @@ namespace VirtualPartner.Runtime
             {
                 GUILayout.Label($"Fallback Duration: min={speechMouthDriver.MinDuration:0.##}s max={speechMouthDriver.MaxDuration:0.##}s sec/char={speechMouthDriver.SecondsPerCharacter:0.###}");
                 GUILayout.Label($"Random Open Mouth: {speechMouthDriver.RandomizeOpenMouthIndex}");
+                GUILayout.Label($"RMS: {speechMouthDriver.CurrentRms:0.000} openness={speechMouthDriver.SmoothedOpenness:0.000}");
                 GUILayout.Label($"Speech Driver: {speechMouthDriver.LastMessage}");
             }
 
@@ -467,21 +470,32 @@ namespace VirtualPartner.Runtime
             if (use3D != ttsManager.Use3DAudio)
                 ttsManager.SetUse3DAudio(use3D);
 
-            GUILayout.Label($"MockTTS Enabled: {ttsManager.MockTtsEnabled}");
+            GUILayout.Label($"Service: {ttsManager.ServiceUrl}  Timeout: {ttsManager.RequestTimeoutSeconds}s  Health Timeout: {ttsManager.HealthTimeoutSeconds}s");
+            GUILayout.Label($"Session: {ttsManager.CurrentSessionId}  MockTTS Enabled: {ttsManager.MockTtsEnabled}");
             GUILayout.Label($"Text: {ttsManager.CurrentTextSummary}");
             GUILayout.Label($"AudioSource: {ttsManager.AudioSourceState}");
             GUILayout.Label($"Cache Key: {ttsManager.CacheKey}");
             GUILayout.Label($"Cache Path: {ttsManager.CachePath}");
             GUILayout.Label($"Cached: {ttsManager.Cached}");
+            GUILayout.Label($"Provider Version: {ttsManager.ProviderVersion}");
+            GUILayout.Label($"Voice Hashes: ref={ttsManager.ReferenceAudioHash} prompt={ttsManager.PromptTextHash}");
+            GUILayout.Label($"Lang: prompt={ttsManager.PromptLang} text={ttsManager.TextLang}");
             GUILayout.Label($"Last: {ttsManager.LastMessage}");
 
             GUILayout.Space(8f);
             GUILayout.Label("Debug Test Text");
             ttsDebugText = GUILayout.TextField(ttsDebugText);
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Mock Success Test", GUILayout.Width(150f)))
+            if (GUILayout.Button("Health Check", GUILayout.Width(120f)))
+            {
+                ttsManager.RequestHealthCheck();
+                ttsDebugMessage = "Health check requested.";
+            }
+            if (GUILayout.Button("Real TTS Test", GUILayout.Width(130f)))
                 StartDebugTts(false);
-            if (GUILayout.Button("Mock Failure Test", GUILayout.Width(150f)))
+            if (GUILayout.Button("Warmup Test", GUILayout.Width(120f)))
+                StartDebugTts(false);
+            if (GUILayout.Button("Mock Failure Test", GUILayout.Width(140f)))
                 StartDebugTts(true);
             if (GUILayout.Button("Stop TTS", GUILayout.Width(100f)))
             {
