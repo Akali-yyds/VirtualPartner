@@ -64,6 +64,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private LocomotionProfile locomotionProfile;
         [SerializeField] private StagePlanPlayer stagePlanPlayer;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
+        [SerializeField] private MemorySystem memorySystem;
 
         [Header("Prompt TextAssets")]
         [SerializeField] private TextAsset characterPrompt;
@@ -121,7 +122,8 @@ namespace VirtualPartner.Runtime
             PresetAnimationProfile presetProfile,
             LocomotionProfile locomotion,
             StagePlanPlayer stagePlayer,
-            AutonomousBehaviorScheduler scheduler)
+            AutonomousBehaviorScheduler scheduler,
+            MemorySystem memory = null)
         {
             boneMapProfile = boneProfile;
             characterProfile = profile;
@@ -131,6 +133,7 @@ namespace VirtualPartner.Runtime
             locomotionProfile = locomotion;
             stagePlanPlayer = stagePlayer;
             autonomousBehaviorScheduler = scheduler;
+            memorySystem = memory;
             configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
             initialized = ValidateReferences();
 
@@ -425,9 +428,17 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
             AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
+            AppendPromptSection(builder, "Long Term Memory", BuildMemoryPromptContext(), false);
             AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             AppendRuntimeCapabilities(builder);
             return builder.ToString();
+        }
+
+        private string BuildMemoryPromptContext()
+        {
+            return memorySystem != null
+                ? memorySystem.BuildPromptContext(GetTargetCharacterId())
+                : string.Empty;
         }
 
         private void AppendTargetCharacterSection(StringBuilder builder)
@@ -1230,6 +1241,13 @@ namespace VirtualPartner.Runtime
             return string.IsNullOrWhiteSpace(characterProfile.CharacterId)
                 ? "the current character"
                 : characterProfile.CharacterId.Trim();
+        }
+
+        private string GetTargetCharacterId()
+        {
+            return characterProfile != null && !string.IsNullOrWhiteSpace(characterProfile.CharacterId)
+                ? characterProfile.CharacterId.Trim()
+                : string.Empty;
         }
 
         private static string LoadPromptText(TextAsset promptAsset, string fileName)

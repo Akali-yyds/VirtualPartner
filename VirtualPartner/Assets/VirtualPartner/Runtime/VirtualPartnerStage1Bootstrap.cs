@@ -30,8 +30,10 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TtsManager ttsManager;
         [SerializeField] private AudioSource ttsAudioSource;
         [SerializeField] private AsrManager asrManager;
+        [SerializeField] private MemorySystem memorySystem;
         [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
         [SerializeField] private LlmRelay llmRelay;
+        [SerializeField] private MomotalkUIManager momotalkUIManager;
         [SerializeField] private AutonomousBehaviorDebugPanel autonomousBehaviorDebugPanel;
         [SerializeField] private RootLocomotionDebugPanel rootLocomotionDebugPanel;
         [SerializeField] private VirtualPartnerBoneDebugPanel boneDebugPanel;
@@ -83,6 +85,7 @@ namespace VirtualPartner.Runtime
             speechMouthDriver.Configure(mouthTextureController, expressionActionExecutor);
             ttsManager.Configure(characterProfile, speechMouthDriver, ttsAudioSource);
             asrManager.Configure();
+            memorySystem.Configure(characterProfile);
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -111,7 +114,8 @@ namespace VirtualPartner.Runtime
                 presetAnimationProfile,
                 locomotionProfile,
                 stagePlanPlayer,
-                autonomousBehaviorScheduler);
+                autonomousBehaviorScheduler,
+                memorySystem);
             if (llmInteractionDebugPanel != null)
                 llmInteractionDebugPanel.Configure(llmRelay);
             if (runtimeDebugPanel != null)
@@ -133,7 +137,9 @@ namespace VirtualPartner.Runtime
                     expressionActionExecutor,
                     speechMouthDriver,
                     ttsManager,
-                    asrManager);
+                    asrManager,
+                    memorySystem,
+                    momotalkUIManager);
             }
 
             yield return null;
@@ -264,6 +270,8 @@ namespace VirtualPartner.Runtime
                 return Fail("TTS AudioSource reference is missing.");
             if (asrManager == null)
                 return Fail("AsrManager reference is missing.");
+            if (memorySystem == null)
+                return Fail("MemorySystem reference is missing.");
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
             if (llmRelay == null)
@@ -294,6 +302,12 @@ namespace VirtualPartner.Runtime
                 asrManager = GetComponent<AsrManager>();
             if (asrManager == null)
                 asrManager = gameObject.AddComponent<AsrManager>();
+            if (memorySystem == null)
+                memorySystem = GetComponent<MemorySystem>();
+            if (memorySystem == null)
+                memorySystem = gameObject.AddComponent<MemorySystem>();
+            if (momotalkUIManager == null)
+                momotalkUIManager = FindFirstObjectByType<MomotalkUIManager>();
         }
 
         private bool ValidateStaticBaseline()

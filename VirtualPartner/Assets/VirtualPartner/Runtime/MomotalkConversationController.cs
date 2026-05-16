@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,6 +30,7 @@ namespace VirtualPartner.Runtime
         private StagePlanPlayer stagePlanPlayer;
         private SpeechBubbleView speechBubbleView;
         private AsrManager asrManager;
+        private MemorySystem memorySystem;
         private CanvasGroup chatView;
         private CharacterRuntimeContext currentContext;
         private RectTransform scrollContent;
@@ -52,6 +54,17 @@ namespace VirtualPartner.Runtime
         private bool subscribedToAsrManager;
 
         public string LastHistoryPath => historyStore.LastResolvedPath;
+        public string CurrentCharacterId => GetCharacterId(currentContext);
+        public int TotalUnreadCount
+        {
+            get
+            {
+                var total = 0;
+                foreach (var pair in unreadCounts)
+                    total += Mathf.Max(0, pair.Value);
+                return total;
+            }
+        }
 
         public event System.Action ContactsChanged;
 
@@ -63,6 +76,7 @@ namespace VirtualPartner.Runtime
             stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
             speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
             asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
+            memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
             EnsureSubscriptions();
             EnsureChatUi();
         }
@@ -80,7 +94,10 @@ namespace VirtualPartner.Runtime
             if (llmRelay != null && subscribedToLlmRelay)
                 llmRelay.RequestFailed -= HandleLlmRequestFailed;
             if (stagePlanPlayer != null && subscribedToStagePlanPlayer)
+            {
                 stagePlanPlayer.SpeechActionStarted -= HandleSpeechActionStarted;
+                stagePlanPlayer.StagePlanFinished -= HandleStagePlanFinished;
+            }
             if (asrManager != null && subscribedToAsrManager)
                 asrManager.RecognitionFinished -= HandleAsrRecognitionFinished;
         }
@@ -159,6 +176,26 @@ namespace VirtualPartner.Runtime
             return false;
         }
 
+        public void OpenHistoryFolder()
+        {
+            var path = LastHistoryPath;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                var characterId = CurrentCharacterId;
+                if (string.IsNullOrWhiteSpace(characterId))
+                    return;
+
+                path = historyStore.GetPath(characterId);
+            }
+
+            var folder = Path.GetDirectoryName(path);
+            if (string.IsNullOrWhiteSpace(folder))
+                return;
+
+            Directory.CreateDirectory(folder);
+            Application.OpenURL("file:///" + folder.Replace("\\", "/"));
+        }
+
         private void SendCurrentInput()
         {
             if (inputField == null || currentContext == null)
@@ -200,6 +237,11 @@ namespace VirtualPartner.Runtime
             }
 
             requestCharacterIds[submit.RequestId] = characterId;
+            if (memorySystem != null)
+            {
+                memorySystem.MarkOlderRequestsReplaced(characterId, submit.RequestId);
+                memorySystem.RegisterUserMessage(characterId, submit.RequestId, text);
+            }
             ReplaceStaleTypingViews(submit.RequestId);
             var typingView = CreateTypingView(submit.RequestId, avatar);
             typingViews[submit.RequestId] = typingView;
@@ -303,6 +345,8 @@ namespace VirtualPartner.Runtime
                 return;
             if (clearedRequestIds.Contains(failure.RequestId))
                 return;
+            if (memorySystem != null)
+                memorySystem.MarkRequestCanceled(failure.RequestId, failure.Message);
 
             var characterId = GetCharacterIdForRequest(failure.RequestId);
             if (string.IsNullOrWhiteSpace(characterId))
@@ -336,6 +380,8 @@ namespace VirtualPartner.Runtime
 
             var record = MomotalkHistoryStore.CreateMessage("character", speech.Text, "shown", speech.RequestId, speech.StageIndex, speech.ActionIndex);
             historyStore.Append(characterId, record);
+            if (memorySystem != null)
+                memorySystem.RecordSpeech(speech);
             requestCharacterIds.Remove(speech.RequestId);
 
             var avatar = GetAvatarForCharacter(characterId);
@@ -360,6 +406,21 @@ namespace VirtualPartner.Runtime
             ContactsChanged?.Invoke();
         }
 
+        private void HandleStagePlanFinished(StagePlanFinishedEvent finished)
+        {
+            if (finished == null)
+                return;
+            if (finished.OwnerId != LlmRelay.LlmOwnerId)
+                return;
+            if (finished.RequestId <= 0)
+                return;
+            if (clearedRequestIds.Contains(finished.RequestId))
+                return;
+
+            if (memorySystem != null)
+                memorySystem.MarkRequestFinished(finished);
+        }
+
         private void ReplaceStaleTypingViews(int newestRequestId)
         {
             var staleRequestIds = new List<int>();
@@ -374,6 +435,8 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < staleRequestIds.Count; i++)
             {
                 var requestId = staleRequestIds[i];
+                if (memorySystem != null)
+                    memorySystem.MarkRequestReplaced(requestId);
                 var characterId = GetCharacterIdForRequest(requestId);
                 if (string.IsNullOrWhiteSpace(characterId))
                     characterId = GetCharacterId(currentContext);
@@ -498,6 +561,9 @@ namespace VirtualPartner.Runtime
 
         private void CancelLlmForCharacter(string characterId)
         {
+            if (memorySystem != null)
+                memorySystem.CancelCharacterRequests(characterId);
+
             var removedAnyPendingRequest = false;
             var playingRequestId = stagePlanPlayer != null ? stagePlanPlayer.CurrentLlmStagePlanRequestId : 0;
             var playingCharacterId = playingRequestId > 0 ? GetCharacterIdForRequest(playingRequestId) : string.Empty;
@@ -546,6 +612,8 @@ namespace VirtualPartner.Runtime
                 speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
             if (asrManager == null)
                 asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
+            if (memorySystem == null)
+                memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
 
             if (llmRelay != null && !subscribedToLlmRelay)
             {
@@ -556,6 +624,7 @@ namespace VirtualPartner.Runtime
             if (stagePlanPlayer != null && !subscribedToStagePlanPlayer)
             {
                 stagePlanPlayer.SpeechActionStarted += HandleSpeechActionStarted;
+                stagePlanPlayer.StagePlanFinished += HandleStagePlanFinished;
                 subscribedToStagePlanPlayer = true;
             }
 

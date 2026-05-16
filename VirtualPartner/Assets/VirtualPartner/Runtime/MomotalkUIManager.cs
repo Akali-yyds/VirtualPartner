@@ -89,8 +89,16 @@ namespace VirtualPartner.Runtime
         public float LoadingDuration => loadingDuration;
         public bool RestoreLastPageInPlay => restoreLastPageInPlay;
         public bool IsOpen => isOpen;
+        public bool LoadingVisible => loadingVisible;
+        public string VisiblePageName => loadingVisible ? "Loading" : visiblePage.ToString();
+        public string LastPageName => lastPage.ToString();
         public int LlmHistoryContextMessageCount => Mathf.Max(0, llmHistoryContextMessageCount);
         public bool ShowReplacedSystemMessage => showReplacedSystemMessage;
+        public string SelectedCharacterId => selectedContext != null ? selectedContext.CharacterId : string.Empty;
+        public string SelectedCharacterName => selectedContext != null && selectedContext.Profile != null
+            ? selectedContext.Profile.DisplayName
+            : string.Empty;
+        public bool HasSelectedConversation => selectedContext != null;
 
         private void Awake()
         {

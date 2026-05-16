@@ -605,36 +605,41 @@
 
 **前置条件**
 
-- [ ] 阶段 2.4 已完成。
-- [ ] 已确认 MemoryJudge 只面向 StagePlan 2.0 对话结果。
-- [ ] 已确认聊天记录、记忆、缓存等路径需要在本阶段开始前单独讨论。
+- [x] 阶段 2.4 已完成。
+- [x] 已确认 MemoryJudge 只面向 StagePlan 2.0 对话结果。
+- [x] 已确认聊天记录、记忆、缓存等路径需要在本阶段开始前单独讨论。
 
 **开发任务**
 
-- [ ] 讨论并确认长期记忆存储路径和目录组织。
-- [ ] 建立 MemoryJudge prompt。
-- [ ] 支持在 StagePlan 2.0 对话完成后判断是否值得记忆。
-- [ ] 支持校验记忆结果。
-- [ ] 支持写入 Markdown 记忆。
-- [ ] 支持读取当前角色 core / high 记忆并注入 Prompt。
-- [ ] 提供 Memory Debug 能力。
-- [ ] 保持聊天记录和长期记忆边界清晰。
+- [x] 讨论并确认长期记忆存储路径和目录组织。
+- [x] 建立 MemoryJudge prompt。
+- [x] 支持在 StagePlan 2.0 对话完成后判断是否值得记忆。
+- [x] 支持校验记忆结果。
+- [x] 支持写入 Markdown 记忆。
+- [x] 支持读取当前角色 core / high 记忆并注入 Prompt。
+- [x] 提供 Memory Debug 能力。
+- [x] 保持聊天记录和长期记忆边界清晰。
 
 **手动验收标准**
 
-- [ ] 普通寒暄不会被随意写入长期记忆。
-- [ ] 重要项目决策或用户偏好可以被写入 Markdown 记忆。
-- [ ] 后续对话能读取并注入当前角色 core / high 记忆。
-- [ ] MemoryJudge 不处理 timeline 1.0 或非 StagePlan 对话结果。
-- [ ] Debug 能查看最新 MemoryJudge 结果和加载记忆。
+- [x] 普通寒暄不会被随意写入长期记忆。
+- [x] 重要项目决策或用户偏好可以被写入 Markdown 记忆。
+- [x] 后续对话能读取并注入当前角色 core / high 记忆。
+- [x] MemoryJudge 不处理 timeline 1.0 或非 StagePlan 对话结果。
+- [x] Debug 能查看最新 MemoryJudge 结果和加载记忆。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- [x] 用户已确认 Stage 2.14 手动验收通过。
+- [x] 已新增独立 Markdown 长期记忆链路，MemoryJudge 使用独立请求状态和 Prompt，不复用 `LlmRelay.SubmitWithResult`。
+- [x] 已确认只有未被 latest-wins 替换、未被 Clear Chat 取消、且完整 finished 的正式 Momotalk LLM requestId 会进入 MemoryJudge。
+- [x] 已确认长期记忆写入 `VirtualPartner/UserData/Memory/{characterId}/` 六类 Markdown 文件，写入前会跳过同分类完全重复 `memoryText`。
+- [x] 已确认 `LlmRelay` 会注入当前角色 core / high 记忆，`maxMemoryPromptChars` 默认 3000，core 优先于 high，超限状态可在 Debug 查看。
+- [x] 已确认统一 Runtime Debug 面板新增 Memory 页，可查看 latest raw MemoryJudge response、parse error、加载记忆和写入状态。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 2.15：Debug 整合与二阶段收尾
 
@@ -644,43 +649,46 @@
 
 **前置条件**
 
-- [ ] 阶段 2.14 已完成。
-- [ ] 第二阶段主要功能已经完成初步联调。
-- [ ] 已记录各阶段发现的调试痛点。
+- [x] 阶段 2.14 已完成。
+- [x] 第二阶段主要功能已经完成初步联调。
+- [x] 已记录各阶段发现的调试痛点。
 
 **开发任务**
 
-- [ ] 整合 Momotalk 状态观察。
-- [ ] 整合 StagePlan 状态观察。
-- [ ] 整合 Expression / Mouth 状态观察。
-- [ ] 整合 TTS 状态观察。
-- [ ] 整合 ASR 状态观察。
-- [ ] 整合 Memory 状态观察。
-- [ ] 整合 Character 状态观察。
-- [ ] 进行二阶段整体手动验收。
-- [ ] 生成 `README_Stage2.md`。
+- [x] 整合 Momotalk 状态观察。
+- [x] 整合 StagePlan 状态观察。
+- [x] 整合 Expression / Mouth 状态观察。
+- [x] 整合 TTS 状态观察。
+- [x] 整合 ASR 状态观察。
+- [x] 整合 Memory 状态观察。
+- [x] 整合 Character 状态观察。
+- [x] 进行二阶段整体手动验收。
+- [x] 生成 `README_Stage2.md`。
 
 **手动验收标准**
 
-- [ ] Play 后右侧出现 Momotalk 按钮。
-- [ ] 打开手机 UI，可以进入 Toki 聊天页。
-- [ ] 用户输入文本后，LLM 返回 StagePlan 2.0。
-- [ ] StagePlan 按阶段执行，speech 不错位。
-- [ ] Momotalk 气泡按 stage / speech 顺序出现。
-- [ ] Toki 可以切换基础表情。
-- [ ] Toki 说话时嘴巴贴图随语音或文本开合。
-- [ ] TTS 可以用 Toki voiceId 合成并播放语音。
-- [ ] ASR 可以识别用户语音，填入输入框或自动发送。
-- [ ] Toki 可以自动记录长期记忆到 Markdown。
-- [ ] 重新对话时能注入该角色 core / high 记忆。
-- [ ] 当前场景中已绑定角色会出现在 Momotalk 联系人列表。
-- [ ] Debug 面板能查看 Momotalk、StagePlan、ASR、TTS、Memory、Character 等关键状态。
-- [ ] `README_Stage2.md` 已生成。
+- [x] Play 后右侧出现 Momotalk 按钮。
+- [x] 打开手机 UI，可以进入 Toki 聊天页。
+- [x] 用户输入文本后，LLM 返回 StagePlan 2.0。
+- [x] StagePlan 按阶段执行，speech 不错位。
+- [x] Momotalk 气泡按 stage / speech 顺序出现。
+- [x] Toki 可以切换基础表情。
+- [x] Toki 说话时嘴巴贴图随语音或文本开合。
+- [x] TTS 可以用 Toki voiceId 合成并播放语音。
+- [x] ASR 可以识别用户语音，填入输入框或自动发送。
+- [x] Toki 可以自动记录长期记忆到 Markdown。
+- [x] 重新对话时能注入该角色 core / high 记忆。
+- [x] 当前场景中已绑定角色会出现在 Momotalk 联系人列表。
+- [x] Debug 面板能查看 Momotalk、StagePlan、ASR、TTS、Memory、Character 等关键状态。
+- [x] `README_Stage2.md` 已生成。
 
 **验收记录**
 
-- [ ] 待阶段完成后记录。
+- 用户已确认 Stage 2.15 Debug 整合与二阶段收尾验收通过。
+- 已生成 `README_Stage2.md` 并同步更新根目录 `README.md` 入口。
+- 已补齐统一 Runtime Debug 的 Momotalk 与 Character 观察页。
+- 已保留现有 StagePlan、TTS、ASR、Memory、Expr/Mouth 调试入口。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VirtualPartner.Runtime
@@ -10,8 +11,11 @@ namespace VirtualPartner.Runtime
             Overview,
             Llm,
             StagePlan,
+            Momotalk,
             Tts,
             Asr,
+            Memory,
+            Character,
             Fsm,
             Root,
             Bone,
@@ -31,6 +35,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private SpeechMouthDriver speechMouthDriver;
         [SerializeField] private TtsManager ttsManager;
         [SerializeField] private AsrManager asrManager;
+        [SerializeField] private MemorySystem memorySystem;
+        [SerializeField] private MomotalkUIManager momotalkUIManager;
 
         [Header("Embedded Panels")]
         [SerializeField] private StagePlanDebugPanel stagePlanPanel;
@@ -52,6 +58,9 @@ namespace VirtualPartner.Runtime
         private string ttsDebugText = "Teacher, we can continue now.";
         private string ttsDebugMessage;
         private string asrDebugMessage;
+        private Vector2 memoryRawScroll;
+        private MomotalkConversationController momotalkConversationController;
+        private readonly List<CharacterRuntimeContext> debugCharacterContexts = new List<CharacterRuntimeContext>();
 
         private void Awake()
         {
@@ -75,7 +84,9 @@ namespace VirtualPartner.Runtime
             ExpressionActionExecutor expressionExecutor,
             SpeechMouthDriver mouthDriver,
             TtsManager tts,
-            AsrManager asr)
+            AsrManager asr,
+            MemorySystem memory,
+            MomotalkUIManager momotalk)
         {
             llmRelay = relay;
             stagePlanPlayer = player;
@@ -94,6 +105,11 @@ namespace VirtualPartner.Runtime
             speechMouthDriver = mouthDriver;
             ttsManager = tts;
             asrManager = asr;
+            memorySystem = memory;
+            momotalkUIManager = momotalk;
+            momotalkConversationController = momotalkUIManager != null
+                ? momotalkUIManager.GetComponent<MomotalkConversationController>()
+                : null;
             ApplyLegacyPanelVisibility();
         }
 
@@ -151,8 +167,11 @@ namespace VirtualPartner.Runtime
             DrawSectionButton(DebugSection.Overview, "Overview");
             DrawSectionButton(DebugSection.Llm, "LLM");
             DrawSectionButton(DebugSection.StagePlan, "StagePlan");
+            DrawSectionButton(DebugSection.Momotalk, "Momotalk");
             DrawSectionButton(DebugSection.Tts, "TTS");
             DrawSectionButton(DebugSection.Asr, "ASR");
+            DrawSectionButton(DebugSection.Memory, "Memory");
+            DrawSectionButton(DebugSection.Character, "Character");
             DrawSectionButton(DebugSection.Fsm, "FSM");
             DrawSectionButton(DebugSection.Root, "Root");
             DrawSectionButton(DebugSection.Bone, "Bone");
@@ -183,11 +202,20 @@ namespace VirtualPartner.Runtime
                 case DebugSection.StagePlan:
                     DrawEmbeddedStagePlan();
                     break;
+                case DebugSection.Momotalk:
+                    DrawMomotalk();
+                    break;
                 case DebugSection.Tts:
                     DrawTts();
                     break;
                 case DebugSection.Asr:
                     DrawAsr();
+                    break;
+                case DebugSection.Memory:
+                    DrawMemory();
+                    break;
+                case DebugSection.Character:
+                    DrawCharacter();
                     break;
                 case DebugSection.Fsm:
                     DrawEmbeddedFsm();
@@ -276,9 +304,15 @@ namespace VirtualPartner.Runtime
             GUILayout.Space(8f);
             DrawStagePlanOverview();
             GUILayout.Space(8f);
+            DrawMomotalkOverview();
+            GUILayout.Space(8f);
             DrawTtsOverview();
             GUILayout.Space(8f);
             DrawAsrOverview();
+            GUILayout.Space(8f);
+            DrawMemoryOverview();
+            GUILayout.Space(8f);
+            DrawCharacterOverview();
             GUILayout.Space(8f);
             DrawFsmOverview();
             GUILayout.Space(8f);
@@ -324,6 +358,23 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Last: {stagePlanPlayer.LastMessage}");
         }
 
+        private void DrawMomotalkOverview()
+        {
+            ResolveMomotalkReferences();
+
+            GUILayout.Label("Momotalk");
+            if (momotalkUIManager == null)
+            {
+                GUILayout.Label("Missing");
+                return;
+            }
+
+            GUILayout.Label($"Open: {momotalkUIManager.IsOpen}  Loading: {momotalkUIManager.LoadingVisible}  Page: {momotalkUIManager.VisiblePageName}");
+            GUILayout.Label($"Selected: {FormatCharacterLabel(momotalkUIManager.SelectedCharacterId, momotalkUIManager.SelectedCharacterName)}");
+            if (momotalkConversationController != null)
+                GUILayout.Label($"Conversation: {FormatEmpty(momotalkConversationController.CurrentCharacterId)}  Unread: {momotalkConversationController.TotalUnreadCount}");
+        }
+
         private void DrawTtsOverview()
         {
             GUILayout.Label("TTS");
@@ -362,6 +413,30 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Latest Error: {asrManager.LatestError}");
             if (!string.IsNullOrWhiteSpace(asrManager.LastMessage))
                 GUILayout.Label($"Last: {asrManager.LastMessage}");
+        }
+
+        private void DrawMemoryOverview()
+        {
+            GUILayout.Label("Memory");
+            if (memorySystem == null)
+            {
+                GUILayout.Label("Missing");
+                return;
+            }
+
+            GUILayout.Label($"Status: {memorySystem.StatusText}  Processing: {memorySystem.Processing}  Queue: {memorySystem.QueueCount}");
+            GUILayout.Label($"Prompt chars: {memorySystem.LoadedMemoryPromptChars}/{memorySystem.MaxMemoryPromptChars}  Truncated: {memorySystem.MemoryPromptTruncated}");
+            if (!string.IsNullOrWhiteSpace(memorySystem.LastMessage))
+                GUILayout.Label($"Last: {memorySystem.LastMessage}");
+        }
+
+        private void DrawCharacterOverview()
+        {
+            GUILayout.Label("Character");
+            CharacterRegistry.GetRegisteredContexts(debugCharacterContexts);
+            GUILayout.Label($"Registered: {debugCharacterContexts.Count}");
+            if (debugCharacterContexts.Count > 0)
+                GUILayout.Label($"First: {FormatContextLabel(debugCharacterContexts[0])}");
         }
 
         private void DrawFsmOverview()
@@ -619,6 +694,116 @@ namespace VirtualPartner.Runtime
                 GUILayout.Label($"Debug: {asrDebugMessage}");
         }
 
+        private void DrawMemory()
+        {
+            GUILayout.Label("Memory");
+            DrawMemoryOverview();
+            GUILayout.Space(8f);
+
+            if (memorySystem == null)
+                return;
+
+            GUILayout.Label($"Config: {memorySystem.ConfigStatus}");
+            GUILayout.Label($"Config Path: {memorySystem.ConfigPath}");
+            GUILayout.Label($"Memory Folder: {memorySystem.MemoryRootPath}");
+            GUILayout.Label($"Latest Decision: {memorySystem.LatestDecision}");
+            GUILayout.Label($"Latest Write Path: {memorySystem.LatestWritePath}");
+            GUILayout.Label($"Parse Error: {memorySystem.LatestParseError}");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload Memory", GUILayout.Width(130f)))
+                memorySystem.ReloadMemory();
+            if (GUILayout.Button("Judge Last Turn", GUILayout.Width(140f)))
+                memorySystem.QueueLatestTurnForDebug();
+            if (GUILayout.Button("Open Memory Folder", GUILayout.Width(160f)))
+                memorySystem.OpenMemoryFolder();
+            if (GUILayout.Button("Clear Latest Decision", GUILayout.Width(170f)))
+                memorySystem.ClearLatestDecision();
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(8f);
+            GUILayout.Label("Latest Raw MemoryJudge Response");
+            memoryRawScroll = GUILayout.BeginScrollView(memoryRawScroll, GUILayout.Height(160f));
+            GUILayout.TextArea(memorySystem.LatestRawMemoryJudgeResponse);
+            GUILayout.EndScrollView();
+        }
+
+        private void DrawMomotalk()
+        {
+            GUILayout.Label("Momotalk");
+            DrawMomotalkOverview();
+            GUILayout.Space(8f);
+
+            if (momotalkUIManager == null)
+                return;
+
+            GUILayout.Label($"Last Page: {momotalkUIManager.LastPageName}");
+            GUILayout.Label($"Has Selected Conversation: {momotalkUIManager.HasSelectedConversation}");
+            GUILayout.Label($"LLM History Context Messages: {momotalkUIManager.LlmHistoryContextMessageCount}");
+            GUILayout.Label($"Show Replaced System Message: {momotalkUIManager.ShowReplacedSystemMessage}");
+
+            if (momotalkConversationController != null)
+            {
+                GUILayout.Label($"Current Conversation: {FormatEmpty(momotalkConversationController.CurrentCharacterId)}");
+                GUILayout.Label($"Any Unread: {momotalkConversationController.HasAnyUnread()}  Total Unread: {momotalkConversationController.TotalUnreadCount}");
+                GUILayout.Label($"History Path: {FormatEmpty(momotalkConversationController.LastHistoryPath)}");
+            }
+            else
+            {
+                GUILayout.Label("Conversation Controller: Missing");
+            }
+
+            GUILayout.Space(8f);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Open", GUILayout.Width(90f)))
+                momotalkUIManager.Open();
+            if (GUILayout.Button("Close", GUILayout.Width(90f)))
+                momotalkUIManager.Close();
+            if (GUILayout.Button("Show Contacts", GUILayout.Width(130f)))
+                momotalkUIManager.ShowContactList();
+
+            var previousGuiEnabled = GUI.enabled;
+            GUI.enabled = momotalkConversationController != null;
+            if (GUILayout.Button("Open History Folder", GUILayout.Width(170f)))
+                momotalkConversationController.OpenHistoryFolder();
+            GUI.enabled = previousGuiEnabled;
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawCharacter()
+        {
+            GUILayout.Label("Character");
+            DrawCharacterOverview();
+            GUILayout.Space(8f);
+            ResolveMomotalkReferences();
+
+            if (momotalkUIManager != null)
+                GUILayout.Label($"Momotalk Selected: {FormatCharacterLabel(momotalkUIManager.SelectedCharacterId, momotalkUIManager.SelectedCharacterName)}");
+            if (momotalkConversationController != null)
+                GUILayout.Label($"Momotalk Conversation: {FormatEmpty(momotalkConversationController.CurrentCharacterId)}");
+
+            CharacterRegistry.GetRegisteredContexts(debugCharacterContexts);
+            if (debugCharacterContexts.Count == 0)
+            {
+                GUILayout.Label("No registered character.");
+                return;
+            }
+
+            for (var i = 0; i < debugCharacterContexts.Count; i++)
+            {
+                var context = debugCharacterContexts[i];
+                var profile = context != null ? context.Profile : null;
+                GUILayout.Space(8f);
+                GUILayout.Label($"[{i}] {FormatContextLabel(context)}");
+                GUILayout.Label($"Profile Asset: {FormatObjectName(profile)}  Status: {FormatEmpty(profile != null ? profile.MomotalkStatus : string.Empty)}");
+                GUILayout.Label($"Profile Links: BoneMap={FormatPresence(profile != null ? profile.BoneMapProfile : null)}  Preset={FormatPresence(profile != null ? profile.PresetAnimationProfile : null)}  Locomotion={FormatPresence(profile != null ? profile.LocomotionProfile : null)}  FSM={FormatPresence(profile != null ? profile.FsmProfile : null)}  Voice={FormatPresence(profile != null ? profile.VoiceProfile : null)}");
+                GUILayout.Label($"Runtime Root: {FormatObjectName(context != null ? context.RuntimeRoot : null)}");
+                GUILayout.Label($"Runtime: StagePlan={FormatPresence(context != null ? context.StagePlanPlayer : null)}  Action={FormatPresence(context != null ? context.ActionCoordinator : null)}  Avatar={FormatPresence(context != null ? context.AvatarPoseApplier : null)}  Root={FormatPresence(context != null ? context.RootOrientationController : null)}");
+                GUILayout.Label($"Runtime: Locomotion={FormatPresence(context != null ? context.LocomotionActionExecutor : null)}  FSM={FormatPresence(context != null ? context.AutonomousBehaviorScheduler : null)}  Bubble={FormatPresence(context != null ? context.SpeechBubbleView : null)}");
+                GUILayout.Label($"Face/Voice: Mouth={FormatPresence(context != null ? context.MouthTextureController : null)}  Expression={FormatPresence(context != null ? context.ExpressionActionExecutor : null)}  SpeechMouth={FormatPresence(context != null ? context.SpeechMouthDriver : null)}");
+            }
+        }
+
         private void DrawExpressionButton(string expressionName)
         {
             if (!GUILayout.Button(expressionName, GUILayout.Width(140f)))
@@ -667,6 +852,48 @@ namespace VirtualPartner.Runtime
             return $"{actionCoordinator.ActiveBoneName} ({actionCoordinator.ActiveOwner})";
         }
 
+        private void ResolveMomotalkReferences()
+        {
+            if (momotalkUIManager == null)
+                momotalkUIManager = FindFirstObjectByType<MomotalkUIManager>();
+            if (momotalkConversationController == null && momotalkUIManager != null)
+                momotalkConversationController = momotalkUIManager.GetComponent<MomotalkConversationController>();
+        }
+
+        private static string FormatEmpty(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+        }
+
+        private static string FormatCharacterLabel(string characterId, string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(characterId))
+                return "-";
+            if (string.IsNullOrWhiteSpace(displayName))
+                return characterId;
+
+            return $"{displayName} ({characterId})";
+        }
+
+        private static string FormatContextLabel(CharacterRuntimeContext context)
+        {
+            if (context == null)
+                return "Missing";
+
+            var profile = context.Profile;
+            return FormatCharacterLabel(context.CharacterId, profile != null ? profile.DisplayName : string.Empty);
+        }
+
+        private static string FormatObjectName(Object value)
+        {
+            return value != null ? value.name : "Missing";
+        }
+
+        private static string FormatPresence(Object value)
+        {
+            return value != null ? "OK" : "Missing";
+        }
+
         private void ApplyLegacyPanelVisibility()
         {
             ResolveEmbeddedPanels();
@@ -708,6 +935,12 @@ namespace VirtualPartner.Runtime
                 ttsManager = GetComponent<TtsManager>();
             if (asrManager == null)
                 asrManager = GetComponent<AsrManager>();
+            if (memorySystem == null)
+                memorySystem = GetComponent<MemorySystem>();
+            if (momotalkUIManager == null)
+                momotalkUIManager = FindFirstObjectByType<MomotalkUIManager>();
+            if (momotalkConversationController == null && momotalkUIManager != null)
+                momotalkConversationController = momotalkUIManager.GetComponent<MomotalkConversationController>();
         }
 
         private void ToggleMinimized()

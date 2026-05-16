@@ -66,6 +66,26 @@ namespace VirtualPartner.Runtime
         public string Text { get; }
     }
 
+    public sealed class StagePlanFinishedEvent
+    {
+        public StagePlanFinishedEvent(
+            string ownerId,
+            string characterId,
+            int requestId,
+            string planId)
+        {
+            OwnerId = ownerId ?? string.Empty;
+            CharacterId = characterId ?? string.Empty;
+            RequestId = requestId;
+            PlanId = planId ?? string.Empty;
+        }
+
+        public string OwnerId { get; }
+        public string CharacterId { get; }
+        public int RequestId { get; }
+        public string PlanId { get; }
+    }
+
     [DisallowMultipleComponent]
     public sealed class StagePlanPlayer : MonoBehaviour
     {
@@ -159,6 +179,7 @@ namespace VirtualPartner.Runtime
 
         // Raised when speech output actually begins, so chat/scene bubbles stay aligned with TTS playback or fallback.
         public event Action<StagePlanSpeechEvent> SpeechActionStarted;
+        public event Action<StagePlanFinishedEvent> StagePlanFinished;
 
         private void OnDisable()
         {
@@ -830,6 +851,10 @@ namespace VirtualPartner.Runtime
         private void FinishStagePlan()
         {
             var exitInteraction = UsesUserInteraction(activeOwnerId);
+            var finishedOwnerId = activeOwnerId;
+            var finishedRequestId = activeRequestId;
+            var finishedPlanId = activePlanId;
+            var finishedCharacterId = characterProfile != null ? characterProfile.CharacterId : string.Empty;
             playing = false;
             activeStages = null;
             runningActions.Clear();
@@ -853,6 +878,12 @@ namespace VirtualPartner.Runtime
                 expressionActionExecutor.ClearExpression();
             if (autonomousBehaviorScheduler != null && exitInteraction)
                 autonomousBehaviorScheduler.ExitUserInteraction();
+
+            StagePlanFinished?.Invoke(new StagePlanFinishedEvent(
+                finishedOwnerId,
+                finishedCharacterId,
+                finishedRequestId,
+                finishedPlanId));
         }
 
         private void StopActiveStagePlan(StageActionStatus status, string message, bool exitInteraction)
