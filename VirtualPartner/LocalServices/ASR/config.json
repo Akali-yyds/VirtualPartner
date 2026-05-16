@@ -1,0 +1,24 @@
+{
+  "host": "127.0.0.1",
+  "port": 8766,
+  "version": "vp-asr-sherpa-onnx-v1",
+  "engine": "sherpa-onnx",
+  "sample_rate": 16000,
+  "input_device": "1",
+  "max_record_seconds": 15,
+  "status_poll_seconds": 0.25,
+  "model": {
+    "type": "online-zipformer2-ctc",
+    "model_path": "models/asr/sherpa-onnx-streaming-zipformer-ctc-zh-int8-2025-06-30/model.int8.onnx",
+    "tokens_path": "models/asr/sherpa-onnx-streaming-zipformer-ctc-zh-int8-2025-06-30/tokens.txt",
+    "num_threads": 2,
+    "provider": "cpu"
+  },
+  "vad": {
+    "model_path": "models/vad/silero_vad.onnx",
+    "threshold": 0.5,
+    "energy_threshold": 0.01,
+    "min_silence_seconds": 0.8,
+    "min_speech_seconds": 0.25
+  }
+}

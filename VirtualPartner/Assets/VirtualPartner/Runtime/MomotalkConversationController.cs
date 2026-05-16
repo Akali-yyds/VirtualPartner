@@ -230,7 +230,7 @@ namespace VirtualPartner.Runtime
             }
 
             ShowVoiceMode("Listening", "Starting voice input...", false);
-            if (!asrManager.StartMockRecognition(out var failureReason))
+            if (!asrManager.StartRecognition(out var failureReason))
             {
                 ShowVoiceMode("ASR unavailable", failureReason, true);
                 return;

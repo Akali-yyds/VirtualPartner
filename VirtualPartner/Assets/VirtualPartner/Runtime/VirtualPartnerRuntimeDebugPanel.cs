@@ -350,9 +350,14 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            GUILayout.Label($"Status: {asrManager.Status}  Mode: {asrManager.ResultMode}  Active: {asrManager.Active}");
-            GUILayout.Label($"Session: {asrManager.CurrentSessionId}  Mock: {(asrManager.MockAsrEnabled ? "Enabled" : "Disabled")}");
+            GUILayout.Label($"Status: {asrManager.Status}  Result: {asrManager.ResultMode}  Provider: {asrManager.ProviderMode}  Active: {asrManager.Active}");
+            GUILayout.Label($"Unity Session: {asrManager.UnitySessionToken}  Server Session: {asrManager.ServerSessionId}");
+            GUILayout.Label($"Service: {asrManager.ServiceUrl}  Poll: {asrManager.StatusPollIntervalSeconds:0.00}s  Timeout: {asrManager.AsrSessionTimeoutSeconds:0.#}s");
             GUILayout.Label($"Elapsed: {asrManager.Elapsed:0.00}s  Text: {asrManager.LatestText}");
+            GUILayout.Label($"Input RMS: latest={asrManager.LatestRms:0.0000} peak={asrManager.PeakRms:0.0000} speech={asrManager.SpeechDetected}");
+            GUILayout.Label($"Health: {asrManager.HealthStatusText}");
+            GUILayout.Label($"Runtime: {asrManager.RuntimeStatusText}");
+            GUILayout.Label($"Audio Input: {asrManager.AudioInputStatusText}");
             if (!string.IsNullOrWhiteSpace(asrManager.LatestError))
                 GUILayout.Label($"Latest Error: {asrManager.LatestError}");
             if (!string.IsNullOrWhiteSpace(asrManager.LastMessage))
@@ -546,6 +551,11 @@ namespace VirtualPartner.Runtime
             if (asrManager == null)
                 return;
 
+            var useMock = GUILayout.Toggle(asrManager.ProviderMode == AsrProviderMode.Mock, "Use MockASR");
+            var providerMode = useMock ? AsrProviderMode.Mock : AsrProviderMode.RealService;
+            if (providerMode != asrManager.ProviderMode)
+                asrManager.SetProviderMode(providerMode);
+
             var autoSend = GUILayout.Toggle(asrManager.ResultMode == AsrResultMode.AutoSendToLlm, "AutoSendToLlm");
             var targetMode = autoSend ? AsrResultMode.AutoSendToLlm : AsrResultMode.FillInputOnly;
             if (targetMode != asrManager.ResultMode)
@@ -564,8 +574,33 @@ namespace VirtualPartner.Runtime
             if (mockText != asrManager.MockText)
                 asrManager.SetMockText(mockText);
 
+            GUILayout.Space(6f);
+            GUILayout.Label($"Service: {asrManager.ServiceUrl}");
+            GUILayout.Label($"Health: {asrManager.HealthStatusText}");
+            GUILayout.Label($"Runtime: {asrManager.RuntimeStatusText}");
+            GUILayout.Label($"Engine: {asrManager.EngineStatusText}");
+            GUILayout.Label($"Model: {asrManager.ModelStatusText}");
+            GUILayout.Label($"VAD: {asrManager.VadStatusText}");
+            GUILayout.Label($"Mic: {asrManager.MicrophoneStatusText}");
+            GUILayout.Label($"Audio Input: {asrManager.AudioInputStatusText}");
+            GUILayout.Label($"Remote Status: {asrManager.ServiceStatusText}");
+            GUILayout.Label($"Input RMS: latest={asrManager.LatestRms:0.0000} peak={asrManager.PeakRms:0.0000} speech={asrManager.SpeechDetected}");
+            GUILayout.Label($"Unity Session: {asrManager.UnitySessionToken}");
+            GUILayout.Label($"Server Session: {asrManager.ServerSessionId}");
             GUILayout.Label($"Durations: listening={asrManager.ListeningSeconds:0.00}s recognizing={asrManager.RecognizingSeconds:0.00}s");
             GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Health Check", GUILayout.Width(120f)))
+            {
+                asrManager.RequestHealthCheck();
+                asrDebugMessage = "ASR health check requested.";
+            }
+            if (GUILayout.Button("Start Real", GUILayout.Width(120f)))
+            {
+                if (asrManager.StartRealRecognition(out var failureReason))
+                    asrDebugMessage = asrManager.LastMessage;
+                else
+                    asrDebugMessage = failureReason;
+            }
             if (GUILayout.Button("Start Mock", GUILayout.Width(120f)))
             {
                 if (asrManager.StartMockRecognition(out var failureReason))

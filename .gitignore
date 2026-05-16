@@ -17,6 +17,16 @@ VirtualPartner/[Ll]ogs/trace-config.json
 # VirtualPartner runtime user data and generated caches
 VirtualPartner/[Uu]ser[Dd]ata/
 
+# VirtualPartner local ASR generated artifacts
+VirtualPartner/LocalServices/ASR/.venv/
+VirtualPartner/LocalServices/ASR/__pycache__/
+VirtualPartner/LocalServices/ASR/models/
+VirtualPartner/LocalServices/ASR/logs/
+VirtualPartner/LocalServices/ASR/tmp/
+VirtualPartner/LocalServices/ASR/**/*.wav
+VirtualPartner/LocalServices/ASR/**/*.onnx
+VirtualPartner/LocalServices/ASR/**/*.tar.bz2
+
 # Unity generated files
 *.csproj
 *.sln
