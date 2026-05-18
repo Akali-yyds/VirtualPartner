@@ -1,0 +1,66 @@
+{
+  "runtimeVersion": "v1-20260517-003",
+  "appPath": "App\\VirtualPartner.exe",
+  "showDetailedLogsDefault": false,
+  "requiredPaths": [
+    "App\\VirtualPartner.exe",
+    "App\\UserSettings\\VirtualPartnerLlmConfig.json",
+    "Services\\GPT-SoVITS\\api_v2.py",
+    "Services\\GPT-SoVITS\\GPT_SoVITS\\configs\\tts_infer.yaml",
+    "Services\\TTS\\tts_service.py",
+    "Services\\TTS\\config.json",
+    "Services\\ASR\\asr_service.py",
+    "Services\\ASR\\config.json",
+    "Runtime\\gpt_tts\\python.exe",
+    "Runtime\\asr\\python.exe"
+  ],
+  "runtimes": [
+    {
+      "id": "gpt_tts",
+      "displayName": "GPT-SoVITS/TTS Python Runtime",
+      "rootPath": "Runtime\\gpt_tts",
+      "requiredExecutable": "{runtime:gpt_tts}\\python.exe"
+    },
+    {
+      "id": "asr",
+      "displayName": "ASR Python Runtime",
+      "rootPath": "Runtime\\asr",
+      "requiredExecutable": "{runtime:asr}\\python.exe"
+    }
+  ],
+  "services": [
+    {
+      "id": "gpt_sovits",
+      "displayName": "GPT-SoVITS",
+      "workingDirectory": "Services\\GPT-SoVITS",
+      "executable": "{runtime:gpt_tts}\\python.exe",
+      "arguments": "api_v2.py -a 127.0.0.1 -p 9880 -c GPT_SoVITS\\configs\\tts_infer.yaml",
+      "port": 9880,
+      "healthUrl": "http://127.0.0.1:9880/docs",
+      "healthMode": "http-ok",
+      "startupTimeoutSeconds": 360
+    },
+    {
+      "id": "tts",
+      "displayName": "TTS Wrapper",
+      "workingDirectory": "Services\\TTS",
+      "executable": "{runtime:gpt_tts}\\python.exe",
+      "arguments": "tts_service.py",
+      "port": 8765,
+      "healthUrl": "http://127.0.0.1:8765/health",
+      "healthMode": "json-success",
+      "startupTimeoutSeconds": 120
+    },
+    {
+      "id": "asr",
+      "displayName": "ASR Service",
+      "workingDirectory": "Services\\ASR",
+      "executable": "{runtime:asr}\\python.exe",
+      "arguments": "asr_service.py",
+      "port": 8766,
+      "healthUrl": "http://127.0.0.1:8766/health",
+      "healthMode": "json-success",
+      "startupTimeoutSeconds": 180
+    }
+  ]
+}
