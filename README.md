@@ -1,170 +1,52 @@
 # VirtualPartner
 
-VirtualPartner 是一个 Unity 桌面虚拟陪伴角色原型项目。当前主角色是 Toki，项目目标是让用户通过类 Momotalk 的手机界面与角色进行文本和语音交流，并由 LLM 输出结构化 StagePlan 来驱动角色说话、动作、表情、嘴型、语音播放和长期记忆。
+更新时间：2026-05-19
 
-当前仓库包含 Unity Runtime、本地 TTS/ASR 包装服务、阶段开发文档和验收记录。第二阶段主线已经完成到“正式交互入口 + 语音输入输出 + 基础表情嘴型 + Markdown 长期记忆 + 统一 Debug 面板”的可体验版本。
+VirtualPartner 是一个 Unity 桌面虚拟陪伴角色项目。当前主角色是 Toki / CH0187，目标是在本地桌面环境中通过 Momotalk 风格界面与角色进行文本和语音交流，并让角色用表情、嘴型、动作、语音和长期记忆形成可体验的陪伴反馈。
 
-## 当前能力
+当前项目已经完成从第一阶段 Runtime 原型到第二阶段可体验版本的开发，并补齐了 Windows Standalone 的最小应用菜单与退出能力。
 
-- **Momotalk 交互入口**：右侧手机入口、联系人列表、Toki 聊天页、文本输入、typing indicator、未读提示和聊天记录恢复。
-- **StagePlan 2.0 执行模型**：LLM 只返回 JSON StagePlan，Unity 校验后按 stage 顺序执行 `speech`、`bonePose`、`animation`、`facing`、`locomotion`、`expression`。
-- **角色动作与调度**：保留第一阶段的骨骼控制、Root 朝向、locomotion、预设动画、FSM 自主行为和 ActionCoordinator owner 机制。
-- **嘴型与基础表情**：支持 8x8 mouth index 切换、基础 expression 白名单、文本 fallback 嘴型和真实音频 RMS 嘴型。
-- **TTS 语音输出**：Unity 通过本地 TTS wrapper 调用 GPT-SoVITS；成功时播放角色语音并等待音频完成，失败时降级到文本时长和文本嘴型。
-- **ASR 语音输入**：Unity 通过本地 ASR service 使用 sherpa-onnx 识别系统麦克风输入；结果可填入输入框或自动发送给 LLM。
-- **Markdown 长期记忆**：角色可在 StagePlan 对话完成后自动判断是否写入长期记忆，并在后续 prompt 中注入当前角色 `core/high` 记忆。
-- **统一 Runtime Debug**：集中查看 LLM、StagePlan、Momotalk、TTS、ASR、Memory、Character、FSM、Root、Bone、Expression/Mouth 等状态。
+## 当前体验
 
-## 核心流程
+- 通过右侧 Momotalk 按钮打开手机式聊天界面。
+- 支持与 Toki 进行文本对话，并显示聊天记录、typing 状态和未读提示。
+- 支持 StagePlan 2.0 驱动角色 speech、动作、转向、移动和基础表情。
+- 支持本地 TTS 服务输出角色语音，失败时可降级为文本估算表现。
+- 支持本地 ASR 服务进行语音输入，可填入输入框或自动发送。
+- 支持基础嘴型反馈、Markdown 长期记忆和统一 Runtime Debug 面板。
+- 支持 Standalone 中通过 Esc 打开应用菜单，并从应用内正常退出。
 
-```text
-User text / ASR text
--> MomotalkConversationController
--> LlmRelay
--> LLM returns StagePlan 2.0 JSON
--> StagePlanValidator
--> StagePlanPlayer
--> Runtime executors
-   -> speech bubble / Momotalk bubble
-   -> TTS / fallback speech timing
-   -> mouth driver / expression
-   -> bone / animation / facing / locomotion
--> MemoryJudge after completed LLM StagePlan
--> Markdown memory + future prompt injection
-```
+## 文档入口
 
-LLM 不直接控制 Unity Transform，也不直接写骨骼或 Root。所有行为都必须通过 Runtime 支持的结构化 action、白名单配置和本地校验。
+- [DevelopmentTODO.md](./DevelopmentTODO.md)：全局开发进展、阶段状态和关键验收记录。
+- [DevelopmentDirection.md](./DevelopmentDirection.md)：当前实现方向、架构边界和开发约束。
+- [FutureDevelopmentPlan.md](./FutureDevelopmentPlan.md)：暂缓内容和未来候选方向。
+- [ReadFirst.md](./ReadFirst.md)：协作开发规则，开发前必须遵守。
+- [Archive/Docs/](./Archive/Docs/)：历史阶段文档归档。
 
-## 仓库结构
+## 项目入口
+
+Unity 工程位于：
 
 ```text
-.
-├─ VirtualPartner/                     Unity project
-│  ├─ Assets/VirtualPartner/Runtime/    Core runtime scripts
-│  ├─ Assets/VirtualPartner/Profiles/   Character and behavior profiles
-│  ├─ Assets/VirtualPartner/Prompts/    Prompt modules
-│  ├─ Assets/Scenes/SampleScene.unity   Main test scene
-│  ├─ LocalServices/TTS/                GPT-SoVITS wrapper service
-│  ├─ LocalServices/ASR/                sherpa-onnx ASR service
-│  ├─ UserSettings/                     Local private settings
-│  └─ UserData/                         Runtime data, ignored by git
-├─ Archive/                             Archived references and old timeline material
-├─ README_Stage1.md                     Stage 1 archive
-├─ README_Stage2.md                     Stage 2 archive
-├─ DevelopmentTODO.md                   Stage 1 TODO and acceptance record
-├─ DevelopmentTODO_Stage2.md            Stage 2 TODO and acceptance record
-└─ ReadFirst.md                         Collaboration and development rules
+VirtualPartner/
 ```
 
-## Requirements
-
-- Unity `6000.3.12f1`
-- Windows local development environment
-- A Chat Completions compatible LLM endpoint
-- Optional for real TTS: GPT-SoVITS `api_v2.py`
-- Optional for real ASR: Python environment for `sherpa-onnx`, `sounddevice`, `numpy`
-
-Mock/fallback paths exist for parts of the runtime, but the current full experience expects the Unity scene, LLM config, TTS wrapper and ASR service to be configured locally.
-
-## Quick Start
-
-1. Open `VirtualPartner/` with Unity `6000.3.12f1`.
-2. Open `Assets/Scenes/SampleScene.unity`.
-3. Create local LLM config at `VirtualPartner/UserSettings/VirtualPartnerLlmConfig.json`.
-4. Enter Play Mode.
-5. Click the Momotalk button on the right side of the screen.
-6. Open Toki chat and send a message.
-7. Use `VirtualPartner Runtime Debug` to inspect LLM, StagePlan, TTS, ASR, Memory and character state.
-
-Local private files under `VirtualPartner/UserSettings/` and generated runtime files under `VirtualPartner/UserData/` are ignored by git.
-
-### LLM Config Example
-
-```json
-{
-  "apiKey": "YOUR_API_KEY",
-  "model": "YOUR_MODEL",
-  "baseUrl": "https://your-compatible-endpoint.example",
-  "useJsonResponseFormat": true,
-  "supportsDeveloperRole": true,
-  "interactionTimeoutSeconds": 10
-}
-```
-
-You can also use `chatCompletionsUrl` instead of `baseUrl` if your endpoint does not follow `/v1/chat/completions`.
-
-## Local Services
-
-### TTS
-
-Stage 2 uses a small local wrapper so Unity does not depend on GPT-SoVITS API details directly.
-
-1. Start GPT-SoVITS `api_v2.py` on `127.0.0.1:9880`.
-2. Start the wrapper in `VirtualPartner/LocalServices/TTS/`.
-
-```bat
-cd VirtualPartner\LocalServices\TTS
-python tts_service.py
-```
-
-Wrapper default URL:
+主要场景：
 
 ```text
-http://127.0.0.1:8765
+VirtualPartner/Assets/Scenes/SampleScene.unity
 ```
 
-More details: [`VirtualPartner/LocalServices/TTS/README.md`](./VirtualPartner/LocalServices/TTS/README.md)
-
-### ASR
-
-Stage 2 uses a local sherpa-onnx service for microphone recording, VAD and recognition.
-
-```bat
-cd VirtualPartner\LocalServices\ASR
-setup_venv.bat
-download_models.bat
-start_asr_service.bat
-```
-
-Service default URL:
+本地服务说明：
 
 ```text
-http://127.0.0.1:8766
+VirtualPartner/LocalServices/TTS/README.md
+VirtualPartner/LocalServices/ASR/README.md
 ```
 
-More details: [`VirtualPartner/LocalServices/ASR/README.md`](./VirtualPartner/LocalServices/ASR/README.md)
+## 当前状态
 
-## Runtime Data
+当前主系统以 StagePlan 2.0 为唯一活跃执行格式。旧 timeline 1.0 已迁出到历史归档，不再作为 Runtime 主链路使用。
 
-Generated user/runtime data is kept out of git:
-
-```text
-VirtualPartner/UserData/ChatHistory/{characterId}.json
-VirtualPartner/UserData/Memory/{characterId}/*.md
-VirtualPartner/UserData/TTSCache/{characterId}/*.wav
-```
-
-Chat history is a chronological log. Markdown memory is filtered long-term information selected by MemoryJudge. TTS cache contains generated audio files.
-
-## Development Notes
-
-Project development follows [`ReadFirst.md`](./ReadFirst.md):
-
-- simple, efficient, direct
-- discuss and confirm before implementing a stage
-- keep changes scoped to the current goal
-- prefer high cohesion and low coupling
-- verify manually through Play Mode, Inspector, Debug panels and logs
-
-Stage history:
-
-- [`README_Stage1.md`](./README_Stage1.md): first-stage archive
-- [`README_Stage2.md`](./README_Stage2.md): second-stage archive
-- [`DevelopmentTODO.md`](./DevelopmentTODO.md): first-stage TODO and acceptance
-- [`DevelopmentTODO_Stage2.md`](./DevelopmentTODO_Stage2.md): second-stage TODO and acceptance
-
-## Current Status
-
-The Stage 2 Unity experience is implemented and archived. The project currently supports the complete text/voice Momotalk loop with StagePlan 2.0, TTS, ASR, expression/mouth feedback, Markdown memory and unified runtime debugging.
-
-Future candidates include richer multi-character scheduling, stronger memory retrieval, more expressive facial/body animation, improved ASR quality, and a standalone launcher/app shell.
+后续开发继续按 `ReadFirst.md` 的原则推进：先讨论边界，再生成计划，再实现，再验收，通过后更新全局 TODO。

@@ -40,6 +40,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private StagePlanDebugPanel stagePlanDebugPanel;
         [SerializeField] private LlmInteractionDebugPanel llmInteractionDebugPanel;
         [SerializeField] private VirtualPartnerRuntimeDebugPanel runtimeDebugPanel;
+        [SerializeField] private AppShellBootstrap appShellBootstrap;
 
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
@@ -47,6 +48,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private int registeredBoneCount;
         [SerializeField] private bool idlePlaying;
         [SerializeField] private float currentIdleTime;
+        [SerializeField] private bool runtimeShutdown;
 
         private IEnumerator Start()
         {
@@ -55,6 +57,7 @@ namespace VirtualPartner.Runtime
             registeredBoneCount = 0;
             idlePlaying = false;
             currentIdleTime = 0f;
+            runtimeShutdown = false;
 
             ResolveRuntimeReferences();
             if (!ValidateReferences())
@@ -195,6 +198,15 @@ namespace VirtualPartner.Runtime
 
         private void OnDisable()
         {
+            ShutdownRuntimeForQuit();
+        }
+
+        public void ShutdownRuntimeForQuit()
+        {
+            if (runtimeShutdown)
+                return;
+
+            runtimeShutdown = true;
             if (characterRuntimeBinder != null)
                 characterRuntimeBinder.Unregister();
             if (llmRelay != null)
@@ -308,6 +320,16 @@ namespace VirtualPartner.Runtime
                 memorySystem = gameObject.AddComponent<MemorySystem>();
             if (momotalkUIManager == null)
                 momotalkUIManager = FindFirstObjectByType<MomotalkUIManager>();
+            if (appShellBootstrap == null)
+                appShellBootstrap = FindFirstObjectByType<AppShellBootstrap>();
+            if (appShellBootstrap == null)
+            {
+                var appShellObject = new GameObject("AppShell");
+                appShellObject.transform.SetParent(transform, false);
+                appShellBootstrap = appShellObject.AddComponent<AppShellBootstrap>();
+            }
+
+            appShellBootstrap.Configure(this);
         }
 
         private bool ValidateStaticBaseline()
