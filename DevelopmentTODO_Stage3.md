@@ -76,37 +76,39 @@
 
 **前置条件**
 
-- [ ] 第一阶段 Runtime 原型已完成并通过验收。
-- [ ] 第二阶段正式交互体验已完成并通过验收。
-- [ ] Standalone App Shell MVP 已完成并通过验收。
-- [ ] 已阅读 `ReadFirst.md`。
-- [ ] 已阅读 `DevelopmentDirection_stage3.md`。
-- [ ] 已阅读 Agent 架构映射调研文档。
+- [x] 第一阶段 Runtime 原型已完成并通过验收。
+- [x] 第二阶段正式交互体验已完成并通过验收。
+- [x] Standalone App Shell MVP 已完成并通过验收。
+- [x] 已阅读 `ReadFirst.md`。
+- [x] 已阅读 `DevelopmentDirection_stage3.md`。
+- [x] 已阅读 Agent 架构映射调研文档。
 
 **开发任务**
 
-- [ ] 建立第三阶段阶段性开发 TODO 文档。
-- [ ] 明确第三阶段最终主链路为 AgentRun。
-- [ ] 明确 StagePlanSegment 与 StagePlan 2.0 的关系。
-- [ ] 明确旧 one-shot LlmRelay 链路的迁出方向。
-- [ ] 明确后续每个阶段开始前都先单独讨论。
-- [ ] 明确 TODO 只记录阶段级任务，不提前写死实现细节。
+- [x] 建立第三阶段阶段性开发 TODO 文档。
+- [x] 明确第三阶段最终主链路为 AgentRun。
+- [x] 明确 StagePlanSegment 与 StagePlan 2.0 的关系。
+- [x] 明确旧 one-shot LlmRelay 链路的迁出方向。
+- [x] 明确后续每个阶段开始前都先单独讨论。
+- [x] 明确 TODO 只记录阶段级任务，不提前写死实现细节。
 
 **手动验收标准**
 
-- [ ] 根目录存在 `DevelopmentTODO_Stage3.md`。
-- [ ] 文档明确第三阶段总目标和总原则。
-- [ ] 文档明确 StagePlanSegment 不是新的 Runtime IR。
-- [ ] 文档明确旧 one-shot LlmRelay 不作为最终正式兜底链路。
-- [ ] 文档未修改根目录 `DevelopmentTODO.md` 或 `README.md`。
+- [x] 根目录存在 `DevelopmentTODO_Stage3.md`。
+- [x] 文档明确第三阶段总目标和总原则。
+- [x] 文档明确 StagePlanSegment 不是新的 Runtime IR。
+- [x] 文档明确旧 one-shot LlmRelay 不作为最终正式兜底链路。
+- [x] 文档未修改根目录 `DevelopmentTODO.md` 或 `README.md`。
 
 **验收记录**
 
-- 待填写。
+- 用户已确认 Stage 3.0 基线验收通过。
+- 已确认 `DevelopmentTODO_Stage3.md` 作为第三阶段阶段性 TODO 文档建立完成。
+- 已确认本阶段只更新 Stage3 TODO，不并入根目录 `DevelopmentTODO.md` 或 `README.md`。
 
 **完成状态**
 
-- [ ] 阶段完成。
+- [x] 阶段完成。
 
 ## 阶段 3.1：本地模拟 AgentRun 生命周期
 
