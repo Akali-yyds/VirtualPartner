@@ -165,6 +165,22 @@ namespace VirtualPartner.Runtime
             ContactsChanged?.Invoke();
         }
 
+        public void ClearMemory(CharacterRuntimeContext context)
+        {
+            var characterId = GetCharacterId(context);
+            if (string.IsNullOrWhiteSpace(characterId))
+                return;
+
+            if (memorySystem == null)
+                memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
+
+            if (memorySystem == null)
+                return;
+
+            memorySystem.ClearMemory(characterId);
+            ContactsChanged?.Invoke();
+        }
+
         public bool HasAnyUnread()
         {
             foreach (var pair in unreadCounts)

@@ -1,60 +1,48 @@
+# Read First
 
-## 1. Think Before Coding
+更新时间：2026-05-25
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+本文是 VirtualPartner 协作开发规则。开始任何阶段前先读这里。
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+## 当前基线
 
-## 2. Simplicity First
+当前活跃主链路是：
 
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
+```text
+Momotalk -> LlmRelay -> StagePlan 2.0 -> StagePlanValidator -> StagePlanPlayer
 ```
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+Stage 3 AgentRun / ToolRegistry / AgentLoop 是已归档探索，不是当前默认开发方向。不要在没有重新讨论和计划的情况下把 Momotalk 正式入口迁回 AgentLoop。
 
----
+## 工作方式
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+- 先明确目标和边界，再写计划，再实现。
+- 如果用户进入 plan 模式，在用户明确要求生成 plan 前，不生成 plan。
+- 不为了“验收通过”牺牲实际体验。动作质量、响应速度、可理解性比勾选清单更重要。
+- 遇到错误要暴露和定位，不用兜底规则掩盖问题。
+- 不回退用户已有修改，除非用户明确要求。
+
+## 当前实现原则
+
+- StagePlan 2.0 是当前 Runtime 执行格式。
+- 参数 `bonePose` 是核心能力，不能被 preset animation 长期替代。
+- preset animation 可以作为辅助，但不能用无关预设动作冒充用户请求。
+- 示例 prompt 只作为格式参考，不作为动作答案。
+- Runtime Generated Capabilities 是运行时能力真源，应保持紧凑。
+- Memory 和 Chat History 分开治理。
+
+## 修改文档规则
+
+- 根目录文档描述当前活跃基线，不把暂停或归档探索写成当前主线。
+- 历史内容进入 `Archive/`。
+- 如果更新前需要保留原文档，先复制到带日期和目的的备份目录。
+
+## 验收规则
+
+每次实现完成后，至少说明：
+
+- 改了哪些文件。
+- 当前链路是否改变。
+- 是否影响 Momotalk、LlmRelay、StagePlan、Memory、TTS/ASR。
+- 做过哪些检查。
+- 还有哪些需要用户 Play Mode 手动确认。

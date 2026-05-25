@@ -50,7 +50,6 @@ namespace VirtualPartner.Runtime
         private const string CharacterPromptFileName = "character.md";
         private const string StagePlanRulesPromptFileName = "stageplan-rules.md";
         private const string ParameterBonesPromptFileName = "parameter-bones.md";
-        private const string BonePoseExamplesPromptFileName = "bone-pose-examples.md";
         private const string PresetActionsPromptFileName = "preset-actions.md";
         private const string LocomotionPromptFileName = "locomotion.md";
         private const string ExamplesPromptFileName = "examples.md";
@@ -70,7 +69,6 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TextAsset characterPrompt;
         [SerializeField] private TextAsset stagePlanRulesPrompt;
         [SerializeField] private TextAsset parameterBonesPrompt;
-        [SerializeField] private TextAsset bonePoseExamplesPrompt;
         [SerializeField] private TextAsset presetActionsPrompt;
         [SerializeField] private TextAsset locomotionPrompt;
         [SerializeField] private TextAsset examplesPrompt;
@@ -424,10 +422,9 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
             AppendPromptSection(builder, "StagePlan Rules", LoadPromptText(stagePlanRulesPrompt, StagePlanRulesPromptFileName), true);
             AppendPromptSection(builder, "Parameter Bone Rules", LoadPromptText(parameterBonesPrompt, ParameterBonesPromptFileName), true);
-            AppendPromptSection(builder, "Verified Bone Pose Examples", LoadPromptText(bonePoseExamplesPrompt, BonePoseExamplesPromptFileName), true);
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
-            AppendPromptSection(builder, "Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
+            AppendPromptSection(builder, "Format Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
             AppendPromptSection(builder, "Long Term Memory", BuildMemoryPromptContext(), false);
             AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             AppendRuntimeCapabilities(builder);
@@ -475,15 +472,11 @@ namespace VirtualPartner.Runtime
         {
             builder.AppendLine();
             builder.AppendLine("## Runtime Generated Capabilities");
-            builder.AppendLine("Use this generated list as the source of truth for currently callable names, axes, ranges, durations, and scopes.");
+            builder.AppendLine("Use this generated list as the source of truth for exact callable names, enabled axes, ranges, durations, and scopes. This section is capability data, not motion examples.");
 
             builder.AppendLine();
             builder.AppendLine("### Controllable Semantic Bones");
             AppendBoneCapabilities(builder);
-
-            builder.AppendLine();
-            builder.AppendLine("### Base Pose Local Axis Directions");
-            AppendBasePoseLocalAxisDirections(builder);
 
             builder.AppendLine();
             builder.AppendLine("### Primary Direction Single-Axis Effects");

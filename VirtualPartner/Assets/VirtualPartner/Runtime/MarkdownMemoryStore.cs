@@ -183,6 +183,24 @@ namespace VirtualPartner.Runtime
             }
         }
 
+        public int Clear(string characterId)
+        {
+            var rootPath = GetRootPath(characterId);
+            Directory.CreateDirectory(rootPath);
+
+            var cleared = 0;
+            for (var i = 0; i < Categories.Length; i++)
+            {
+                var category = Categories[i];
+                var path = GetCategoryPath(characterId, category);
+                var title = "# " + category + Environment.NewLine;
+                File.WriteAllText(path, title, Encoding.UTF8);
+                cleared++;
+            }
+
+            return cleared;
+        }
+
         private static void AppendPromptIntro(StringBuilder builder)
         {
             builder.AppendLine("Use these long-term memories naturally as background context.");

@@ -216,6 +216,21 @@ namespace VirtualPartner.Runtime
             lastMessage = statusText;
         }
 
+        public void ClearMemory(string characterId)
+        {
+            var normalized = NormalizeCharacterId(characterId);
+            CancelCharacterRequests(normalized);
+            var fileCount = memoryStore.Clear(normalized);
+            loadedMemoryPromptChars = 0;
+            memoryPromptTruncated = false;
+            latestDecision = "Memory cleared.";
+            latestWritePath = memoryStore.GetRootPath(normalized);
+            latestRawMemoryJudgeResponse = string.Empty;
+            latestParseError = string.Empty;
+            statusText = $"Memory cleared for {normalized}.";
+            lastMessage = $"Cleared {fileCount} memory file(s) for {normalized}.";
+        }
+
         public bool QueueLatestTurnForDebug()
         {
             if (latestTurn == null)

@@ -1,21 +1,15 @@
 # Locomotion And Facing
 
-`locomotion` has no direction or steps. It always moves along Toki's current forward. To choose a movement direction, place a separate `facing` stage before locomotion.
-
-`locomotion` is a straight-line movement primitive, not a path planner. Any request that implies a path shape, turning while moving, going around something, or returning toward the start must be decomposed into several short straight walks, each preceded by a separate `facing` stage.
+`locomotion` has no direction or steps. It always moves along the character's current forward. Use a separate `facing` stage first when direction matters.
 
 Facing targets:
-- `camera`: turn toward the user/camera position.
+- `camera`: face the user/camera.
 - `screenLeft`: face toward the left side of the screen.
 - `screenRight`: face toward the right side of the screen.
-- `screenForward`: face into the screen, away from the user, deeper into the scene.
+- `screenForward`: face deeper into the scene, away from the user.
 - `screenBackward`: face toward the screen outside direction; prefer `camera` when the meaning is "toward me".
 
-Chinese direction mapping:
-- "往前", "向前", "走过来", "靠近我", "朝我走": use `facing:"camera"` then `locomotion:"walk"`.
-- "跑过来", "快点过来", "冲过来": use `facing:"camera"` then `locomotion:"run"`.
-- "往画面深处", "往远处", "背对我走", "往房间里面走": use `facing:"screenForward"` then walk/run.
-- "向左看", "向左转": use `facing:"screenLeft"`.
-- "向右看", "向右转": use `facing:"screenRight"`.
-
-Use `walk` for normal movement. Use `run` only when the user clearly asks for fast movement.
+Movement rules:
+- Use `walk` for normal movement and `run` only when the user clearly asks for fast movement.
+- For path-like requests, decompose into several short straight locomotion stages, each preceded by `facing`.
+- Do not use locomotion as a substitute for dancing unless the user asks to move around the room.

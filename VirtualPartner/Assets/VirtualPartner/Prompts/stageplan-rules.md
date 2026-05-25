@@ -2,49 +2,44 @@
 
 Return exactly one JSON object. Do not return Markdown, comments, or explanation.
 
-Schema:
-`{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"short_debug_intent","mood":"short_debug_mood"},"stages":[{"actions":[...]}]}`
+Root schema:
+`{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"short_intent","mood":"short_mood"},"stages":[{"actions":[...]}]}`
 
-`metadata` is optional debug information only. Use it for intent or mood if helpful. Do not output `characterId`; the runtime target character is chosen outside the JSON.
+`metadata` is optional debug context. Do not output `characterId`; runtime selects the target character.
 
 Supported actions:
-- `speech`: show text in the target character's speech bubble.
-- `bonePose`: set semantic bone target rotations.
-- `animation`: call one registered preset animation by name.
-- `facing`: turn the character root toward one target.
-- `locomotion`: move along the character's current forward using walk/run.
-- `expression`: set one registered lightweight expression until the current stage ends.
+- `speech`: visible character speech bubble.
+- `expression`: registered expression for the current stage.
+- `bonePose`: semantic bone target rotations.
+- `animation`: one registered preset animation.
+- `facing`: turn the character root toward a target.
+- `locomotion`: walk/run along current forward.
 
 Stage execution:
 - `stages` run in array order.
-- Actions inside one stage start together.
-- The next stage starts after every action in the current stage reaches a terminal result.
-- A stage may contain at most one `speech` action.
-- Use separate stages for ordered behavior.
-- Use one stage for behavior that should happen at the same time, such as speech plus animation.
-
-Action field shapes:
-- `speech`: `{"type":"speech","text":"...","emotion":"happy","speed":1.0}`
-- `expression`: `{"type":"expression","name":"smile","duration":0.3}`
-- `bonePose`: `{"type":"bonePose","duration":0.8,"bones":[{"bone":"Head","rotation":{"x":0,"y":0,"z":0}}]}`
-- `bonePose` with side: `{"type":"bonePose","duration":0.8,"bones":[{"bone":"UpperArm","side":"L","rotation":{"x":0,"y":0,"z":0}}]}`
-- `animation`: `{"type":"animation","name":"ActionName"}`
-- `facing`: `{"type":"facing","target":"camera","duration":0.3}`
-- `locomotion`: `{"type":"locomotion","mode":"walk","duration":1.0}`
+- Actions in one stage start together.
+- The next stage waits until every current-stage action reaches a terminal result.
+- A stage may contain at most one `speech`.
+- Use separate stages for ordered beats and one stage for simultaneous actions.
 
 Hard rules:
 - Never output keys: `timeline`, `start`, `end`, `stageId`, `steps`, `direction`, `keep`, `transition`, `transitionIn`, `transitionOut`, `transitionTime`, `targets`, `targetBones`, `boneTargets`.
 - For `bonePose`, the array key must be exactly `bones`; never use `targets`, `target`, `poses`, `joints`, or `boneTargets`.
-- Use only supported action fields. Unknown actions or unsupported values may be skipped by runtime.
-- Do not invent character routing fields. The selected target character is supplied by runtime.
-- Keep StagePlans short. Prefer one to five stages.
+- Use only names and values present in Runtime Generated Capabilities.
+- Use `speech` when replying to the user, but keep it concise.
+- Ordinary chat and simple gestures should stay short.
+- For explicit dance, long performance, or full routine requests, prefer 8 to 12 readable stages with several generated `bonePose` phases.
 
-Composition rules:
-- `facing` should usually be its own stage before locomotion.
-- `locomotion` may be combined with `speech` when the character should speak while moving.
-- Use `speech` when replying to the user, but keep text concise.
-- Use `expression` lightly. Ordinary chat can be speech only; add expression only when emotion or intent clearly benefits, and only use expressions listed in Runtime Generated Capabilities.
-- Do not combine a full-body preset animation with `bonePose` in the same stage.
-- For sequential `bonePose` motions, each later stage should contain the complete desired pose for all bones that should remain active.
-- To keep a previous pose, repeat the same bone rotations in the later stage.
-- Do not reset a bone or the opposite side to zero unless the user asks to lower, release, reset, or return it to idle.
+Composition guidance:
+- `facing` should usually be its own stage before `locomotion`.
+- `locomotion` may combine with `speech` when the character speaks while moving.
+- Use `expression` lightly and only with registered expression names.
+- Do not combine a full-body preset `animation` with `bonePose` in the same stage.
+- For sequential `bonePose`, repeat any bone rotations that should remain active. Do not reset a bone to zero unless the user asks to lower, release, reset, or return it to idle.
+
+Dance / performance guidance:
+- Do not satisfy dance requests with `Greet`, scissors hand, or unrelated preset animations. Current presets are not dance routines.
+- Use generated `bonePose` phases for preparation, arm phrase, torso/head accent, leg/step accent when available, variation, flourish, and final settle.
+- Most dance movement stages should last about 0.7 to 1.2 seconds so the motion is readable.
+- Include chest/head/arms together when possible so motion reads as body performance instead of isolated hands.
+- Use legs conservatively; small thigh/calf shifts can imply rhythm. Do not rely on locomotion for dancing unless the user asks to move around the room.

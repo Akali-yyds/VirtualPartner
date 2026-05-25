@@ -75,7 +75,9 @@ namespace VirtualPartner.Runtime
         private Image stickyToggleTrack;
         private RectTransform stickyToggleKnob;
         private Button clearHistoryButton;
+        private Button clearMemoryButton;
         private CanvasGroup clearConfirmView;
+        private CanvasGroup clearMemoryConfirmView;
         private Text chatInfoNameText;
         private Image chatInfoAvatarImage;
         private Sprite pinIconSprite;
@@ -148,6 +150,8 @@ namespace VirtualPartner.Runtime
                 stickyToggle.onValueChanged.RemoveListener(HandleStickyChanged);
             if (clearHistoryButton != null)
                 clearHistoryButton.onClick.RemoveListener(ShowClearHistoryConfirmation);
+            if (clearMemoryButton != null)
+                clearMemoryButton.onClick.RemoveListener(ShowClearMemoryConfirmation);
             if (conversationController != null)
                 conversationController.ContactsChanged -= HandleConversationContactsChanged;
         }
@@ -242,6 +246,7 @@ namespace VirtualPartner.Runtime
             loadingVisible = false;
             SetActive(outsideCloseOverlay, false);
             SetClearConfirmationVisible(false);
+            SetClearMemoryConfirmationVisible(false);
             if (conversationController != null)
                 conversationController.SetPhoneOpen(false, sceneSpeechBubbleModeWhenMomotalkOpen);
 
@@ -326,7 +331,10 @@ namespace VirtualPartner.Runtime
             SetCanvasGroupVisible(chatView, page == MomotalkPage.Chat, page == MomotalkPage.Chat ? 1f : 0f);
             SetCanvasGroupVisible(chatInfoView, page == MomotalkPage.ChatInfo, page == MomotalkPage.ChatInfo ? 1f : 0f);
             if (page != MomotalkPage.ChatInfo)
+            {
                 SetClearConfirmationVisible(false);
+                SetClearMemoryConfirmationVisible(false);
+            }
         }
 
         private void ShowOnly(CanvasGroup view)
@@ -336,7 +344,10 @@ namespace VirtualPartner.Runtime
             SetCanvasGroupVisible(chatView, chatView == view, chatView == view ? 1f : 0f);
             SetCanvasGroupVisible(chatInfoView, chatInfoView == view, chatInfoView == view ? 1f : 0f);
             if (view != chatInfoView)
+            {
                 SetClearConfirmationVisible(false);
+                SetClearMemoryConfirmationVisible(false);
+            }
         }
 
         private void RefreshContacts()
@@ -613,6 +624,7 @@ namespace VirtualPartner.Runtime
             BuildChatInfoHeader(root);
             BuildChatInfoContent(root);
             BuildClearConfirmation(root);
+            BuildClearMemoryConfirmation(root);
             SetCanvasGroupVisible(chatInfoView, false, 0f);
         }
 
@@ -676,6 +688,7 @@ namespace VirtualPartner.Runtime
 
             BuildStickyRow(root, -820f);
             BuildClearHistoryRow(root, -990f);
+            BuildClearMemoryRow(root, -1160f);
         }
 
         private void BuildStickyRow(RectTransform root, float y)
@@ -756,6 +769,29 @@ namespace VirtualPartner.Runtime
             clearHistoryButton.targetGraphic = row.GetComponent<Image>();
             clearHistoryButton.onClick.RemoveListener(ShowClearHistoryConfirmation);
             clearHistoryButton.onClick.AddListener(ShowClearHistoryConfirmation);
+            row.gameObject.AddComponent<MomotalkUIButtonFeedback>();
+        }
+
+        private void BuildClearMemoryRow(RectTransform root, float y)
+        {
+            var row = CreateInfoRow(root, "ClearMemoryRow", y);
+            var iconCircle = CreateIconCircle(row, new Color(0.9f, 0.93f, 1f, 1f));
+            var clearMark = CreateText(iconCircle, "IconText", "M", 32, new Color(0.28f, 0.43f, 0.92f, 1f), TextAnchor.MiddleCenter);
+            clearMark.raycastTarget = false;
+            CreateRowTitle(row, "Clear Memory", "Delete long-term memories for this character.");
+            var arrow = CreateText(row, "Arrow", ">", 42, new Color(0.62f, 0.64f, 0.68f, 1f), TextAnchor.MiddleCenter);
+            var arrowRect = arrow.transform as RectTransform;
+            arrowRect.anchorMin = new Vector2(1f, 0.5f);
+            arrowRect.anchorMax = new Vector2(1f, 0.5f);
+            arrowRect.pivot = new Vector2(1f, 0.5f);
+            arrowRect.anchoredPosition = new Vector2(-34f, 0f);
+            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 60f);
+            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80f);
+
+            clearMemoryButton = row.gameObject.AddComponent<Button>();
+            clearMemoryButton.targetGraphic = row.GetComponent<Image>();
+            clearMemoryButton.onClick.RemoveListener(ShowClearMemoryConfirmation);
+            clearMemoryButton.onClick.AddListener(ShowClearMemoryConfirmation);
             row.gameObject.AddComponent<MomotalkUIButtonFeedback>();
         }
 
@@ -856,6 +892,51 @@ namespace VirtualPartner.Runtime
             SetClearConfirmationVisible(false);
         }
 
+        private void BuildClearMemoryConfirmation(RectTransform root)
+        {
+            var overlay = new GameObject("ClearMemoryConfirm", typeof(RectTransform), typeof(CanvasGroup), typeof(Image)).GetComponent<RectTransform>();
+            overlay.SetParent(root, false);
+            overlay.anchorMin = Vector2.zero;
+            overlay.anchorMax = Vector2.one;
+            overlay.offsetMin = Vector2.zero;
+            overlay.offsetMax = Vector2.zero;
+            overlay.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.32f);
+            clearMemoryConfirmView = overlay.GetComponent<CanvasGroup>();
+
+            var dialog = new GameObject("Dialog", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+            dialog.SetParent(overlay, false);
+            dialog.anchorMin = new Vector2(0.5f, 0.5f);
+            dialog.anchorMax = new Vector2(0.5f, 0.5f);
+            dialog.pivot = new Vector2(0.5f, 0.5f);
+            dialog.anchoredPosition = Vector2.zero;
+            dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 720f);
+            dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 330f);
+            dialog.GetComponent<Image>().color = Color.white;
+
+            var title = CreateText(dialog, "Title", "Clear Memory?", 34, new Color(0.1f, 0.12f, 0.16f, 1f), TextAnchor.MiddleCenter);
+            var titleRect = title.transform as RectTransform;
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.anchoredPosition = new Vector2(0f, -44f);
+            titleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 60f);
+
+            var body = CreateText(dialog, "Body", "Delete long-term memories for this character.", 25, new Color(0.42f, 0.45f, 0.5f, 1f), TextAnchor.MiddleCenter);
+            var bodyRect = body.transform as RectTransform;
+            bodyRect.anchorMin = new Vector2(0f, 1f);
+            bodyRect.anchorMax = new Vector2(1f, 1f);
+            bodyRect.pivot = new Vector2(0.5f, 1f);
+            bodyRect.anchoredPosition = new Vector2(0f, -118f);
+            bodyRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 60f);
+
+            var cancelButton = CreateDialogButton(dialog, "CancelButton", "Cancel", new Vector2(-170f, -230f), new Color(0.92f, 0.93f, 0.95f, 1f), new Color(0.22f, 0.24f, 0.28f, 1f));
+            cancelButton.onClick.AddListener(() => SetClearMemoryConfirmationVisible(false));
+
+            var clearButton = CreateDialogButton(dialog, "ClearButton", "Clear", new Vector2(170f, -230f), new Color(0.96f, 0.32f, 0.34f, 1f), Color.white);
+            clearButton.onClick.AddListener(ConfirmClearMemory);
+            SetClearMemoryConfirmationVisible(false);
+        }
+
         private Button CreateDialogButton(RectTransform parent, string name, string label, Vector2 position, Color background, Color textColor)
         {
             var rect = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(MomotalkUIButtonFeedback)).GetComponent<RectTransform>();
@@ -901,7 +982,14 @@ namespace VirtualPartner.Runtime
 
         private void ShowClearHistoryConfirmation()
         {
+            SetClearMemoryConfirmationVisible(false);
             SetClearConfirmationVisible(true);
+        }
+
+        private void ShowClearMemoryConfirmation()
+        {
+            SetClearConfirmationVisible(false);
+            SetClearMemoryConfirmationVisible(true);
         }
 
         private void ConfirmClearHistory()
@@ -913,9 +1001,23 @@ namespace VirtualPartner.Runtime
             UpdateOpenButtonUnreadDot();
         }
 
+        private void ConfirmClearMemory()
+        {
+            SetClearMemoryConfirmationVisible(false);
+            if (conversationController != null && selectedContext != null)
+                conversationController.ClearMemory(selectedContext);
+            BindChatInfo(selectedContext);
+            UpdateOpenButtonUnreadDot();
+        }
+
         private void SetClearConfirmationVisible(bool visible)
         {
             SetCanvasGroupVisible(clearConfirmView, visible, visible ? 1f : 0f);
+        }
+
+        private void SetClearMemoryConfirmationVisible(bool visible)
+        {
+            SetCanvasGroupVisible(clearMemoryConfirmView, visible, visible ? 1f : 0f);
         }
 
         private void UpdateStickyToggleVisual(bool sticky)

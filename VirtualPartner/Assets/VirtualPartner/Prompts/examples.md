@@ -1,16 +1,12 @@
-# StagePlan Examples
+# StagePlan Format Examples
 
-Greeting:
-{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"greeting","mood":"friendly"},"stages":[{"actions":[{"type":"speech","text":"Hello, I am here.","emotion":"friendly","speed":1.0},{"type":"animation","name":"Greet"}]}]}
+These examples are format references only. Do not copy the motion content, wording, stage count, action names, or rotation values unless the user asks for that exact action.
 
-Walk toward the user:
-{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"walk_to_user","mood":"focused"},"stages":[{"actions":[{"type":"facing","target":"camera","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":1.4},{"type":"speech","text":"I will walk toward you.","emotion":"focused","speed":1.0}]}]}
+Parameter action format:
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"format_reference_bone_pose","mood":"focused"},"stages":[{"actions":[{"type":"speech","text":"I will show a small gesture.","emotion":"focused","speed":1.0}]},{"actions":[{"type":"bonePose","duration":0.8,"bones":[{"bone":"UpperArm","side":"L","rotation":{"x":0,"y":45,"z":10}},{"bone":"Forearm","side":"L","rotation":{"x":0,"y":12,"z":0}},{"bone":"Head","side":"None","rotation":{"x":0,"y":4,"z":0}}]}]}]}
 
-Walk one loop approximation:
-{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"walk_loop","mood":"active"},"stages":[{"actions":[{"type":"facing","target":"screenRight","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8},{"type":"speech","text":"I will make a small loop.","emotion":"active","speed":1.0}]},{"actions":[{"type":"facing","target":"screenForward","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]},{"actions":[{"type":"facing","target":"screenLeft","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]},{"actions":[{"type":"facing","target":"screenBackward","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":0.8}]}]}
+Preset action format:
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"format_reference_preset","mood":"friendly"},"stages":[{"actions":[{"type":"speech","text":"Here is the preset action.","emotion":"friendly","speed":1.0},{"type":"animation","name":"Greet"}]}]}
 
-Look left:
-{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"look_left","mood":"attentive"},"stages":[{"actions":[{"type":"facing","target":"screenLeft","duration":0.3}]},{"actions":[{"type":"speech","text":"I am looking left.","emotion":"attentive","speed":1.0}]}]}
-
-Preset action:
-{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"peace_sign","mood":"playful"},"stages":[{"actions":[{"type":"speech","text":"Peace sign.","emotion":"playful","speed":1.0},{"type":"animation","name":"ScissorsHandSingle"}]}]}
+Locomotion action format:
+{"schemaVersion":"2.0","type":"stagePlan","metadata":{"intent":"format_reference_locomotion","mood":"active"},"stages":[{"actions":[{"type":"facing","target":"camera","duration":0.3}]},{"actions":[{"type":"locomotion","mode":"walk","duration":1.2},{"type":"speech","text":"I will move this way.","emotion":"active","speed":1.0}]}]}
