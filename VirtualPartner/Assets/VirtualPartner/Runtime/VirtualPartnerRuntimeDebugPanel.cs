@@ -589,6 +589,7 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Provider Version: {ttsManager.ProviderVersion}");
             GUILayout.Label($"Voice Hashes: ref={ttsManager.ReferenceAudioHash} prompt={ttsManager.PromptTextHash}");
             GUILayout.Label($"Lang: prompt={ttsManager.PromptLang} text={ttsManager.TextLang}");
+            GUILayout.Label($"Stream: active={ttsManager.StreamingPlayback} paused={ttsManager.StreamingPausedForBuffer} underruns={ttsManager.StreamingUnderrunCount} mode={ttsManager.StreamingModeInUse} sr={ttsManager.StreamingSampleRate} buffered={ttsManager.StreamingBufferedSeconds:0.00}s written={ttsManager.StreamingWrittenSeconds:0.00}s bytes={ttsManager.StreamingReceivedBytes}");
             GUILayout.Label($"Last: {ttsManager.LastMessage}");
 
             GUILayout.Space(8f);

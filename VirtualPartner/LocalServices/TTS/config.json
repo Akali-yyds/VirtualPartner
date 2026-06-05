@@ -1,22 +1,31 @@
 {
   "host": "127.0.0.1",
   "port": 8765,
-  "version": "vp-tts-wrapper-gpt-sovits-v1",
+  "version": "vp-tts-wrapper-gpt-sovits-v2-stream-toki-s6-g8",
   "upstream_tts_url": "http://127.0.0.1:9880/tts",
   "upstream_health_url": "http://127.0.0.1:9880/docs",
   "upstream_timeout_seconds": 180,
   "health_timeout_seconds": 5,
+  "stream_chunk_bytes": 4096,
   "voices": {
     "toki_default": {
       "character_id": "toki",
-      "ref_audio_path": "voices/toki/default/ch0187_minieventboxshop_5.ogg",
-      "prompt_text_path": "voices/toki/default/ch0187_minieventboxshop_5.txt",
-      "prompt_lang": "ja",
-      "text_lang": "zh",
-      "text_split_method": "cut5",
+      "ref_audio_path": "voices/toki/s6_g8/CH0187_MemorialLobby_1_1.wav",
+      "prompt_text_path": "voices/toki/s6_g8/CH0187_MemorialLobby_1_1.txt",
+      "prompt_lang": "all_ja",
+      "text_lang": "all_zh",
+      "text_split_method": "cut0",
       "batch_size": 1,
       "media_type": "wav",
-      "streaming_mode": false
+      "parallel_infer": true,
+      "sample_rate": 32000,
+      "channels": 1,
+      "streaming_enabled": true,
+      "stream_media_type": "raw",
+      "streaming_mode": 1,
+      "stream_parallel_infer": false,
+      "fragment_interval": 0.0,
+      "min_chunk_length": 16
     }
   }
 }
