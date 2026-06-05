@@ -2492,6 +2492,96 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1070544811}
   m_CullTransparentMesh: 1
+--- !u!1 &1074400495
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1074400498}
+  - component: {fileID: 1074400497}
+  - component: {fileID: 1074400496}
+  m_Layer: 0
+  m_Name: SceneBackground_CampusCourtyard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!23 &1074400496
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074400495}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 0
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 90edf33304b7e124eb1f8426d91e5603, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1074400497
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074400495}
+  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1074400498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074400495}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.113312505, y: 0.4178985, z: 0.0384196, w: 0.9005804}
+  m_LocalPosition: {x: -40.31973, y: -11.712299, z: -34.81254}
+  m_LocalScale: {x: 174.56044, y: 74.8246, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1117791903
 GameObject:
   m_ObjectHideFlags: 0
@@ -3022,11 +3112,13 @@ MonoBehaviour:
   stagePlanDebugPanel: {fileID: 0}
   llmInteractionDebugPanel: {fileID: 1195117199}
   runtimeDebugPanel: {fileID: 1195117201}
+  appShellBootstrap: {fileID: 0}
   initialized: 0
   baseRotationCaptured: 0
   registeredBoneCount: 0
   idlePlaying: 0
   currentIdleTime: 0
+  runtimeShutdown: 0
 --- !u!114 &1195117187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3282,20 +3374,28 @@ MonoBehaviour:
   characterPrompt: {fileID: 4900000, guid: 97a21e5347e948a6a2a6bc11e6272eab, type: 3}
   stagePlanRulesPrompt: {fileID: 4900000, guid: 4b8b5d0d521d40b4b0e33e7f3920e1c7, type: 3}
   parameterBonesPrompt: {fileID: 4900000, guid: f1dce2e925f24ff9af8a3f20f0389425, type: 3}
-  bonePoseExamplesPrompt: {fileID: 0}
   presetActionsPrompt: {fileID: 4900000, guid: c3f0e91593a541079d7f6802cbba0d5e, type: 3}
   locomotionPrompt: {fileID: 4900000, guid: a8df28a78d334f7aa0f870d62bff2df7, type: 3}
   examplesPrompt: {fileID: 4900000, guid: db26fb53fbb04e7aa3b93f34eea1d144, type: 3}
+  streamStagePlans: 1
+  streamInitialStageBufferCount: 2
+  streamHoldLastPoseWhileWaiting: 1
   initialized: 0
   configLoaded: 0
   configReady: 0
   requestPending: 0
+  streamingRequestActive: 0
+  streamingStagePlanStarted: 0
+  streamingParsedStageCount: 0
+  streamingBufferedStageCount: 0
+  streamingAppendedStageCount: 0
   latestRequestId: 0
   pendingRequestId: 0
   statusText: Not configured.
   configStatus: Not loaded.
   lastError: 
   lastPromptStatus: 
+  lastStreamingStatus:
   lastRawResponse: 
   lastExtractedStagePlan: 
 --- !u!114 &1195117201
@@ -3444,6 +3544,12 @@ MonoBehaviour:
   activeOwnerId: 
   activeRequestId: 0
   activePlanId: 
+  activePlanStreaming: 0
+  activePlanStreamComplete: 1
+  waitingForStreamStage: 0
+  holdStreamWaitPose: 0
+  queuedStageCount: 0
+  appendedStreamStageCount: 0
 --- !u!114 &1195117205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3541,6 +3647,15 @@ MonoBehaviour:
   serviceUrl: http://127.0.0.1:8765
   requestTimeoutSeconds: 180
   healthTimeoutSeconds: 10
+  streamRealTts: 1
+  streamMode: 1
+  streamMinNonWhitespaceCharacters: 28
+  streamPrebufferSeconds: 0.35
+  streamResumeBufferSeconds: 1
+  streamClipMaxSeconds: 180
+  audioCompletionTailGraceSeconds: 0.75
+  cacheCompletedStream: 1
+  fallbackToBufferedOnStreamFailure: 1
   mockTtsEnabled: 1
   forceMockFailure: 0
   use3DAudio: 0
@@ -3567,6 +3682,14 @@ MonoBehaviour:
   promptTextHash: '-'
   promptLang: '-'
   textLang: '-'
+  streamingPlayback: 0
+  streamingSampleRate: 32000
+  streamingModeInUse: 0
+  streamingBufferedSeconds: 0
+  streamingWrittenSeconds: 0
+  streamingReceivedBytes: 0
+  streamingPausedForBuffer: 0
+  streamingUnderrunCount: 0
   latestError: 
   lastMessage: 
 --- !u!82 &1195117209
@@ -5820,3 +5943,4 @@ SceneRoots:
   - {fileID: 324159580}
   - {fileID: 1324892021}
   - {fileID: 1271887118}
+  - {fileID: 1074400498}

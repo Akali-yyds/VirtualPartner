@@ -12,6 +12,7 @@
 - [x] Stage 3 AgentRun / Tool Call 探索已迁出当前活跃基线并归档。
 - [x] 根目录原文档已备份到 `Archive/RootDocs_20260525_prompt_pivot/`。
 - [x] LLM Streaming StagePlan 执行链路完成并通过人工验收。
+- [x] 校园户外背景接入完成并通过人工验收。
 
 ## 当前活跃主线：Prompt Engineering
 
@@ -67,6 +68,31 @@
 - [x] 队列暂时播空但 LLM 还在输出时，角色保持末姿势等待下一段。
 - [x] LLM stream / SSE / JSON / stage validation 失败时，立即停止当前播放并显示错误。
 - [x] Memory 只在整轮流式 StagePlan 完成后判断，不在每个 stage 后提前写入。
+
+## 已完成阶段：校园户外背景接入
+
+目标：生成一张原创明亮校园庭院背景图，并接入 `VirtualPartner/Assets/Scenes/SampleScene.unity` 作为 `Main Camera` 后方的 3D 世界背景平面。保留现有房间模型、角色、Momotalk、LLM、StagePlan、TTS/ASR、Memory 链路不变。
+
+### 已完成改动
+
+- [x] 生成原创 21:9 校园庭院背景图，不使用官方素材。
+- [x] 将最终图片保存到 `VirtualPartner/Assets/VirtualPartner/Art/Backgrounds/campus_courtyard_bg_21x9.png`。
+- [x] 在 Unity 中导入图片并设置为普通 sRGB Texture。
+- [x] 创建背景材质 `M_CampusCourtyardBackground.mat`，使用不受场景灯光影响的背景专用 Shader。
+- [x] 为背景材质添加可调 `Blur Radius` 模糊参数，默认轻度虚化以降低视觉抢焦。
+- [x] 在 `SampleScene.unity` 中创建或更新 `SceneBackground_CampusCourtyard` 后景平面。
+- [x] 背景对象不参与碰撞、不影响 `RoomMoveArea`、障碍区域或角色控制。
+
+### 已通过验收
+
+- [x] Game 视图中默认 Skybox/蓝色背景被校园庭院背景替代。
+- [x] 背景明亮、干净、户外校园感明确。
+- [x] 调整 `M_CampusCourtyardBackground` 材质的 `Blur Radius` 时，`0` 为清晰、增大后背景自然虚化。
+- [x] 背景不包含角色、文字、logo、校徽或可识别官方 IP 元素。
+- [x] 当前房间模型和 Toki 仍正常显示，背景不遮挡角色、不穿到前景。
+- [x] 21:9 视图覆盖完整，16:9 视图裁切自然。
+- [x] Play Mode 下角色 idle、移动区域、障碍区域、Momotalk UI 正常。
+- [x] 简单 Momotalk 消息仍能走 `LlmRelay -> StagePlanPlayer` 播放链路。
 
 ## Prompt 质量原则
 
