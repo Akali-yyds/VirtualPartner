@@ -132,6 +132,12 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string activeOwnerId;
         [SerializeField] private int activeRequestId;
         [SerializeField] private string activePlanId;
+        [SerializeField] private bool activePlanStreaming;
+        [SerializeField] private bool activePlanStreamComplete = true;
+        [SerializeField] private bool waitingForStreamStage;
+        [SerializeField] private bool holdStreamWaitPose;
+        [SerializeField] private int queuedStageCount;
+        [SerializeField] private int appendedStreamStageCount;
 
         private RunningStageAction pendingSpeechPlaybackAction;
         private bool subscribedToTtsPlaybackStarted;
@@ -155,7 +161,7 @@ namespace VirtualPartner.Runtime
         private readonly List<string> displacedPresetIds = new List<string>();
         private readonly List<PresetTransformSnapshot> presetTransformSnapshots = new List<PresetTransformSnapshot>();
 
-        private StagePlanStageDto[] activeStages;
+        private readonly List<StagePlanStageDto> activeStages = new List<StagePlanStageDto>();
         private int presetSequence;
 
         public bool IsPlaying => playing;
@@ -176,6 +182,11 @@ namespace VirtualPartner.Runtime
         public int ActiveRequestId => activeRequestId;
         public int CurrentLlmStagePlanRequestId => IsOwnerPlaying(LlmRelay.LlmOwnerId) ? activeRequestId : 0;
         public float DebugSpeechDurationSeconds => Mathf.Max(0.01f, debugSpeechDurationSeconds);
+        public bool ActivePlanStreaming => activePlanStreaming;
+        public bool ActivePlanStreamComplete => activePlanStreamComplete;
+        public bool WaitingForStreamStage => waitingForStreamStage;
+        public int QueuedStageCount => queuedStageCount;
+        public int AppendedStreamStageCount => appendedStreamStageCount;
 
         // Raised when speech output actually begins, so chat/scene bubbles stay aligned with TTS playback or fallback.
         public event Action<StagePlanSpeechEvent> SpeechActionStarted;
@@ -272,6 +283,83 @@ namespace VirtualPartner.Runtime
             return StartStagePlan(json, ownerId, requestId, string.Empty);
         }
 
+        public bool StartStreamingJsonForOwner(string json, string ownerId, int requestId, bool holdWaitPose)
+        {
+            return StartStagePlan(json, ownerId, requestId, string.Empty, true, false, holdWaitPose);
+        }
+
+        public bool AppendStreamingJsonForOwner(string json, string ownerId, int requestId)
+        {
+            if (!playing || !activePlanStreaming)
+            {
+                lastMessage = "No active streaming StagePlan.";
+                statusText = "Append Failed";
+                return false;
+            }
+
+            if (!SameOwner(activeOwnerId, ownerId) || activeRequestId != requestId)
+            {
+                lastMessage = $"Streaming StagePlan mismatch. Active owner/request is '{FormatOwner(activeOwnerId)}'/{activeRequestId}.";
+                statusText = "Append Failed";
+                return false;
+            }
+
+            if (activePlanStreamComplete)
+            {
+                lastMessage = "Streaming StagePlan is already complete.";
+                statusText = "Append Failed";
+                return false;
+            }
+
+            var result = ValidateStagePlanJson(json);
+            if (!result.IsValid)
+                return false;
+
+            AppendStages(result.Root.stages);
+            lastMessage = $"Streaming StagePlan appended {result.Root.stages.Length} stage(s).";
+            statusText = waitingForStreamStage ? "Playing" : "Streaming";
+
+            if (waitingForStreamStage)
+                ResumeWaitingStreamStage();
+
+            return true;
+        }
+
+        public bool CompleteStreamingForOwner(string ownerId, int requestId)
+        {
+            if (!playing || !activePlanStreaming)
+            {
+                lastMessage = "No active streaming StagePlan.";
+                statusText = "Complete Failed";
+                return false;
+            }
+
+            if (!SameOwner(activeOwnerId, ownerId) || activeRequestId != requestId)
+            {
+                lastMessage = $"Streaming StagePlan mismatch. Active owner/request is '{FormatOwner(activeOwnerId)}'/{activeRequestId}.";
+                statusText = "Complete Failed";
+                return false;
+            }
+
+            activePlanStreamComplete = true;
+            statusText = "Streaming Complete";
+            lastMessage = "Streaming StagePlan marked complete.";
+
+            if (waitingForStreamStage)
+            {
+                if (HasNextQueuedStage())
+                    ResumeWaitingStreamStage();
+                else
+                {
+                    ReleaseHeldStreamWaitPose();
+                    waitingForStreamStage = false;
+                    FinishStagePlan();
+                }
+            }
+
+            return true;
+        }
+
         public bool IsOwnerPlaying(string ownerId)
         {
             return playing && SameOwner(activeOwnerId, ownerId);
@@ -297,12 +385,15 @@ namespace VirtualPartner.Runtime
 
         public void ManualUpdate(float deltaTime, AnimationClip idleClip, float idleTime)
         {
-            if (!playing || activeStages == null)
+            if (!playing)
                 return;
 
             var frameDelta = Mathf.Max(0f, deltaTime);
             if (autonomousBehaviorScheduler != null && UsesUserInteraction(activeOwnerId))
                 autonomousBehaviorScheduler.KeepUserInteractionAlive();
+
+            if (waitingForStreamStage)
+                return;
 
             if (rootOrientationController != null)
                 rootOrientationController.ManualUpdate(frameDelta);
@@ -314,6 +405,18 @@ namespace VirtualPartner.Runtime
         }
 
         private bool StartStagePlan(string json, string ownerId, int requestId, string planId)
+        {
+            return StartStagePlan(json, ownerId, requestId, planId, false, true, false);
+        }
+
+        private bool StartStagePlan(
+            string json,
+            string ownerId,
+            int requestId,
+            string planId,
+            bool streaming,
+            bool streamComplete,
+            bool holdWaitPose)
         {
             if (!initialized && !ValidateReferences())
                 return false;
@@ -340,25 +443,43 @@ namespace VirtualPartner.Runtime
                 autonomousBehaviorScheduler.EnterUserInteraction();
 
             ResetResultCounts();
-            activeStages = result.Root.stages;
+            activeStages.Clear();
+            AppendStages(result.Root.stages);
             currentStageIndex = -1;
             playing = true;
             activeOwnerId = normalizedOwnerId;
             activeRequestId = requestId;
             activePlanId = planId ?? string.Empty;
-            statusText = "Playing";
-            lastMessage = "StagePlan started.";
+            activePlanStreaming = streaming;
+            activePlanStreamComplete = streamComplete;
+            waitingForStreamStage = false;
+            holdStreamWaitPose = holdWaitPose;
+            appendedStreamStageCount = streaming ? queuedStageCount : 0;
+            statusText = streaming ? "Streaming" : "Playing";
+            lastMessage = streaming ? "Streaming StagePlan started." : "StagePlan started.";
             StartNextStage();
             return true;
         }
 
         private void StartNextStage()
         {
-            while (playing && activeStages != null)
+            while (playing)
             {
                 currentStageIndex++;
-                if (currentStageIndex >= activeStages.Length)
+                if (currentStageIndex >= activeStages.Count)
                 {
+                    if (activePlanStreaming && !activePlanStreamComplete)
+                    {
+                        currentStageIndex = Mathf.Max(-1, activeStages.Count - 1);
+                        waitingForStreamStage = true;
+                        activeActionCount = 0;
+                        terminalActionCount = 0;
+                        currentStageStatus = $"Waiting for stream stage {activeStages.Count + 1}";
+                        statusText = "Waiting for Stream";
+                        lastMessage = "Waiting for next streaming stage.";
+                        return;
+                    }
+
                     FinishStagePlan();
                     return;
                 }
@@ -843,6 +964,24 @@ namespace VirtualPartner.Runtime
 
         private void CompleteCurrentStage()
         {
+            if (!HasNextQueuedStage() && activePlanStreaming && !activePlanStreamComplete)
+            {
+                if (!holdStreamWaitPose)
+                {
+                    ReleaseStageOwners();
+                    ReleaseStageExpression();
+                }
+
+                runningActions.Clear();
+                activeActionCount = 0;
+                terminalActionCount = 0;
+                waitingForStreamStage = true;
+                currentStageStatus = $"Waiting for stream stage {activeStages.Count + 1}";
+                statusText = "Waiting for Stream";
+                lastMessage = "Waiting for next streaming stage.";
+                return;
+            }
+
             ReleaseStageOwners();
             ReleaseStageExpression();
             StartNextStage();
@@ -856,7 +995,7 @@ namespace VirtualPartner.Runtime
             var finishedPlanId = activePlanId;
             var finishedCharacterId = characterProfile != null ? characterProfile.CharacterId : string.Empty;
             playing = false;
-            activeStages = null;
+            activeStages.Clear();
             runningActions.Clear();
             currentStageIndex = -1;
             activeActionCount = 0;
@@ -865,6 +1004,12 @@ namespace VirtualPartner.Runtime
             activeOwnerId = string.Empty;
             activeRequestId = 0;
             activePlanId = string.Empty;
+            activePlanStreaming = false;
+            activePlanStreamComplete = true;
+            waitingForStreamStage = false;
+            holdStreamWaitPose = false;
+            queuedStageCount = 0;
+            appendedStreamStageCount = 0;
             statusText = "Finished";
             lastMessage = "StagePlan finished.";
 
@@ -913,7 +1058,7 @@ namespace VirtualPartner.Runtime
                 expressionActionExecutor.ClearExpression();
 
             playing = false;
-            activeStages = null;
+            activeStages.Clear();
             runningActions.Clear();
             currentStageIndex = -1;
             activeActionCount = 0;
@@ -922,9 +1067,53 @@ namespace VirtualPartner.Runtime
             activeOwnerId = string.Empty;
             activeRequestId = 0;
             activePlanId = string.Empty;
+            activePlanStreaming = false;
+            activePlanStreamComplete = true;
+            waitingForStreamStage = false;
+            holdStreamWaitPose = false;
+            queuedStageCount = 0;
+            appendedStreamStageCount = 0;
 
             if (exitInteraction && autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.ExitUserInteraction();
+        }
+
+        private void AppendStages(StagePlanStageDto[] stages)
+        {
+            if (stages == null)
+                return;
+
+            for (var i = 0; i < stages.Length; i++)
+                activeStages.Add(stages[i]);
+
+            queuedStageCount = activeStages.Count;
+            if (activePlanStreaming)
+                appendedStreamStageCount = queuedStageCount;
+        }
+
+        private bool HasNextQueuedStage()
+        {
+            return currentStageIndex + 1 < activeStages.Count;
+        }
+
+        private void ResumeWaitingStreamStage()
+        {
+            if (!waitingForStreamStage)
+                return;
+
+            ReleaseHeldStreamWaitPose();
+            waitingForStreamStage = false;
+            statusText = "Streaming";
+            StartNextStage();
+        }
+
+        private void ReleaseHeldStreamWaitPose()
+        {
+            if (!holdStreamWaitPose)
+                return;
+
+            ReleaseStageOwners();
+            ReleaseStageExpression();
         }
 
         private void ReleaseStageOwners()
@@ -1371,6 +1560,11 @@ namespace VirtualPartner.Runtime
                 NormalizeOwnerId(left),
                 NormalizeOwnerId(right),
                 StringComparison.Ordinal);
+        }
+
+        private static string FormatOwner(string ownerId)
+        {
+            return string.IsNullOrWhiteSpace(ownerId) ? "External" : ownerId;
         }
 
         private static bool UsesUserInteraction(string ownerId)

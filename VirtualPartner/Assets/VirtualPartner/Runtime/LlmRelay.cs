@@ -73,17 +73,28 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TextAsset locomotionPrompt;
         [SerializeField] private TextAsset examplesPrompt;
 
+        [Header("LLM Streaming")]
+        [SerializeField] private bool streamStagePlans = true;
+        [SerializeField] private int streamInitialStageBufferCount = 2;
+        [SerializeField] private bool streamHoldLastPoseWhileWaiting = true;
+
         [Header("Runtime Status")]
         [SerializeField] private bool initialized;
         [SerializeField] private bool configLoaded;
         [SerializeField] private bool configReady;
         [SerializeField] private bool requestPending;
+        [SerializeField] private bool streamingRequestActive;
+        [SerializeField] private bool streamingStagePlanStarted;
+        [SerializeField] private int streamingParsedStageCount;
+        [SerializeField] private int streamingBufferedStageCount;
+        [SerializeField] private int streamingAppendedStageCount;
         [SerializeField] private int latestRequestId;
         [SerializeField] private int pendingRequestId;
         [SerializeField] private string statusText = "Not configured.";
         [SerializeField] private string configStatus = "Not loaded.";
         [SerializeField] private string lastError;
         [SerializeField] private string lastPromptStatus;
+        [SerializeField] private string lastStreamingStatus;
         [SerializeField, TextArea(4, 10)] private string lastRawResponse;
         [SerializeField, TextArea(4, 10)] private string lastExtractedStagePlan;
 
@@ -98,15 +109,24 @@ namespace VirtualPartner.Runtime
         public bool ConfigLoaded => configLoaded;
         public bool ConfigReady => configReady;
         public bool RequestPending => requestPending;
+        public bool StreamingRequestActive => streamingRequestActive;
+        public bool StreamingStagePlanStarted => streamingStagePlanStarted;
+        public int StreamingParsedStageCount => streamingParsedStageCount;
+        public int StreamingBufferedStageCount => streamingBufferedStageCount;
+        public int StreamingAppendedStageCount => streamingAppendedStageCount;
         public int LatestRequestId => latestRequestId;
         public int PendingRequestId => pendingRequestId;
         public string StatusText => statusText;
         public string ConfigStatus => configStatus;
         public string LastError => lastError;
         public string LastPromptStatus => lastPromptStatus;
+        public string LastStreamingStatus => lastStreamingStatus;
         public string LastRawResponse => lastRawResponse;
         public string LastExtractedStagePlan => lastExtractedStagePlan;
         public float InteractionTimeoutSeconds => config.InteractionTimeoutSeconds;
+        public bool StreamStagePlans => streamStagePlans;
+        public int StreamInitialStageBufferCount => Mathf.Max(1, streamInitialStageBufferCount);
+        public bool StreamHoldLastPoseWhileWaiting => streamHoldLastPoseWhileWaiting;
         public string ConfigPath => configPath;
         public bool IsLlmStagePlanPlaying => stagePlanPlayer != null && stagePlanPlayer.IsOwnerPlaying(LlmOwnerId);
 
@@ -215,6 +235,7 @@ namespace VirtualPartner.Runtime
             statusText = $"Request {latestRequestId} pending.";
             lastRawResponse = string.Empty;
             lastExtractedStagePlan = string.Empty;
+            ResetStreamingStatus();
 
             activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim(), historyContext));
             return new LlmSubmitResult(true, latestRequestId, statusText);
@@ -259,6 +280,7 @@ namespace VirtualPartner.Runtime
             latestRequestId++;
             pendingRequestId = 0;
             requestPending = false;
+            ResetStreamingStatus();
 
             if (activeCoroutine != null)
             {
@@ -304,7 +326,18 @@ namespace VirtualPartner.Runtime
 
         private IEnumerator SendRequest(int requestId, string userText, string historyContext)
         {
-            var requestJson = BuildRequestJson(userText, historyContext);
+            if (streamStagePlans)
+            {
+                yield return SendStreamingRequest(requestId, userText, historyContext);
+                yield break;
+            }
+
+            yield return SendBufferedRequest(requestId, userText, historyContext);
+        }
+
+        private IEnumerator SendBufferedRequest(int requestId, string userText, string historyContext)
+        {
+            var requestJson = BuildRequestJson(userText, historyContext, false);
             var requestBytes = Encoding.UTF8.GetBytes(requestJson);
 
             using (var request = new UnityWebRequest(config.GetChatCompletionsUrl(), "POST"))
@@ -371,12 +404,278 @@ namespace VirtualPartner.Runtime
             }
         }
 
+        private IEnumerator SendStreamingRequest(int requestId, string userText, string historyContext)
+        {
+            var requestJson = BuildRequestJson(userText, historyContext, true);
+            var requestBytes = Encoding.UTF8.GetBytes(requestJson);
+            var textHandler = new StreamingTextDownloadHandler();
+            var sseParser = new StreamingSseParser();
+            var stageParser = new StagePlanIncrementalParser();
+            var bufferedStageJsons = new List<string>();
+
+            using (var request = new UnityWebRequest(config.GetChatCompletionsUrl(), "POST"))
+            {
+                activeRequest = request;
+                streamingRequestActive = true;
+                lastStreamingStatus = "Streaming request started.";
+                statusText = $"Request {requestId} streaming.";
+
+                request.timeout = RequestTimeoutSeconds;
+                request.uploadHandler = new UploadHandlerRaw(requestBytes);
+                request.downloadHandler = textHandler;
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", "Bearer " + config.apiKey);
+
+                var operation = request.SendWebRequest();
+                while (!operation.isDone)
+                {
+                    if (requestId != latestRequestId)
+                    {
+                        ClearRequestStateIfCurrent(requestId, request);
+                        yield break;
+                    }
+
+                    if (!DrainStreamingChunks(requestId, textHandler, sseParser, stageParser, bufferedStageJsons, false, out var drainFailure))
+                    {
+                        FailStreamingRequest(requestId, drainFailure, request);
+                        yield break;
+                    }
+
+                    yield return null;
+                }
+
+                if (requestId != latestRequestId)
+                {
+                    ClearRequestStateIfCurrent(requestId, request);
+                    yield break;
+                }
+
+                if (!DrainStreamingChunks(requestId, textHandler, sseParser, stageParser, bufferedStageJsons, true, out var finalDrainFailure))
+                {
+                    FailStreamingRequest(requestId, finalDrainFailure, request);
+                    yield break;
+                }
+
+                ClearRequestStateIfCurrent(requestId, request);
+                lastRawResponse = textHandler.RawText;
+                lastExtractedStagePlan = stageParser.Content;
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    FailStreamingRequest(requestId, $"Request {requestId} streaming failed: HTTP {request.responseCode} {request.error}", null);
+                    yield break;
+                }
+
+                if (!TryExtractStagePlanJson(stageParser.Content, out var fullStagePlanJson, out var extractFailure))
+                {
+                    FailStreamingRequest(requestId, extractFailure, null);
+                    yield break;
+                }
+
+                lastExtractedStagePlan = fullStagePlanJson;
+                var validationResult = StagePlanValidator.Validate(fullStagePlanJson, characterProfile);
+                if (!validationResult.IsValid)
+                {
+                    FailStreamingRequest(requestId, FormatStagePlanValidationFailure(validationResult), null);
+                    yield break;
+                }
+
+                if (streamingParsedStageCount <= 0)
+                {
+                    FailStreamingRequest(requestId, "Streaming StagePlan contained no complete stages.", null);
+                    yield break;
+                }
+
+                if (!streamingStagePlanStarted
+                    && !StartBufferedStreamingStages(requestId, bufferedStageJsons, out var startFailure))
+                {
+                    FailStreamingRequest(requestId, startFailure, null);
+                    yield break;
+                }
+
+                if (stagePlanPlayer == null || !stagePlanPlayer.CompleteStreamingForOwner(LlmOwnerId, requestId))
+                {
+                    FailStreamingRequest(requestId, stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.", null);
+                    yield break;
+                }
+
+                streamingRequestActive = false;
+                lastStreamingStatus = $"Streaming complete. stages={streamingParsedStageCount.ToString(CultureInfo.InvariantCulture)}.";
+                statusText = $"Request {requestId} streaming complete.";
+                lastError = string.Empty;
+            }
+        }
+
+        private bool DrainStreamingChunks(
+            int requestId,
+            StreamingTextDownloadHandler textHandler,
+            StreamingSseParser sseParser,
+            StagePlanIncrementalParser stageParser,
+            List<string> bufferedStageJsons,
+            bool complete,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+
+            while (textHandler.TryDequeueChunk(out var chunk))
+            {
+                lastRawResponse = textHandler.RawText;
+                if (!sseParser.Append(chunk, out var payloads, out failureReason))
+                    return false;
+
+                if (!ProcessStreamingPayloads(requestId, payloads, stageParser, bufferedStageJsons, out failureReason))
+                    return false;
+            }
+
+            if (!complete)
+                return true;
+
+            if (!sseParser.Complete(out var finalPayloads, out failureReason))
+                return false;
+
+            return ProcessStreamingPayloads(requestId, finalPayloads, stageParser, bufferedStageJsons, out failureReason);
+        }
+
+        private bool ProcessStreamingPayloads(
+            int requestId,
+            List<string> payloads,
+            StagePlanIncrementalParser stageParser,
+            List<string> bufferedStageJsons,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+            for (var i = 0; i < payloads.Count; i++)
+            {
+                var payload = payloads[i];
+                if (string.IsNullOrWhiteSpace(payload))
+                    continue;
+
+                if (payload.Trim() == "[DONE]")
+                {
+                    lastStreamingStatus = "SSE done received.";
+                    continue;
+                }
+
+                if (!TryExtractStreamingDelta(payload, out var deltaContent, out failureReason))
+                    return false;
+
+                if (string.IsNullOrEmpty(deltaContent))
+                    continue;
+
+                stageParser.Append(deltaContent);
+                lastExtractedStagePlan = stageParser.Content;
+
+                while (stageParser.TryDequeueStage(out var stageJson))
+                {
+                    if (!HandleStreamingStage(requestId, stageJson, bufferedStageJsons, out failureReason))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool HandleStreamingStage(
+            int requestId,
+            string stageJson,
+            List<string> bufferedStageJsons,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+            streamingParsedStageCount++;
+            var stagePlanJson = BuildStagePlanJsonFromStageJsons(new[] { stageJson });
+            var validationResult = StagePlanValidator.Validate(stagePlanJson, characterProfile);
+            if (!validationResult.IsValid)
+            {
+                failureReason = FormatStagePlanValidationFailure(validationResult);
+                return false;
+            }
+
+            if (!streamingStagePlanStarted)
+            {
+                bufferedStageJsons.Add(stageJson);
+                streamingBufferedStageCount = bufferedStageJsons.Count;
+                lastStreamingStatus = $"Buffered streaming stage {streamingBufferedStageCount.ToString(CultureInfo.InvariantCulture)}/{StreamInitialStageBufferCount.ToString(CultureInfo.InvariantCulture)}.";
+                if (bufferedStageJsons.Count < StreamInitialStageBufferCount)
+                    return true;
+
+                return StartBufferedStreamingStages(requestId, bufferedStageJsons, out failureReason);
+            }
+
+            if (stagePlanPlayer == null || !stagePlanPlayer.AppendStreamingJsonForOwner(stagePlanJson, LlmOwnerId, requestId))
+            {
+                failureReason = stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.";
+                return false;
+            }
+
+            streamingAppendedStageCount++;
+            lastStreamingStatus = $"Appended streaming stage {streamingAppendedStageCount.ToString(CultureInfo.InvariantCulture)}.";
+            return true;
+        }
+
+        private bool StartBufferedStreamingStages(int requestId, List<string> bufferedStageJsons, out string failureReason)
+        {
+            failureReason = string.Empty;
+            if (bufferedStageJsons == null || bufferedStageJsons.Count == 0)
+            {
+                failureReason = "No buffered streaming stages are available.";
+                return false;
+            }
+
+            var stagePlanJson = BuildStagePlanJsonFromStageJsons(bufferedStageJsons);
+            if (stagePlanPlayer == null || !stagePlanPlayer.StartStreamingJsonForOwner(stagePlanJson, LlmOwnerId, requestId, streamHoldLastPoseWhileWaiting))
+            {
+                failureReason = stagePlanPlayer != null ? stagePlanPlayer.LastMessage : "StagePlanPlayer reference is missing.";
+                return false;
+            }
+
+            streamingStagePlanStarted = true;
+            streamingAppendedStageCount += bufferedStageJsons.Count;
+            streamingBufferedStageCount = 0;
+            bufferedStageJsons.Clear();
+            lastStreamingStatus = $"Streaming playback started with {streamingAppendedStageCount.ToString(CultureInfo.InvariantCulture)} stage(s).";
+            statusText = $"Request {requestId} streaming StagePlan playing.";
+            return true;
+        }
+
+        private void FailStreamingRequest(int requestId, string message, UnityWebRequest request)
+        {
+            if (request != null && !request.isDone)
+                request.Abort();
+
+            ClearRequestStateIfCurrent(requestId, request);
+            if (stagePlanPlayer != null)
+                stagePlanPlayer.StopStagePlanForOwner(LlmOwnerId);
+
+            streamingRequestActive = false;
+            lastStreamingStatus = "Streaming failed.";
+            RecordError(requestId, message);
+        }
+
+        private void ClearRequestStateIfCurrent(int requestId, UnityWebRequest request)
+        {
+            if (requestId != latestRequestId)
+                return;
+
+            requestPending = false;
+            pendingRequestId = 0;
+            activeCoroutine = null;
+            streamingRequestActive = false;
+            if (activeRequest == request)
+                activeRequest = null;
+        }
+
         private string BuildRequestJson(string userText)
         {
             return BuildRequestJson(userText, string.Empty);
         }
 
         private string BuildRequestJson(string userText, string historyContext)
+        {
+            return BuildRequestJson(userText, historyContext, false);
+        }
+
+        private string BuildRequestJson(string userText, string historyContext, bool streaming)
         {
             var systemPrompt = BuildSystemPrompt();
             var developerPrompt = BuildDeveloperPrompt(historyContext);
@@ -400,6 +699,9 @@ namespace VirtualPartner.Runtime
 
             if (config.useJsonResponseFormat)
                 builder.Append(",\"response_format\":{\"type\":\"json_object\"}");
+
+            if (streaming)
+                builder.Append(",\"stream\":true");
 
             builder.Append('}');
             return builder.ToString();
@@ -996,6 +1298,70 @@ namespace VirtualPartner.Runtime
             wroteAxis = true;
         }
 
+        private void ResetStreamingStatus()
+        {
+            streamingRequestActive = false;
+            streamingStagePlanStarted = false;
+            streamingParsedStageCount = 0;
+            streamingBufferedStageCount = 0;
+            streamingAppendedStageCount = 0;
+            lastStreamingStatus = string.Empty;
+        }
+
+        private static string BuildStagePlanJsonFromStageJsons(IReadOnlyList<string> stageJsons)
+        {
+            var builder = new StringBuilder(256);
+            builder.Append("{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"stages\":[");
+            for (var i = 0; i < stageJsons.Count; i++)
+            {
+                if (i > 0)
+                    builder.Append(',');
+                builder.Append(stageJsons[i]);
+            }
+
+            builder.Append("]}");
+            return builder.ToString();
+        }
+
+        private bool TryExtractStreamingDelta(string payload, out string deltaContent, out string failureReason)
+        {
+            deltaContent = string.Empty;
+            failureReason = string.Empty;
+
+            ChatCompletionStreamResponse response = null;
+            try
+            {
+                response = JsonUtility.FromJson<ChatCompletionStreamResponse>(payload);
+            }
+            catch (Exception exception)
+            {
+                failureReason = $"LLM stream payload parse failed: {exception.Message}";
+                return false;
+            }
+
+            if (response == null)
+            {
+                failureReason = "LLM stream payload parse returned no object.";
+                return false;
+            }
+
+            if (response.error != null && !string.IsNullOrWhiteSpace(response.error.message))
+            {
+                failureReason = $"LLM stream error: {response.error.message}";
+                return false;
+            }
+
+            if (response.choices == null || response.choices.Length == 0)
+                return true;
+
+            var choice = response.choices[0];
+            if (choice == null || choice.delta == null)
+                return true;
+
+            deltaContent = choice.delta.content ?? string.Empty;
+            return true;
+        }
+
         private bool TryExtractAssistantContent(string responseText, out string content, out string failureReason)
         {
             content = string.Empty;
@@ -1310,6 +1676,397 @@ namespace VirtualPartner.Runtime
             return builder.ToString();
         }
 
+        private sealed class StreamingTextDownloadHandler : DownloadHandlerScript
+        {
+            private readonly object gate = new object();
+            private readonly Queue<string> chunks = new Queue<string>();
+            private readonly StringBuilder rawText = new StringBuilder(8192);
+            private readonly Decoder decoder = Encoding.UTF8.GetDecoder();
+            private readonly char[] charBuffer = new char[8192];
+
+            public StreamingTextDownloadHandler()
+                : base(new byte[4096])
+            {
+            }
+
+            public string RawText
+            {
+                get
+                {
+                    lock (gate)
+                        return rawText.ToString();
+                }
+            }
+
+            public bool TryDequeueChunk(out string chunk)
+            {
+                lock (gate)
+                {
+                    if (chunks.Count == 0)
+                    {
+                        chunk = string.Empty;
+                        return false;
+                    }
+
+                    chunk = chunks.Dequeue();
+                    return true;
+                }
+            }
+
+            protected override bool ReceiveData(byte[] data, int dataLength)
+            {
+                if (data == null || dataLength <= 0)
+                    return true;
+
+                lock (gate)
+                {
+                    var charCount = decoder.GetChars(data, 0, dataLength, charBuffer, 0, false);
+                    if (charCount <= 0)
+                        return true;
+
+                    var chunk = new string(charBuffer, 0, charCount);
+                    chunks.Enqueue(chunk);
+                    rawText.Append(chunk);
+                    return true;
+                }
+            }
+
+            protected override void CompleteContent()
+            {
+                lock (gate)
+                {
+                    var charCount = decoder.GetChars(Array.Empty<byte>(), 0, 0, charBuffer, 0, true);
+                    if (charCount <= 0)
+                        return;
+
+                    var chunk = new string(charBuffer, 0, charCount);
+                    chunks.Enqueue(chunk);
+                    rawText.Append(chunk);
+                }
+            }
+        }
+
+        private sealed class StreamingSseParser
+        {
+            private readonly StringBuilder lineBuffer = new StringBuilder(1024);
+            private readonly StringBuilder eventData = new StringBuilder(1024);
+
+            public bool Append(string chunk, out List<string> payloads, out string failureReason)
+            {
+                payloads = new List<string>();
+                failureReason = string.Empty;
+                if (string.IsNullOrEmpty(chunk))
+                    return true;
+
+                lineBuffer.Append(chunk);
+                while (TryPopLine(out var line))
+                    ProcessLine(line, payloads);
+
+                return true;
+            }
+
+            public bool Complete(out List<string> payloads, out string failureReason)
+            {
+                payloads = new List<string>();
+                failureReason = string.Empty;
+
+                if (lineBuffer.Length > 0)
+                {
+                    var line = lineBuffer.ToString();
+                    lineBuffer.Length = 0;
+                    ProcessLine(TrimLineEnding(line), payloads);
+                }
+
+                FlushEvent(payloads);
+                return true;
+            }
+
+            private bool TryPopLine(out string line)
+            {
+                for (var i = 0; i < lineBuffer.Length; i++)
+                {
+                    if (lineBuffer[i] != '\n')
+                        continue;
+
+                    line = TrimLineEnding(lineBuffer.ToString(0, i + 1));
+                    lineBuffer.Remove(0, i + 1);
+                    return true;
+                }
+
+                line = string.Empty;
+                return false;
+            }
+
+            private void ProcessLine(string line, List<string> payloads)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    FlushEvent(payloads);
+                    return;
+                }
+
+                if (line.StartsWith(":", StringComparison.Ordinal))
+                    return;
+
+                if (!line.StartsWith("data:", StringComparison.Ordinal))
+                    return;
+
+                var data = line.Substring(5);
+                if (data.StartsWith(" ", StringComparison.Ordinal))
+                    data = data.Substring(1);
+
+                if (eventData.Length > 0)
+                    eventData.Append('\n');
+                eventData.Append(data);
+            }
+
+            private void FlushEvent(List<string> payloads)
+            {
+                if (eventData.Length == 0)
+                    return;
+
+                payloads.Add(eventData.ToString());
+                eventData.Length = 0;
+            }
+
+            private static string TrimLineEnding(string line)
+            {
+                return line.TrimEnd('\r', '\n');
+            }
+        }
+
+        private sealed class StagePlanIncrementalParser
+        {
+            private readonly StringBuilder content = new StringBuilder(8192);
+            private readonly Queue<string> stages = new Queue<string>();
+            private bool stagesArrayFound;
+            private bool stagesArrayClosed;
+            private int stageScanIndex;
+
+            public string Content => content.ToString();
+
+            public void Append(string delta)
+            {
+                if (string.IsNullOrEmpty(delta))
+                    return;
+
+                content.Append(delta);
+                ScanForStages();
+            }
+
+            public bool TryDequeueStage(out string stageJson)
+            {
+                if (stages.Count == 0)
+                {
+                    stageJson = string.Empty;
+                    return false;
+                }
+
+                stageJson = stages.Dequeue();
+                return true;
+            }
+
+            private void ScanForStages()
+            {
+                if (stagesArrayClosed)
+                    return;
+
+                var text = content.ToString();
+                if (!stagesArrayFound)
+                {
+                    if (!TryFindStagesArrayStart(text, out stageScanIndex))
+                        return;
+
+                    stagesArrayFound = true;
+                }
+
+                while (stageScanIndex < text.Length)
+                {
+                    stageScanIndex = SkipWhitespaceAndCommas(text, stageScanIndex);
+                    if (stageScanIndex >= text.Length)
+                        return;
+
+                    if (text[stageScanIndex] == ']')
+                    {
+                        stagesArrayClosed = true;
+                        return;
+                    }
+
+                    if (text[stageScanIndex] != '{')
+                        return;
+
+                    if (!TryExtractJsonObjectAt(text, stageScanIndex, out var stageJson, out var objectEndIndex))
+                        return;
+
+                    stages.Enqueue(stageJson);
+                    stageScanIndex = objectEndIndex + 1;
+                }
+            }
+
+            private static bool TryFindStagesArrayStart(string text, out int arrayContentStart)
+            {
+                arrayContentStart = -1;
+                for (var i = 0; i < text.Length; i++)
+                {
+                    if (text[i] != '"')
+                        continue;
+
+                    if (!TryReadJsonStringToken(text, i, out var token, out var nextIndex, out var complete))
+                        return false;
+
+                    if (!complete)
+                        return false;
+
+                    i = nextIndex - 1;
+                    if (!string.Equals(token, "stages", StringComparison.Ordinal))
+                        continue;
+
+                    var colonIndex = SkipWhitespace(text, nextIndex);
+                    if (colonIndex >= text.Length)
+                        return false;
+                    if (text[colonIndex] != ':')
+                        continue;
+
+                    var arrayIndex = SkipWhitespace(text, colonIndex + 1);
+                    if (arrayIndex >= text.Length)
+                        return false;
+                    if (text[arrayIndex] != '[')
+                        continue;
+
+                    arrayContentStart = arrayIndex + 1;
+                    return true;
+                }
+
+                return false;
+            }
+
+            private static bool TryReadJsonStringToken(
+                string text,
+                int quoteIndex,
+                out string token,
+                out int nextIndex,
+                out bool complete)
+            {
+                token = string.Empty;
+                nextIndex = quoteIndex;
+                complete = false;
+
+                if (quoteIndex < 0 || quoteIndex >= text.Length || text[quoteIndex] != '"')
+                    return false;
+
+                var builder = new StringBuilder();
+                var escaping = false;
+                for (var i = quoteIndex + 1; i < text.Length; i++)
+                {
+                    var c = text[i];
+                    if (escaping)
+                    {
+                        builder.Append(c);
+                        escaping = false;
+                        continue;
+                    }
+
+                    if (c == '\\')
+                    {
+                        escaping = true;
+                        continue;
+                    }
+
+                    if (c == '"')
+                    {
+                        token = builder.ToString();
+                        nextIndex = i + 1;
+                        complete = true;
+                        return true;
+                    }
+
+                    builder.Append(c);
+                }
+
+                return true;
+            }
+
+            private static bool TryExtractJsonObjectAt(
+                string text,
+                int start,
+                out string json,
+                out int endIndex)
+            {
+                json = string.Empty;
+                endIndex = -1;
+
+                if (start < 0 || start >= text.Length || text[start] != '{')
+                    return false;
+
+                var depth = 0;
+                var inString = false;
+                var escaping = false;
+                for (var i = start; i < text.Length; i++)
+                {
+                    var c = text[i];
+                    if (inString)
+                    {
+                        if (escaping)
+                        {
+                            escaping = false;
+                            continue;
+                        }
+
+                        if (c == '\\')
+                        {
+                            escaping = true;
+                            continue;
+                        }
+
+                        if (c == '"')
+                            inString = false;
+                        continue;
+                    }
+
+                    if (c == '"')
+                    {
+                        inString = true;
+                        continue;
+                    }
+
+                    if (c == '{')
+                    {
+                        depth++;
+                        continue;
+                    }
+
+                    if (c != '}')
+                        continue;
+
+                    depth--;
+                    if (depth != 0)
+                        continue;
+
+                    endIndex = i;
+                    json = text.Substring(start, i - start + 1);
+                    return true;
+                }
+
+                return false;
+            }
+
+            private static int SkipWhitespaceAndCommas(string text, int index)
+            {
+                while (index < text.Length && (char.IsWhiteSpace(text[index]) || text[index] == ','))
+                    index++;
+
+                return index;
+            }
+
+            private static int SkipWhitespace(string text, int index)
+            {
+                while (index < text.Length && char.IsWhiteSpace(text[index]))
+                    index++;
+
+                return index;
+            }
+        }
+
         [Serializable]
         private sealed class LlmRelayConfig
         {
@@ -1387,6 +2144,27 @@ namespace VirtualPartner.Runtime
         [Serializable]
         private sealed class ChatCompletionMessage
         {
+            public string content;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionStreamResponse
+        {
+            public ChatCompletionStreamChoice[] choices;
+            public ChatCompletionError error;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionStreamChoice
+        {
+            public ChatCompletionDelta delta;
+            public string finish_reason;
+        }
+
+        [Serializable]
+        private sealed class ChatCompletionDelta
+        {
+            public string role;
             public string content;
         }
 

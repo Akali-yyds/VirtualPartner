@@ -1,8 +1,8 @@
 # VirtualPartner 当前 TODO
 
-更新时间：2026-05-25
+更新时间：2026-06-05
 
-本文记录当前活跃 TODO。当前主线是 `LlmRelay` prompt 工程与 one-shot StagePlan 质量优化；Stage 3 AgentLoop 不在当前活跃开发路径中。
+本文记录当前活跃 TODO。当前主线是 `LlmRelay` prompt 工程、StagePlan 2.0 质量优化与流式 StagePlan 执行体验；Stage 3 AgentLoop 不在当前活跃开发路径中。
 
 ## 当前状态
 
@@ -11,6 +11,7 @@
 - [x] Windows Standalone 最小应用菜单与退出能力完成。
 - [x] Stage 3 AgentRun / Tool Call 探索已迁出当前活跃基线并归档。
 - [x] 根目录原文档已备份到 `Archive/RootDocs_20260525_prompt_pivot/`。
+- [x] LLM Streaming StagePlan 执行链路完成并通过人工验收。
 
 ## 当前活跃主线：Prompt Engineering
 
@@ -38,6 +39,34 @@
 - [ ] speech、expression、bonePose、animation、facing、locomotion 的组合没有明显互相打断。
 - [ ] TTS/ASR、聊天记录、长期记忆、Clear Memory、Clear Chat History 行为正常。
 - [ ] 日志能够支持定位输入、耗时、LLM 输出、校验结果和播放结果。
+
+## 已完成阶段：LLM Streaming StagePlan
+
+目标：保持 StagePlan 2.0 schema 不变，让 LLM 通过 OpenAI-compatible SSE 输出完整 StagePlan 时，运行时可在解析到完整 stage 后提前追加播放，缩短长动作请求的等待时间。
+
+### 已完成改动
+
+- [x] 在 `LlmRelay` 增加默认启用的 OpenAI-compatible SSE streaming 请求路径。
+- [x] 在 `LlmRelay` 增加 Inspector 可调首播 stage 缓冲数，默认 2。
+- [x] 在 `LlmRelay` 增加 Inspector 可调等待下一段时保持末姿势的开关。
+- [x] 增量解析 `choices[].delta.content`，从完整 StagePlan 的 `stages` 数组中提取完整 stage。
+- [x] 每个流式 stage 在追加播放前先包装为单段 StagePlan 并通过 validator。
+- [x] 在 `StagePlanPlayer` 增加同一 owner/requestId 下的流式开始、追加、完成 API。
+- [x] `StagePlanPlayer` 支持播放到队列尾但 LLM 流未结束时等待下一段，不触发 `StagePlanFinished`。
+- [x] 流式结束且所有已追加 stages 播完后，只触发一次 `StagePlanFinished`。
+- [x] 流式失败时停止当前 LLM StagePlan，并通过 Momotalk 错误路径暴露失败。
+- [x] 保留 Inspector 关闭流式后的 one-shot 完整 JSON 路径。
+
+### 已通过验收
+
+- [x] Unity Console 无 C# 编译错误。
+- [x] Inspector 关闭流式后，旧 one-shot `LlmRelay -> StagePlanPlayer` 路径仍可播放。
+- [x] 简单聊天可通过流式路径显示 speech / expression，聊天记录行为正常。
+- [x] “跳个舞吧”不等待完整 JSON 结束即可开始播放。
+- [x] 首播缓冲 stage 数设置为 1、2、3 时，等待时间和段间空档符合预期。
+- [x] 队列暂时播空但 LLM 还在输出时，角色保持末姿势等待下一段。
+- [x] LLM stream / SSE / JSON / stage validation 失败时，立即停止当前播放并显示错误。
+- [x] Memory 只在整轮流式 StagePlan 完成后判断，不在每个 stage 后提前写入。
 
 ## Prompt 质量原则
 

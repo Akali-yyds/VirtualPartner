@@ -95,9 +95,13 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Config: {llmRelay.ConfigStatus}");
             GUILayout.Label($"Request: latest {llmRelay.LatestRequestId}  pending {(llmRelay.RequestPending ? llmRelay.PendingRequestId.ToString() : "-")}");
             GUILayout.Label($"Interaction timeout: {llmRelay.InteractionTimeoutSeconds:0.#}s  LLM StagePlan: {(llmRelay.IsLlmStagePlanPlaying ? "Playing" : "No")}");
+            GUILayout.Label($"Streaming: {(llmRelay.StreamStagePlans ? "On" : "Off")}  active {llmRelay.StreamingRequestActive}  started {llmRelay.StreamingStagePlanStarted}  buffer {llmRelay.StreamInitialStageBufferCount}");
+            GUILayout.Label($"Stream stages: parsed {llmRelay.StreamingParsedStageCount}  buffered {llmRelay.StreamingBufferedStageCount}  appended {llmRelay.StreamingAppendedStageCount}");
 
             if (!string.IsNullOrWhiteSpace(llmRelay.LastError))
                 GUILayout.Label($"Last Error: {llmRelay.LastError}");
+            if (!string.IsNullOrWhiteSpace(llmRelay.LastStreamingStatus))
+                GUILayout.Label($"Stream: {llmRelay.LastStreamingStatus}");
             if (!string.IsNullOrWhiteSpace(promptCopyStatus))
                 GUILayout.Label($"Prompt: {promptCopyStatus}");
         }

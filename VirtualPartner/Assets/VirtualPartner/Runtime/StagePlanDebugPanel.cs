@@ -96,6 +96,7 @@ namespace VirtualPartner.Runtime
             }
 
             GUILayout.Label($"Player: {stagePlanPlayer.StatusText}  Playing: {stagePlanPlayer.IsPlaying}  {stagePlanPlayer.CurrentStageStatus}");
+            GUILayout.Label($"Stream: active {stagePlanPlayer.ActivePlanStreaming}  complete {stagePlanPlayer.ActivePlanStreamComplete}  waiting {stagePlanPlayer.WaitingForStreamStage}  queued {stagePlanPlayer.QueuedStageCount}");
             GUILayout.Label($"Actions: {stagePlanPlayer.TerminalActionCount}/{stagePlanPlayer.ActiveActionCount} terminal");
             GUILayout.Label(
                 $"Results C/F/I/S/O: {stagePlanPlayer.CompletedCount}/{stagePlanPlayer.FailedCount}/{stagePlanPlayer.InterruptedCount}/{stagePlanPlayer.SkippedCount}/{stagePlanPlayer.OwnershipDeniedCount}");
