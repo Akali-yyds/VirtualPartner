@@ -17,7 +17,6 @@
   "vad": {
     "model_path": "models/vad/silero_vad.onnx",
     "threshold": 0.5,
-    "energy_threshold": 0.01,
     "min_silence_seconds": 0.8,
     "min_speech_seconds": 0.25
   }

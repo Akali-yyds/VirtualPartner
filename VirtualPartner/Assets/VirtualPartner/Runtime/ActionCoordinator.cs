@@ -12,6 +12,16 @@ namespace VirtualPartner.Runtime
         Debug
     }
 
+    // Structured failure reason for bone ownership requests, so callers map to a
+    // StageActionStatus by kind instead of matching the failureReason text.
+    public enum BoneRequestFailureKind
+    {
+        None,
+        OwnershipConflict,
+        MissingReference,
+        InvalidData
+    }
+
     public sealed class BoneHandoffTransition
     {
         public BoneHandoffTransition(
@@ -154,22 +164,30 @@ namespace VirtualPartner.Runtime
 
         public bool RequestStagePlanBonePose(BoneMapInstance instance, Vector3 semanticRotation, out string failureReason)
         {
-            return RequestStagePlanBonePose(instance, semanticRotation, handoffDuration, out failureReason);
+            return RequestStagePlanBonePose(instance, semanticRotation, handoffDuration, out failureReason, out _);
         }
 
         public bool RequestStagePlanBonePose(BoneMapInstance instance, Vector3 semanticRotation, float transitionDuration, out string failureReason)
         {
+            return RequestStagePlanBonePose(instance, semanticRotation, transitionDuration, out failureReason, out _);
+        }
+
+        public bool RequestStagePlanBonePose(BoneMapInstance instance, Vector3 semanticRotation, float transitionDuration, out string failureReason, out BoneRequestFailureKind failureKind)
+        {
             failureReason = string.Empty;
+            failureKind = BoneRequestFailureKind.None;
 
             if (!HasResolvedTransforms(instance))
             {
                 failureReason = "StagePlan bone instance is missing.";
+                failureKind = BoneRequestFailureKind.MissingReference;
                 return false;
             }
 
             if (avatarPoseApplier == null)
             {
                 failureReason = "AvatarPoseApplier reference is missing.";
+                failureKind = BoneRequestFailureKind.MissingReference;
                 return false;
             }
 
@@ -180,6 +198,7 @@ namespace VirtualPartner.Runtime
                 if (states.TryGetValue(transform, out var existingState) && existingState.Owner == BoneOwner.Debug)
                 {
                     failureReason = $"{displayName} is owned by Debug.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
             }
@@ -197,6 +216,7 @@ namespace VirtualPartner.Runtime
                         out stagePlanBonePoseTargets[i]))
                 {
                     failureReason = $"Could not build StagePlan pose for {GetInstanceDisplayName(instance, i)}.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
             }
@@ -256,23 +276,38 @@ namespace VirtualPartner.Runtime
             List<string> displacedPresetIds,
             out string failureReason)
         {
+            return RequestPresetAnimation(presetId, displayName, poses, displacedPresetIds, out failureReason, out _);
+        }
+
+        public bool RequestPresetAnimation(
+            string presetId,
+            string displayName,
+            IReadOnlyList<PresetAnimationBonePose> poses,
+            List<string> displacedPresetIds,
+            out string failureReason,
+            out BoneRequestFailureKind failureKind)
+        {
             failureReason = string.Empty;
+            failureKind = BoneRequestFailureKind.None;
 
             if (string.IsNullOrWhiteSpace(presetId))
             {
                 failureReason = "Preset animation id is missing.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
             if (poses == null || poses.Count == 0)
             {
                 failureReason = $"Preset animation '{displayName}' has no target poses.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
             if (avatarPoseApplier == null)
             {
                 failureReason = "AvatarPoseApplier reference is missing.";
+                failureKind = BoneRequestFailureKind.MissingReference;
                 return false;
             }
 
@@ -283,18 +318,21 @@ namespace VirtualPartner.Runtime
                 if (pose == null || pose.Bone == null)
                 {
                     failureReason = $"Preset animation '{displayName}' contains a missing bone pose.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
                 if (!avatarPoseApplier.TryGetBaseRotation(pose.Bone, out _))
                 {
                     failureReason = $"{pose.DisplayName} is outside the captured BaseRotation set.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
                 if (!avatarPoseApplier.TryGetBasePosition(pose.Bone, out _))
                 {
                     failureReason = $"{pose.DisplayName} is outside the captured BasePosition set.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
@@ -302,18 +340,21 @@ namespace VirtualPartner.Runtime
                 if (state.Owner == BoneOwner.Debug)
                 {
                     failureReason = $"{state.DisplayName} is owned by Debug.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 
                 if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
                     failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 
                 if (state.Owner == BoneOwner.Locomotion)
                 {
                     failureReason = $"{state.DisplayName} is owned by Locomotion.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 
@@ -392,23 +433,37 @@ namespace VirtualPartner.Runtime
             IReadOnlyList<LocomotionBonePose> poses,
             out string failureReason)
         {
+            return RequestLocomotion(locomotionId, displayName, poses, out failureReason, out _);
+        }
+
+        public bool RequestLocomotion(
+            string locomotionId,
+            string displayName,
+            IReadOnlyList<LocomotionBonePose> poses,
+            out string failureReason,
+            out BoneRequestFailureKind failureKind)
+        {
             failureReason = string.Empty;
+            failureKind = BoneRequestFailureKind.None;
 
             if (string.IsNullOrWhiteSpace(locomotionId))
             {
                 failureReason = "Locomotion id is missing.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
             if (poses == null || poses.Count == 0)
             {
                 failureReason = $"Locomotion '{displayName}' has no target poses.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
             if (avatarPoseApplier == null)
             {
                 failureReason = "AvatarPoseApplier reference is missing.";
+                failureKind = BoneRequestFailureKind.MissingReference;
                 return false;
             }
 
@@ -418,12 +473,14 @@ namespace VirtualPartner.Runtime
                 if (pose == null || pose.Bone == null)
                 {
                     failureReason = $"Locomotion '{displayName}' contains a missing bone pose.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
                 if (!avatarPoseApplier.TryGetBaseRotation(pose.Bone, out _))
                 {
                     failureReason = $"{pose.DisplayName} is outside the captured BaseRotation set.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
@@ -431,18 +488,21 @@ namespace VirtualPartner.Runtime
                 if (state.Owner == BoneOwner.Debug)
                 {
                     failureReason = $"{state.DisplayName} is owned by Debug.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 
                 if (state.Owner == BoneOwner.StagePlanBonePose)
                 {
                     failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 
                 if (state.Owner == BoneOwner.Locomotion && state.LocomotionId != locomotionId)
                 {
                     failureReason = $"{state.DisplayName} is owned by another Locomotion.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
             }
@@ -490,17 +550,30 @@ namespace VirtualPartner.Runtime
             IReadOnlyList<LocomotionBonePose> poses,
             out string failureReason)
         {
+            return UpdateLocomotionTargets(locomotionId, displayName, poses, out failureReason, out _);
+        }
+
+        public bool UpdateLocomotionTargets(
+            string locomotionId,
+            string displayName,
+            IReadOnlyList<LocomotionBonePose> poses,
+            out string failureReason,
+            out BoneRequestFailureKind failureKind)
+        {
             failureReason = string.Empty;
+            failureKind = BoneRequestFailureKind.None;
 
             if (string.IsNullOrWhiteSpace(locomotionId))
             {
                 failureReason = "Locomotion id is missing.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
             if (poses == null || poses.Count == 0)
             {
                 failureReason = $"Locomotion '{displayName}' has no target poses.";
+                failureKind = BoneRequestFailureKind.InvalidData;
                 return false;
             }
 
@@ -510,6 +583,7 @@ namespace VirtualPartner.Runtime
                 if (pose == null || pose.Bone == null)
                 {
                     failureReason = $"Locomotion '{displayName}' contains a missing bone pose.";
+                    failureKind = BoneRequestFailureKind.InvalidData;
                     return false;
                 }
 
@@ -518,6 +592,7 @@ namespace VirtualPartner.Runtime
                     || state.LocomotionId != locomotionId)
                 {
                     failureReason = $"{pose.DisplayName} is no longer owned by Locomotion.";
+                    failureKind = BoneRequestFailureKind.OwnershipConflict;
                     return false;
                 }
 

@@ -711,10 +711,11 @@ namespace VirtualPartner.Runtime
                         desiredBone.Instance,
                         desiredBone.Rotation,
                         runningAction.Duration,
-                        out var requestFailure))
+                        out var requestFailure,
+                        out var requestFailureKind))
                 {
                     ReleaseBones(acquiredBones);
-                    CompleteAction(runningAction, ClassifyOwnershipFailure(requestFailure), requestFailure);
+                    CompleteAction(runningAction, MapFailureStatus(requestFailureKind), requestFailure);
                     return;
                 }
 
@@ -777,7 +778,7 @@ namespace VirtualPartner.Runtime
             runningAction.Duration = GetDefaultedDuration(runningAction.Action.duration);
             if (!locomotionActionExecutor.StartLocomotion(runningAction.Action.mode, runningAction.Duration, out var failureReason))
             {
-                CompleteAction(runningAction, ClassifyOwnershipFailure(failureReason), failureReason);
+                CompleteAction(runningAction, StageActionStatus.Failed, failureReason);
                 return;
             }
         }
@@ -884,9 +885,10 @@ namespace VirtualPartner.Runtime
                     action.PresetBinding.ActionName,
                     sampledPresetPoses,
                     displacedPresetIds,
-                    out var requestFailure))
+                    out var requestFailure,
+                    out var requestFailureKind))
             {
-                CompleteAction(action, ClassifyOwnershipFailure(requestFailure), requestFailure);
+                CompleteAction(action, MapFailureStatus(requestFailureKind), requestFailure);
                 return;
             }
 
@@ -920,7 +922,7 @@ namespace VirtualPartner.Runtime
             var message = string.IsNullOrWhiteSpace(locomotionActionExecutor.LastMessage)
                 ? "Locomotion stopped before duration completed."
                 : locomotionActionExecutor.LastMessage;
-            CompleteAction(action, ClassifyOwnershipFailure(message), message);
+            CompleteAction(action, MapFailureStatus(locomotionActionExecutor.LastFailureKind), message);
         }
 
         private void StopPresetAnimationsThatLostOwnership()
@@ -1495,12 +1497,11 @@ namespace VirtualPartner.Runtime
             return false;
         }
 
-        private static StageActionStatus ClassifyOwnershipFailure(string message)
+        private static StageActionStatus MapFailureStatus(BoneRequestFailureKind failureKind)
         {
-            return !string.IsNullOrWhiteSpace(message)
-                && message.IndexOf("owned by", StringComparison.OrdinalIgnoreCase) >= 0
-                    ? StageActionStatus.OwnershipDenied
-                    : StageActionStatus.Failed;
+            return failureKind == BoneRequestFailureKind.OwnershipConflict
+                ? StageActionStatus.OwnershipDenied
+                : StageActionStatus.Failed;
         }
 
         private static StageActionKind GetActionKind(string actionType)

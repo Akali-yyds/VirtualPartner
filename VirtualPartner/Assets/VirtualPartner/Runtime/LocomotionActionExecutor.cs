@@ -30,6 +30,7 @@ namespace VirtualPartner.Runtime
         private int sequence;
         private bool ownersAcquired;
         private bool missingConstraintWarningLogged;
+        private BoneRequestFailureKind lastFailureKind;
 
         public bool IsActive => active;
         public string ActiveMode => activeMode;
@@ -38,6 +39,7 @@ namespace VirtualPartner.Runtime
         public float Speed => speed;
         public int ControlledBoneCount => controlledBoneCount;
         public string LastMessage => lastMessage;
+        public BoneRequestFailureKind LastFailureKind => lastFailureKind;
         public Transform Root => root;
 
         public void Configure(
@@ -87,6 +89,7 @@ namespace VirtualPartner.Runtime
             controlledBoneCount = activeBinding.Targets.Length;
             active = true;
             ownersAcquired = false;
+            lastFailureKind = BoneRequestFailureKind.None;
             lastMessage = $"Started {activeMode}.";
             return true;
         }
@@ -124,19 +127,22 @@ namespace VirtualPartner.Runtime
             if (!TrySampleLocomotion(clipTime, idleClip, idleTime, out var sampleFailure))
             {
                 lastMessage = sampleFailure;
+                lastFailureKind = BoneRequestFailureKind.InvalidData;
                 Debug.LogWarning($"[VirtualPartner] Locomotion stopped: {sampleFailure}", this);
                 StopLocomotion();
                 return;
             }
 
             string requestFailure;
+            BoneRequestFailureKind requestFailureKind;
             var updatedOwner = ownersAcquired
-                ? actionCoordinator.UpdateLocomotionTargets(activeId, activeMode, sampledPoses, out requestFailure)
-                : actionCoordinator.RequestLocomotion(activeId, activeMode, sampledPoses, out requestFailure);
+                ? actionCoordinator.UpdateLocomotionTargets(activeId, activeMode, sampledPoses, out requestFailure, out requestFailureKind)
+                : actionCoordinator.RequestLocomotion(activeId, activeMode, sampledPoses, out requestFailure, out requestFailureKind);
 
             if (!updatedOwner)
             {
                 lastMessage = requestFailure;
+                lastFailureKind = requestFailureKind;
                 Debug.LogWarning($"[VirtualPartner] Locomotion stopped: {requestFailure}", this);
                 StopLocomotion();
                 return;
@@ -147,6 +153,9 @@ namespace VirtualPartner.Runtime
             if (!StillOwnsAllBones())
             {
                 lastMessage = "A required bone was taken by a higher priority owner.";
+                // Preserve prior classification: this message was treated as a generic
+                // failure (it lacks the "owned by" marker the old text match looked for).
+                lastFailureKind = BoneRequestFailureKind.None;
                 Debug.LogWarning($"[VirtualPartner] Locomotion stopped: {lastMessage}", this);
                 StopLocomotion();
                 return;
@@ -156,6 +165,7 @@ namespace VirtualPartner.Runtime
             if (!CanMoveTo(proposedPosition, out var constraintFailure))
             {
                 lastMessage = constraintFailure;
+                lastFailureKind = BoneRequestFailureKind.None;
                 Debug.LogWarning($"[VirtualPartner] Locomotion stopped: {constraintFailure}", this);
                 StopLocomotion();
                 return;

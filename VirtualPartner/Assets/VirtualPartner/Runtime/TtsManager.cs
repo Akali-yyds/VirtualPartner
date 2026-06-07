@@ -76,6 +76,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private string serviceUrl = "http://127.0.0.1:8765";
         [SerializeField] private int requestTimeoutSeconds = 180;
         [SerializeField] private int healthTimeoutSeconds = 10;
+        [SerializeField] private float healthCacheTtlSeconds = 30f;
         [SerializeField] private bool streamRealTts = true;
         [SerializeField] private int streamMode = 1;
         [SerializeField] private int streamMinNonWhitespaceCharacters = 28;
@@ -138,9 +139,12 @@ namespace VirtualPartner.Runtime
         private Coroutine activeRoutine;
         private Coroutine healthRoutine;
         private StreamingPcmBuffer activeStreamBuffer;
+        private AudioClip runtimeClip;
         private bool lastStreamingAttemptStartedPlayback;
         private string lastStreamingFailure = string.Empty;
         private float streamingTailGraceRemaining = -1f;
+        private TtsHealthResponse cachedHealth;
+        private float cachedHealthTime = -1f;
 
         public bool Initialized => initialized;
         public bool Active => active && !terminalReady;
@@ -401,6 +405,7 @@ namespace VirtualPartner.Runtime
 
                 var response = ParseHealthResponse(request.downloadHandler != null ? request.downloadHandler.text : string.Empty);
                 healthStatusText = FormatHealthSummary(response);
+                StoreHealthCache(response);
                 healthRoutine = null;
             }
         }
@@ -438,7 +443,7 @@ namespace VirtualPartner.Runtime
 
             StartTextMouth(text);
             var clip = CreateSilentClip(duration);
-            audioSource.clip = clip;
+            AssignRuntimeClip(clip);
             audioSource.Play();
             NotifySpeechPlaybackStarted();
         }
@@ -461,63 +466,74 @@ namespace VirtualPartner.Runtime
             TtsHealthVoice selectedVoiceHealth = null;
             var useStreaming = false;
             var resolvedStreamMode = 0;
-            var healthRequest = UnityWebRequest.Get(BuildUrl("/health"));
-            using (healthRequest)
+
+            TtsHealthResponse health;
+            if (IsHealthCacheFresh())
             {
-                activeRequest = healthRequest;
-                healthRequest.timeout = HealthTimeoutSeconds;
-                yield return healthRequest.SendWebRequest();
-
-                if (!IsSessionCurrent(sessionId))
-                    yield break;
-                activeRequest = null;
-
-                if (healthRequest.result != UnityWebRequest.Result.Success)
+                health = cachedHealth;
+            }
+            else
+            {
+                var healthRequest = UnityWebRequest.Get(BuildUrl("/health"));
+                using (healthRequest)
                 {
-                    var reason = $"TTS health failed: HTTP {healthRequest.responseCode} {healthRequest.error}";
-                    healthStatusText = reason;
-                    StartFallbackWithWarning(text, reason);
-                    yield break;
-                }
+                    activeRequest = healthRequest;
+                    healthRequest.timeout = HealthTimeoutSeconds;
+                    yield return healthRequest.SendWebRequest();
 
-                var health = ParseHealthResponse(healthRequest.downloadHandler != null ? healthRequest.downloadHandler.text : string.Empty);
-                healthStatusText = FormatHealthSummary(health);
-                if (!TryResolveVoiceHealth(health, currentVoiceId, out var voiceHealth, out var healthFailure))
-                {
-                    StartFallbackWithWarning(text, healthFailure);
-                    yield break;
-                }
+                    if (!IsSessionCurrent(sessionId))
+                        yield break;
+                    activeRequest = null;
 
-                providerVersion = ResolveText(
-                    health != null && health.wrapper != null ? health.wrapper.version : null,
-                    RealProviderVersionFallback);
-                referenceAudioHash = ResolveText(voiceHealth.refAudioHash, "-");
-                promptTextHash = ResolveText(voiceHealth.promptTextHash, "-");
-                promptLang = ResolveText(voiceHealth.promptLang, "ja");
-                textLang = ResolveText(voiceHealth.textLang, "zh");
-                selectedVoiceHealth = voiceHealth;
-                useStreaming = ShouldUseStreaming(voiceHealth, text);
-                resolvedStreamMode = ResolveStreamingMode(voiceHealth);
-                var cacheVersion = useStreaming
-                    ? GetStreamingProviderVersion(providerVersion, resolvedStreamMode)
-                    : providerVersion;
-                BuildCacheInfo(text, cacheVersion, referenceAudioHash, promptTextHash, promptLang, textLang);
-                currentRequest = CreateCurrentRequest(text);
+                    if (healthRequest.result != UnityWebRequest.Result.Success)
+                    {
+                        var reason = $"TTS health failed: HTTP {healthRequest.responseCode} {healthRequest.error}";
+                        healthStatusText = reason;
+                        StartFallbackWithWarning(text, reason);
+                        yield break;
+                    }
 
-                if (File.Exists(cachePath))
-                {
-                    cached = true;
-                    latestResult = new TtsResult(currentRequest, cached, string.Empty);
-                    yield return LoadAndPlayClip(cachePath, text, sessionId, "TTS cache hit.");
-                    yield break;
+                    health = ParseHealthResponse(healthRequest.downloadHandler != null ? healthRequest.downloadHandler.text : string.Empty);
+                    StoreHealthCache(health);
                 }
+            }
 
-                if (health.upstream == null || !health.upstream.ok)
-                {
-                    var reason = $"TTS upstream unavailable: {(health.upstream != null ? health.upstream.message : "missing upstream status")}";
-                    StartFallbackWithWarning(text, reason);
-                    yield break;
-                }
+            healthStatusText = FormatHealthSummary(health);
+            if (!TryResolveVoiceHealth(health, currentVoiceId, out var voiceHealth, out var healthFailure))
+            {
+                StartFallbackWithWarning(text, healthFailure);
+                yield break;
+            }
+
+            providerVersion = ResolveText(
+                health != null && health.wrapper != null ? health.wrapper.version : null,
+                RealProviderVersionFallback);
+            referenceAudioHash = ResolveText(voiceHealth.refAudioHash, "-");
+            promptTextHash = ResolveText(voiceHealth.promptTextHash, "-");
+            promptLang = ResolveText(voiceHealth.promptLang, "ja");
+            textLang = ResolveText(voiceHealth.textLang, "zh");
+            selectedVoiceHealth = voiceHealth;
+            useStreaming = ShouldUseStreaming(voiceHealth, text);
+            resolvedStreamMode = ResolveStreamingMode(voiceHealth);
+            var cacheVersion = useStreaming
+                ? GetStreamingProviderVersion(providerVersion, resolvedStreamMode)
+                : providerVersion;
+            BuildCacheInfo(text, cacheVersion, referenceAudioHash, promptTextHash, promptLang, textLang);
+            currentRequest = CreateCurrentRequest(text);
+
+            if (File.Exists(cachePath))
+            {
+                cached = true;
+                latestResult = new TtsResult(currentRequest, cached, string.Empty);
+                yield return LoadAndPlayClip(cachePath, text, sessionId, "TTS cache hit.");
+                yield break;
+            }
+
+            if (health.upstream == null || !health.upstream.ok)
+            {
+                var reason = $"TTS upstream unavailable: {(health.upstream != null ? health.upstream.message : "missing upstream status")}";
+                StartFallbackWithWarning(text, reason);
+                yield break;
             }
 
             if (!IsSessionCurrent(sessionId))
@@ -739,7 +755,7 @@ namespace VirtualPartner.Runtime
             lastMessage = message;
             latestResult = new TtsResult(currentRequest, cached, string.Empty);
 
-            audioSource.clip = clip;
+            AssignRuntimeClip(clip);
             StartAudioMouth();
             audioSource.Play();
             NotifySpeechPlaybackStarted();
@@ -779,7 +795,7 @@ namespace VirtualPartner.Runtime
                 buffer.Read);
 
             activeStreamBuffer = buffer;
-            audioSource.clip = clip;
+            AssignRuntimeClip(clip);
             StartAudioMouth();
             audioSource.Play();
             lastStreamingAttemptStartedPlayback = true;
@@ -877,6 +893,7 @@ namespace VirtualPartner.Runtime
 
         private void StartFallbackWithWarning(string text, string reason)
         {
+            InvalidateHealthCache();
             latestError = string.IsNullOrWhiteSpace(reason) ? "TTS failed. Using text fallback." : reason;
             Debug.LogWarning($"[VirtualPartner] TTS warning: {latestError}", this);
             StartFallback(text, latestError);
@@ -1017,6 +1034,28 @@ namespace VirtualPartner.Runtime
             if (audioSource.isPlaying)
                 audioSource.Stop();
             audioSource.clip = null;
+            DestroyRuntimeClip();
+        }
+
+        private void AssignRuntimeClip(AudioClip clip)
+        {
+            if (audioSource == null)
+                return;
+
+            if (runtimeClip != null && runtimeClip != clip)
+                Destroy(runtimeClip);
+
+            runtimeClip = clip;
+            audioSource.clip = clip;
+        }
+
+        private void DestroyRuntimeClip()
+        {
+            if (runtimeClip == null)
+                return;
+
+            Destroy(runtimeClip);
+            runtimeClip = null;
         }
 
         private void BuildCacheInfo(
@@ -1130,8 +1169,15 @@ namespace VirtualPartner.Runtime
             if (activeRequest == null)
                 return;
 
-            activeRequest.Abort();
+            // The request is wrapped in a using block inside its coroutine, but when
+            // the coroutine is stopped (StopCoroutine) that using/finally never runs,
+            // so we abort and dispose here. Abort always pairs with StopCoroutine (or a
+            // request that already completed and nulled activeRequest), so this does not
+            // double-dispose the normal-completion path.
+            var request = activeRequest;
             activeRequest = null;
+            request.Abort();
+            request.Dispose();
         }
 
         private bool IsSessionCurrent(int sessionId)
@@ -1188,7 +1234,7 @@ namespace VirtualPartner.Runtime
 
                 using (var stream = File.Create(tempPath))
                 {
-                    WritePcm16Wav(stream, pcmBytes, sampleRate, channels);
+                    TtsWavWriter.WritePcm16Wav(stream, pcmBytes, sampleRate, channels);
                 }
 
                 if (File.Exists(targetPath))
@@ -1245,6 +1291,25 @@ namespace VirtualPartner.Runtime
             }
 
             return true;
+        }
+
+        private bool IsHealthCacheFresh()
+        {
+            return cachedHealth != null
+                && cachedHealthTime >= 0f
+                && Time.realtimeSinceStartup - cachedHealthTime <= Mathf.Max(0f, healthCacheTtlSeconds);
+        }
+
+        private void StoreHealthCache(TtsHealthResponse health)
+        {
+            cachedHealth = health;
+            cachedHealthTime = health != null ? Time.realtimeSinceStartup : -1f;
+        }
+
+        private void InvalidateHealthCache()
+        {
+            cachedHealth = null;
+            cachedHealthTime = -1f;
         }
 
         private TtsHealthResponse ParseHealthResponse(string json)
@@ -1396,49 +1461,6 @@ namespace VirtualPartner.Runtime
             }
         }
 
-        private static void WritePcm16Wav(Stream stream, byte[] pcmBytes, int sampleRate, int channels)
-        {
-            var resolvedChannels = Mathf.Max(1, channels);
-            var resolvedSampleRate = Mathf.Max(8000, sampleRate);
-            var byteRate = resolvedSampleRate * resolvedChannels * 2;
-            var blockAlign = resolvedChannels * 2;
-
-            WriteAscii(stream, "RIFF");
-            WriteInt32LE(stream, 36 + pcmBytes.Length);
-            WriteAscii(stream, "WAVE");
-            WriteAscii(stream, "fmt ");
-            WriteInt32LE(stream, 16);
-            WriteInt16LE(stream, 1);
-            WriteInt16LE(stream, resolvedChannels);
-            WriteInt32LE(stream, resolvedSampleRate);
-            WriteInt32LE(stream, byteRate);
-            WriteInt16LE(stream, blockAlign);
-            WriteInt16LE(stream, 16);
-            WriteAscii(stream, "data");
-            WriteInt32LE(stream, pcmBytes.Length);
-            stream.Write(pcmBytes, 0, pcmBytes.Length);
-        }
-
-        private static void WriteAscii(Stream stream, string text)
-        {
-            var bytes = Encoding.ASCII.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-        }
-
-        private static void WriteInt16LE(Stream stream, int value)
-        {
-            stream.WriteByte((byte)(value & 0xff));
-            stream.WriteByte((byte)((value >> 8) & 0xff));
-        }
-
-        private static void WriteInt32LE(Stream stream, int value)
-        {
-            stream.WriteByte((byte)(value & 0xff));
-            stream.WriteByte((byte)((value >> 8) & 0xff));
-            stream.WriteByte((byte)((value >> 16) & 0xff));
-            stream.WriteByte((byte)((value >> 24) & 0xff));
-        }
-
         private static string DecodeUtf8(byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0)
@@ -1468,216 +1490,6 @@ namespace VirtualPartner.Runtime
             }
 
             return builder.ToString();
-        }
-
-        private sealed class StreamingPcmBuffer
-        {
-            private readonly object gate = new object();
-            private readonly MemoryStream rawStream = new MemoryStream();
-            private float[] samples;
-            private int readIndex;
-            private int writeIndex;
-            private int availableSamples;
-            private int pendingByte = -1;
-            private long receivedBytes;
-            private long totalSamplesWritten;
-            private long totalSamplesRead;
-            private bool completed;
-
-            public StreamingPcmBuffer(int sampleRate, int channels, int initialCapacitySamples)
-            {
-                SampleRate = Mathf.Max(8000, sampleRate);
-                Channels = Mathf.Max(1, channels);
-                samples = new float[Mathf.Max(1024, initialCapacitySamples)];
-            }
-
-            public int SampleRate { get; }
-            public int Channels { get; }
-
-            public long ReceivedBytes
-            {
-                get
-                {
-                    lock (gate)
-                        return receivedBytes;
-                }
-            }
-
-            public long RawByteCount
-            {
-                get
-                {
-                    lock (gate)
-                        return rawStream.Length;
-                }
-            }
-
-            public long TotalSamplesWritten
-            {
-                get
-                {
-                    lock (gate)
-                        return totalSamplesWritten;
-                }
-            }
-
-            public float BufferedSeconds
-            {
-                get
-                {
-                    lock (gate)
-                        return availableSamples / (float)Mathf.Max(1, SampleRate);
-                }
-            }
-
-            public float WrittenSeconds
-            {
-                get
-                {
-                    lock (gate)
-                        return totalSamplesWritten / (float)Mathf.Max(1, SampleRate);
-                }
-            }
-
-            public bool Completed
-            {
-                get
-                {
-                    lock (gate)
-                        return completed;
-                }
-            }
-
-            public bool IsDrained
-            {
-                get
-                {
-                    lock (gate)
-                        return completed && availableSamples <= 0 && totalSamplesRead >= totalSamplesWritten;
-                }
-            }
-
-            public void AppendPcm16(byte[] data, int dataLength)
-            {
-                if (data == null || dataLength <= 0)
-                    return;
-
-                lock (gate)
-                {
-                    var safeLength = Mathf.Min(dataLength, data.Length);
-                    rawStream.Write(data, 0, safeLength);
-                    receivedBytes += safeLength;
-                    EnsureCapacity((safeLength + 1) / 2 + 1);
-
-                    var offset = 0;
-                    if (pendingByte >= 0 && offset < safeLength)
-                    {
-                        EnqueueSample(ToFloatSample(pendingByte, data[offset]));
-                        pendingByte = -1;
-                        offset++;
-                    }
-
-                    while (offset + 1 < safeLength)
-                    {
-                        EnqueueSample(ToFloatSample(data[offset], data[offset + 1]));
-                        offset += 2;
-                    }
-
-                    if (offset < safeLength)
-                        pendingByte = data[offset];
-                }
-            }
-
-            public void Read(float[] data)
-            {
-                if (data == null)
-                    return;
-
-                lock (gate)
-                {
-                    for (var i = 0; i < data.Length; i++)
-                    {
-                        if (availableSamples > 0)
-                        {
-                            data[i] = samples[readIndex];
-                            readIndex = (readIndex + 1) % samples.Length;
-                            availableSamples--;
-                            totalSamplesRead++;
-                        }
-                        else
-                        {
-                            data[i] = 0f;
-                        }
-                    }
-                }
-            }
-
-            public void MarkCompleted()
-            {
-                lock (gate)
-                    completed = true;
-            }
-
-            public byte[] GetRawBytes()
-            {
-                lock (gate)
-                    return rawStream.ToArray();
-            }
-
-            private void EnsureCapacity(int samplesToAdd)
-            {
-                var free = samples.Length - availableSamples;
-                if (free >= samplesToAdd)
-                    return;
-
-                var newLength = samples.Length;
-                while (newLength - availableSamples < samplesToAdd)
-                    newLength *= 2;
-
-                var expanded = new float[newLength];
-                for (var i = 0; i < availableSamples; i++)
-                    expanded[i] = samples[(readIndex + i) % samples.Length];
-
-                samples = expanded;
-                readIndex = 0;
-                writeIndex = availableSamples;
-            }
-
-            private void EnqueueSample(float value)
-            {
-                samples[writeIndex] = value;
-                writeIndex = (writeIndex + 1) % samples.Length;
-                availableSamples++;
-                totalSamplesWritten++;
-            }
-
-            private static float ToFloatSample(int lowByte, int highByte)
-            {
-                var raw = (short)((lowByte & 0xff) | ((highByte & 0xff) << 8));
-                return Mathf.Clamp(raw / 32768f, -1f, 1f);
-            }
-        }
-
-        private sealed class StreamingPcmDownloadHandler : DownloadHandlerScript
-        {
-            public StreamingPcmDownloadHandler(StreamingPcmBuffer buffer)
-                : base(new byte[4096])
-            {
-                Buffer = buffer;
-            }
-
-            public StreamingPcmBuffer Buffer { get; }
-
-            protected override bool ReceiveData(byte[] data, int dataLength)
-            {
-                Buffer?.AppendPcm16(data, dataLength);
-                return true;
-            }
-
-            protected override void CompleteContent()
-            {
-                Buffer?.MarkCompleted();
-            }
         }
 
         [Serializable]

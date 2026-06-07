@@ -32,7 +32,6 @@ DEFAULT_CONFIG = {
     "vad": {
         "model_path": "models/vad/silero_vad.onnx",
         "threshold": 0.5,
-        "energy_threshold": 0.01,
         "min_silence_seconds": 0.8,
         "min_speech_seconds": 0.25,
     },
@@ -40,7 +39,6 @@ DEFAULT_CONFIG = {
 
 
 STATE_LOCK = threading.Lock()
-ACTIVE_CANCEL_EVENT = None
 STATE = {
     "session_id": "",
     "status": "idle",
@@ -73,11 +71,8 @@ MIC_RUNTIME = {
     "session_id": "",
     "cancel_requested": False,
     "started_at": 0.0,
-    "silence_seconds": 0.0,
-    "speech_seconds": 0.0,
     "peak_rms": 0.0,
     "speech_detected": False,
-    "recorded_chunks": [],
 }
 
 
@@ -399,11 +394,8 @@ def begin_microphone_session(session_id):
         MIC_RUNTIME["session_id"] = session_id
         MIC_RUNTIME["cancel_requested"] = False
         MIC_RUNTIME["started_at"] = time.time()
-        MIC_RUNTIME["silence_seconds"] = 0.0
-        MIC_RUNTIME["speech_seconds"] = 0.0
         MIC_RUNTIME["peak_rms"] = 0.0
         MIC_RUNTIME["speech_detected"] = False
-        MIC_RUNTIME["recorded_chunks"] = []
         return True, ""
 
 
@@ -413,7 +405,6 @@ def end_microphone_session(session_id=""):
             return
         MIC_RUNTIME["session_id"] = ""
         MIC_RUNTIME["cancel_requested"] = False
-        MIC_RUNTIME["recorded_chunks"] = []
 
 
 def microphone_loop(config):
@@ -424,6 +415,19 @@ def microphone_loop(config):
         chunk_seconds = 0.1
         chunk_size = int(sample_rate * chunk_seconds)
         device = get_input_device(config)
+
+        try:
+            vad, window_size = make_vad(config)
+        except Exception as exc:
+            with MIC_LOCK:
+                MIC_RUNTIME["ready"] = False
+                MIC_RUNTIME["warming"] = False
+                MIC_RUNTIME["error"] = f"VAD init failed: {exc}"
+            set_state(status="failed", error=f"ASR VAD init failed: {exc}")
+            return
+
+        vad_buffer = np.zeros(0, dtype=np.float32)
+        vad_session = ""
 
         with sd.InputStream(
             samplerate=sample_rate,
@@ -440,7 +444,9 @@ def microphone_loop(config):
             while True:
                 chunk, _ = stream.read(chunk_size)
                 chunk = np.asarray(chunk, dtype=np.float32).reshape(-1)
-                process_microphone_chunk(config, chunk, sample_rate, chunk_seconds)
+                vad_buffer, vad_session = process_microphone_chunk(
+                    config, chunk, sample_rate, vad, window_size, vad_buffer, vad_session
+                )
     except Exception as exc:
         with MIC_LOCK:
             MIC_RUNTIME["ready"] = False
@@ -449,92 +455,117 @@ def microphone_loop(config):
         set_state(status="failed", error=f"ASR microphone failed: {exc}")
 
 
-def process_microphone_chunk(config, chunk, sample_rate, chunk_seconds):
+def process_microphone_chunk(config, chunk, sample_rate, vad, window_size, vad_buffer, vad_session):
     rms = float(np.sqrt(np.mean(np.square(chunk)))) if chunk.size else 0.0
     max_record_seconds = max(1.0, float(config.get("max_record_seconds", 15)))
-    energy_threshold = float(config.get("vad", {}).get("energy_threshold", 0.01))
-    min_silence_seconds = float(config.get("vad", {}).get("min_silence_seconds", 0.8))
-    min_speech_seconds = float(config.get("vad", {}).get("min_speech_seconds", 0.25))
-
-    session_id = ""
-    samples_to_decode = None
-    elapsed = 0.0
-    session_started_at = 0.0
-    state_update = None
-    should_cancel = False
-    should_finish_empty = False
 
     with MIC_LOCK:
         session_id = MIC_RUNTIME["session_id"]
         if not session_id:
-            return
+            return vad_buffer, vad_session
 
         session_started_at = float(MIC_RUNTIME["started_at"])
         elapsed = time.time() - session_started_at
-        if MIC_RUNTIME["cancel_requested"]:
-            should_cancel = True
+        cancel_requested = MIC_RUNTIME["cancel_requested"]
+        if cancel_requested:
             MIC_RUNTIME["session_id"] = ""
             MIC_RUNTIME["cancel_requested"] = False
-            MIC_RUNTIME["recorded_chunks"] = []
-        else:
-            MIC_RUNTIME["peak_rms"] = max(float(MIC_RUNTIME["peak_rms"]), rms)
-            is_voice = rms >= energy_threshold
-            if is_voice:
-                MIC_RUNTIME["speech_detected"] = True
-                MIC_RUNTIME["silence_seconds"] = 0.0
-                MIC_RUNTIME["speech_seconds"] = float(MIC_RUNTIME["speech_seconds"]) + chunk_seconds
-                MIC_RUNTIME["recorded_chunks"].append(chunk)
-            elif MIC_RUNTIME["speech_detected"]:
-                MIC_RUNTIME["silence_seconds"] = float(MIC_RUNTIME["silence_seconds"]) + chunk_seconds
-                MIC_RUNTIME["recorded_chunks"].append(chunk)
 
-            if elapsed >= max_record_seconds:
-                if MIC_RUNTIME["speech_detected"] and MIC_RUNTIME["recorded_chunks"]:
-                    samples_to_decode = np.concatenate(MIC_RUNTIME["recorded_chunks"])
-                else:
-                    should_finish_empty = True
-                MIC_RUNTIME["session_id"] = ""
-                MIC_RUNTIME["recorded_chunks"] = []
-            elif (
-                MIC_RUNTIME["speech_detected"]
-                and float(MIC_RUNTIME["speech_seconds"]) >= min_speech_seconds
-                and float(MIC_RUNTIME["silence_seconds"]) >= min_silence_seconds
-            ):
-                samples_to_decode = np.concatenate(MIC_RUNTIME["recorded_chunks"]) if MIC_RUNTIME["recorded_chunks"] else None
-                MIC_RUNTIME["session_id"] = ""
-                MIC_RUNTIME["recorded_chunks"] = []
-
-            state_update = (
-                elapsed,
-                rms,
-                float(MIC_RUNTIME["peak_rms"]),
-                bool(MIC_RUNTIME["speech_detected"]),
-            )
-
-    if state_update is not None:
-        set_state(
-            duration=state_update[0],
-            latest_rms=state_update[1],
-            peak_rms=state_update[2],
-            speech_detected=state_update[3],
-        )
-
-    if should_cancel:
+    if cancel_requested:
+        vad.reset()
         set_state(status="canceled", text="", error="", duration=elapsed)
-        return
+        return np.zeros(0, dtype=np.float32), ""
 
-    if should_finish_empty:
-        set_state(status="done", text="", error="", duration=elapsed)
-        return
+    # Reset the VAD state when a new session begins so the previous utterance
+    # does not bleed into this one.
+    if vad_session != session_id:
+        vad.reset()
+        vad_buffer = np.zeros(0, dtype=np.float32)
+        vad_session = session_id
 
-    if samples_to_decode is not None:
+    # Feed audio to silero VAD in fixed window_size slices.
+    vad_buffer = np.concatenate([vad_buffer, chunk]) if vad_buffer.size else chunk.copy()
+    while len(vad_buffer) >= window_size:
+        vad.accept_waveform(vad_buffer[:window_size])
+        vad_buffer = vad_buffer[window_size:]
+
+    speech_now = bool(vad.is_speech_detected())
+    timed_out = elapsed >= max_record_seconds
+    if timed_out:
+        # Force the VAD to finalize any in-progress speech at the recording cap.
+        vad.flush()
+
+    segment_samples = None
+    if not vad.empty():
+        segment_samples = np.asarray(vad.front.samples, dtype=np.float32)
+        vad.pop()
+
+    with MIC_LOCK:
+        # Bail out if the session was canceled/replaced while we were processing.
+        if MIC_RUNTIME["session_id"] != session_id:
+            return vad_buffer, vad_session
+
+        MIC_RUNTIME["peak_rms"] = max(float(MIC_RUNTIME["peak_rms"]), rms)
+        MIC_RUNTIME["speech_detected"] = (
+            bool(MIC_RUNTIME["speech_detected"]) or speech_now or segment_samples is not None
+        )
+        peak_rms = float(MIC_RUNTIME["peak_rms"])
+        speech_detected = bool(MIC_RUNTIME["speech_detected"])
+        if segment_samples is not None or timed_out:
+            MIC_RUNTIME["session_id"] = ""
+
+    set_state(
+        duration=elapsed,
+        latest_rms=rms,
+        peak_rms=peak_rms,
+        speech_detected=speech_detected,
+    )
+
+    if segment_samples is not None and segment_samples.size > 0:
         recognizer = get_ready_recognizer()
         if recognizer is None:
             set_state(status="failed", text="", error="ASR runtime is not ready.", duration=elapsed)
-            return
+            vad.reset()
+            return np.zeros(0, dtype=np.float32), ""
+
         set_state(status="recognizing", duration=elapsed)
-        text = decode_samples(recognizer, samples_to_decode, sample_rate)
-        set_state(status="done", text=text, error="", duration=time.time() - session_started_at)
+        # Decode on a worker thread so sherpa-onnx recognition does not block the
+        # resident microphone capture loop (which would drop incoming audio).
+        threading.Thread(
+            target=decode_session_async,
+            args=(recognizer, segment_samples, sample_rate, session_id, session_started_at),
+            daemon=True,
+        ).start()
+        vad.reset()
+        return np.zeros(0, dtype=np.float32), ""
+
+    if timed_out:
+        # No complete speech segment within the recording window.
+        set_state(status="done", text="", error="", duration=elapsed)
+        vad.reset()
+        return np.zeros(0, dtype=np.float32), ""
+
+    return vad_buffer, vad_session
+
+
+def decode_session_async(recognizer, samples, sample_rate, session_id, session_started_at):
+    try:
+        text = decode_samples(recognizer, samples, sample_rate)
+    except Exception as exc:
+        set_state(
+            status="failed",
+            text="",
+            error=f"ASR decode failed: {exc}",
+            duration=time.time() - session_started_at,
+        )
+        return
+
+    # Only publish the result if this session is still current and was not canceled.
+    with STATE_LOCK:
+        if STATE["session_id"] != session_id or STATE["status"] == "canceled":
+            return
+
+    set_state(status="done", text=text, error="", duration=time.time() - session_started_at)
 
 
 def make_vad(config):
@@ -567,90 +598,7 @@ def decode_samples(recognizer, samples, sample_rate):
     return str(result).strip()
 
 
-def run_asr_session(session_id, cancel_event, config):
-    start_time = time.time()
-    try:
-        import sounddevice as sd
-
-        sample_rate = int(config.get("sample_rate", 16000))
-        max_record_seconds = max(1.0, float(config.get("max_record_seconds", 15)))
-        chunk_seconds = 0.1
-        chunk_size = int(sample_rate * chunk_seconds)
-        device = get_input_device(config)
-
-        recognizer = get_ready_recognizer()
-        if recognizer is None:
-            set_state(status="failed", text="", error="ASR runtime is not ready.", duration=time.time() - start_time)
-            return
-        energy_threshold = float(config.get("vad", {}).get("energy_threshold", 0.01))
-        min_silence_seconds = float(config.get("vad", {}).get("min_silence_seconds", 0.8))
-        min_speech_seconds = float(config.get("vad", {}).get("min_speech_seconds", 0.25))
-        silence_seconds = 0.0
-        speech_seconds = 0.0
-        peak_rms = 0.0
-        speech_detected = False
-        recorded_chunks = []
-
-        with sd.InputStream(
-            samplerate=sample_rate,
-            channels=1,
-            dtype="float32",
-            device=device,
-            blocksize=chunk_size,
-        ) as stream:
-            while not cancel_event.is_set():
-                elapsed = time.time() - start_time
-                if elapsed >= max_record_seconds:
-                    if speech_detected and recorded_chunks:
-                        samples = np.concatenate(recorded_chunks)
-                        set_state(status="recognizing", duration=elapsed)
-                        text = decode_samples(recognizer, samples, sample_rate)
-                        set_state(status="done", text=text, error="", duration=time.time() - start_time)
-                    else:
-                        set_state(status="done", text="", error="", duration=elapsed)
-                    return
-
-                chunk, _ = stream.read(chunk_size)
-                chunk = np.asarray(chunk, dtype=np.float32).reshape(-1)
-                rms = float(np.sqrt(np.mean(np.square(chunk)))) if chunk.size else 0.0
-                peak_rms = max(peak_rms, rms)
-                is_voice = rms >= energy_threshold
-                set_state(
-                    duration=elapsed,
-                    latest_rms=rms,
-                    peak_rms=peak_rms,
-                    speech_detected=speech_detected or is_voice,
-                )
-
-                if is_voice:
-                    speech_detected = True
-                    silence_seconds = 0.0
-                    speech_seconds += chunk_seconds
-                    recorded_chunks.append(chunk)
-                    continue
-
-                if speech_detected:
-                    silence_seconds += chunk_seconds
-                    recorded_chunks.append(chunk)
-                    if speech_seconds >= min_speech_seconds and silence_seconds >= min_silence_seconds:
-                        samples = np.concatenate(recorded_chunks) if recorded_chunks else np.array([], dtype=np.float32)
-                        set_state(status="recognizing", duration=time.time() - start_time)
-                        text = decode_samples(recognizer, samples, sample_rate) if samples.size else ""
-                        set_state(status="done", text=text, error="", duration=time.time() - start_time)
-                        return
-
-        set_state(status="canceled", text="", error="", duration=time.time() - start_time)
-    except Exception as exc:
-        set_state(
-            status="failed",
-            text="",
-            error=f"{exc}\n{traceback.format_exc()}",
-            duration=time.time() - start_time,
-        )
-
-
 def start_session(config):
-    global ACTIVE_CANCEL_EVENT
     global SESSION_SEQUENCE
 
     with STATE_LOCK:
@@ -670,8 +618,6 @@ def start_session(config):
         STATE["peak_rms"] = 0.0
         STATE["speech_detected"] = False
 
-        ACTIVE_CANCEL_EVENT = threading.Event()
-
     ok, microphone_error = begin_microphone_session(session_id)
     if not ok:
         set_state(status="failed", text="", error=microphone_error, duration=0.0)
@@ -681,16 +627,12 @@ def start_session(config):
 
 
 def cancel_session(session_id):
-    global ACTIVE_CANCEL_EVENT
-
     with STATE_LOCK:
         current = STATE["session_id"]
         active = STATE["status"] in ("listening", "recognizing")
         if session_id and current and session_id != current:
             return False, "sessionId is not current"
 
-        if ACTIVE_CANCEL_EVENT is not None:
-            ACTIVE_CANCEL_EVENT.set()
         with MIC_LOCK:
             MIC_RUNTIME["cancel_requested"] = True
 
@@ -729,8 +671,11 @@ class AsrHandler(BaseHTTPRequestHandler):
             health = build_health(config)
             if not health.get("success", False):
                 runtime = health.get("runtime", {})
-                status = 503 if not runtime.get("warming", False) else 425
-                self.send_json(status, {"success": False, "message": health.get("message", "ASR unavailable"), "health": health})
+                audio_input = health.get("audioInput", {})
+                warming = bool(runtime.get("warming", False)) or bool(audio_input.get("warming", False))
+                status = 425 if warming else 503
+                message = "ASR is warming up." if warming else health.get("message", "ASR unavailable")
+                self.send_json(status, {"success": False, "message": message, "health": health})
                 return
 
             ok, session_id, error = start_session(config)

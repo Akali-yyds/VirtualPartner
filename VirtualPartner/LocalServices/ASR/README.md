@@ -55,6 +55,7 @@ Unity starts one ASR session, polls status, and fills the Momotalk input when th
 
 - Use the system default microphone.
 - The service keeps the microphone input stream open while it is running, so the Windows microphone indicator can appear before Unity starts a voice session.
+- Speech segmentation uses the silero VAD model (`models/vad/silero_vad.onnx`). Tune `vad.threshold`, `vad.min_silence_seconds`, and `vad.min_speech_seconds` in `config.json` if segmentation cuts too early or too late.
 - Recording is not saved by default.
 - If the service is missing, busy, or fails, Unity shows ASR error but normal text chat still works.
-- If the service listens but returns empty text, check `/health` for `latestRms` and `peakRms`. Increase microphone volume or lower `vad.energy_threshold` in `config.json`.
+- If the service listens but returns empty text, check `/health` for `latestRms` and `peakRms` to confirm the microphone is capturing audio, then adjust the `vad` thresholds.
