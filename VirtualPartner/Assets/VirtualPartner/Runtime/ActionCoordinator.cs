@@ -206,15 +206,10 @@ namespace VirtualPartner.Runtime
                 var state = GetOrCreateState(instance.Transforms[i], GetInstanceDisplayName(instance, i));
                 state.StagePlanBonePoseTarget = stagePlanBonePoseTargets[i];
 
-                if (state.Owner != BoneOwner.StagePlanBonePose)
-                {
-                    StartTransition(state, BoneOwner.StagePlanBonePose, GetCurrentOwnedPose(state), transitionDuration);
+                var ownerChanged = state.Owner != BoneOwner.StagePlanBonePose;
+                StartTransition(state, BoneOwner.StagePlanBonePose, GetCurrentOwnedPose(state), transitionDuration);
+                if (ownerChanged)
                     UnityEngine.Debug.Log($"[VirtualPartner] Bone owner changed: {state.DisplayName} {state.Transition.FromOwner} -> StagePlanBonePose.", this);
-                }
-                else
-                {
-                    StartTransition(state, BoneOwner.StagePlanBonePose, GetCurrentOwnedPose(state), transitionDuration);
-                }
             }
 
             RefreshStatus();

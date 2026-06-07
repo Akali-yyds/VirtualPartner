@@ -32,6 +32,7 @@ namespace VirtualPartner.Runtime
         private CharacterProfile defaultProfile;
         private Coroutine processRoutine;
         private MemoryTurnState latestTurn;
+        private readonly List<int> finalizedTurnBuffer = new List<int>();
 
         public bool Initialized => initialized;
         public bool Processing => processing;
@@ -126,18 +127,21 @@ namespace VirtualPartner.Runtime
             if (state.Canceled)
             {
                 lastMessage = $"Request {state.RequestId} memory skipped: canceled.";
+                turns.Remove(state.RequestId);
                 return;
             }
 
             if (state.Replaced)
             {
                 lastMessage = $"Request {state.RequestId} memory skipped: replaced.";
+                turns.Remove(state.RequestId);
                 return;
             }
 
             if (!state.HasSpeech)
             {
                 lastMessage = $"Request {state.RequestId} memory skipped: no speech.";
+                turns.Remove(state.RequestId);
                 return;
             }
 
@@ -152,6 +156,9 @@ namespace VirtualPartner.Runtime
             state.Canceled = true;
             state.CancelReason = string.IsNullOrWhiteSpace(reason) ? "Canceled." : reason;
             lastMessage = $"Request {requestId} memory canceled: {state.CancelReason}";
+
+            if (!state.Queued)
+                turns.Remove(requestId);
         }
 
         public void MarkRequestReplaced(int requestId)
@@ -164,11 +171,13 @@ namespace VirtualPartner.Runtime
 
             state.Replaced = true;
             lastMessage = $"Request {requestId} memory marked replaced.";
+            turns.Remove(requestId);
         }
 
         public void MarkOlderRequestsReplaced(string characterId, int newestRequestId)
         {
             var normalized = NormalizeCharacterId(characterId);
+            finalizedTurnBuffer.Clear();
             foreach (var pair in turns)
             {
                 var state = pair.Value;
@@ -180,12 +189,17 @@ namespace VirtualPartner.Runtime
                     continue;
 
                 state.Replaced = true;
+                finalizedTurnBuffer.Add(pair.Key);
             }
+
+            for (var i = 0; i < finalizedTurnBuffer.Count; i++)
+                turns.Remove(finalizedTurnBuffer[i]);
         }
 
         public void CancelCharacterRequests(string characterId)
         {
             var normalized = NormalizeCharacterId(characterId);
+            finalizedTurnBuffer.Clear();
             foreach (var pair in turns)
             {
                 var state = pair.Value;
@@ -194,7 +208,12 @@ namespace VirtualPartner.Runtime
 
                 state.Canceled = true;
                 state.CancelReason = "Clear Chat canceled this turn.";
+                if (!state.Queued)
+                    finalizedTurnBuffer.Add(pair.Key);
             }
+
+            for (var i = 0; i < finalizedTurnBuffer.Count; i++)
+                turns.Remove(finalizedTurnBuffer[i]);
 
             lastMessage = $"Memory turns canceled for {normalized}.";
         }
@@ -290,6 +309,8 @@ namespace VirtualPartner.Runtime
                 queueCount = queue.Count;
                 var state = queue.Dequeue();
                 queueCount = queue.Count;
+                if (state != null)
+                    turns.Remove(state.RequestId);
 
                 if (state == null || state.Canceled || state.Replaced || !state.HasSpeech)
                 {

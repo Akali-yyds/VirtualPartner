@@ -160,6 +160,7 @@ namespace VirtualPartner.Runtime
         private readonly List<PresetAnimationBonePose> sampledPresetPoses = new List<PresetAnimationBonePose>();
         private readonly List<string> displacedPresetIds = new List<string>();
         private readonly List<PresetTransformSnapshot> presetTransformSnapshots = new List<PresetTransformSnapshot>();
+        private Transform[] cachedSkeletonTransforms;
 
         private readonly List<StagePlanStageDto> activeStages = new List<StagePlanStageDto>();
         private int presetSequence;
@@ -230,6 +231,7 @@ namespace VirtualPartner.Runtime
             speechMouthDriver = mouthDriver;
             ttsManager = tts;
             initialized = ValidateReferences();
+            cachedSkeletonTransforms = null;
 
             if (!initialized)
                 return;
@@ -266,16 +268,6 @@ namespace VirtualPartner.Runtime
         public bool PlayJsonForOwner(string json, string ownerId)
         {
             return StartStagePlan(json, ownerId, 0, string.Empty);
-        }
-
-        public bool ReplaceJsonForOwner(string json, string ownerId)
-        {
-            return StartStagePlan(json, ownerId, 0, string.Empty);
-        }
-
-        public bool PlayJsonForOwner(string json, string ownerId, int requestId)
-        {
-            return StartStagePlan(json, ownerId, requestId, string.Empty);
         }
 
         public bool ReplaceJsonForOwner(string json, string ownerId, int requestId)
@@ -1377,9 +1369,15 @@ namespace VirtualPartner.Runtime
             if (boneRoot == null)
                 return;
 
-            var transforms = boneRoot.GetComponentsInChildren<Transform>(true);
-            for (var i = 0; i < transforms.Length; i++)
-                presetTransformSnapshots.Add(new PresetTransformSnapshot(transforms[i]));
+            if (cachedSkeletonTransforms == null)
+                cachedSkeletonTransforms = boneRoot.GetComponentsInChildren<Transform>(true);
+
+            for (var i = 0; i < cachedSkeletonTransforms.Length; i++)
+            {
+                var transform = cachedSkeletonTransforms[i];
+                if (transform != null)
+                    presetTransformSnapshots.Add(new PresetTransformSnapshot(transform));
+            }
         }
 
         private void RestorePresetTransformSnapshot()

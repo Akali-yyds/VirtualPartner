@@ -187,7 +187,7 @@ namespace VirtualPartner.Runtime
                 : systemPrompt + "\n\n" + developerPrompt;
 
             var builder = new StringBuilder(4096);
-            builder.Append("{\"model\":\"").Append(EscapeJson(config.model)).Append("\",\"messages\":[");
+            builder.Append("{\"model\":\"").Append(JsonTextUtility.Escape(config.model)).Append("\",\"messages\":[");
             AppendMessage(builder, "system", combinedSystemPrompt);
             if (config.supportsDeveloperRole)
             {
@@ -306,131 +306,21 @@ namespace VirtualPartner.Runtime
             json = string.Empty;
             failureReason = string.Empty;
 
-            var trimmed = StripCodeFence(content);
-            if (TryExtractFirstJsonObject(trimmed, out json))
+            var trimmed = JsonTextUtility.StripCodeFence(content);
+            if (JsonTextUtility.TryExtractFirstJsonObject(trimmed, out json))
                 return true;
 
             failureReason = "MemoryJudge content does not contain a JSON object.";
             return false;
         }
 
-        private static bool TryExtractFirstJsonObject(string content, out string json)
-        {
-            json = string.Empty;
-            if (string.IsNullOrWhiteSpace(content))
-                return false;
-
-            var start = content.IndexOf('{');
-            if (start < 0)
-                return false;
-
-            var depth = 0;
-            var inString = false;
-            var escaping = false;
-            for (var i = start; i < content.Length; i++)
-            {
-                var c = content[i];
-                if (inString)
-                {
-                    if (escaping)
-                    {
-                        escaping = false;
-                        continue;
-                    }
-
-                    if (c == '\\')
-                    {
-                        escaping = true;
-                        continue;
-                    }
-
-                    if (c == '"')
-                        inString = false;
-                    continue;
-                }
-
-                if (c == '"')
-                {
-                    inString = true;
-                    continue;
-                }
-
-                if (c == '{')
-                {
-                    depth++;
-                    continue;
-                }
-
-                if (c != '}')
-                    continue;
-
-                depth--;
-                if (depth == 0)
-                {
-                    json = content.Substring(start, i - start + 1);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static string StripCodeFence(string content)
-        {
-            var trimmed = content == null ? string.Empty : content.Trim();
-            if (!trimmed.StartsWith("```", StringComparison.Ordinal))
-                return trimmed;
-
-            var firstNewline = trimmed.IndexOf('\n');
-            var lastFence = trimmed.LastIndexOf("```", StringComparison.Ordinal);
-            if (firstNewline < 0 || lastFence <= firstNewline)
-                return trimmed;
-
-            return trimmed.Substring(firstNewline + 1, lastFence - firstNewline - 1).Trim();
-        }
-
         private static void AppendMessage(StringBuilder builder, string role, string content)
         {
             builder.Append("{\"role\":\"")
-                .Append(EscapeJson(role))
+                .Append(JsonTextUtility.Escape(role))
                 .Append("\",\"content\":\"")
-                .Append(EscapeJson(content))
+                .Append(JsonTextUtility.Escape(content))
                 .Append("\"}");
-        }
-
-        private static string EscapeJson(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-
-            var builder = new StringBuilder(value.Length + 16);
-            for (var i = 0; i < value.Length; i++)
-            {
-                var c = value[i];
-                switch (c)
-                {
-                    case '\\':
-                        builder.Append("\\\\");
-                        break;
-                    case '"':
-                        builder.Append("\\\"");
-                        break;
-                    case '\n':
-                        builder.Append("\\n");
-                        break;
-                    case '\r':
-                        builder.Append("\\r");
-                        break;
-                    case '\t':
-                        builder.Append("\\t");
-                        break;
-                    default:
-                        builder.Append(c);
-                        break;
-                }
-            }
-
-            return builder.ToString();
         }
 
         [Serializable]

@@ -1358,9 +1358,9 @@ namespace VirtualPartner.Runtime
                 builder.Append(',');
 
             builder.Append('"')
-                .Append(EscapeJson(key))
+                .Append(JsonTextUtility.Escape(key))
                 .Append("\":\"")
-                .Append(EscapeJson(value))
+                .Append(JsonTextUtility.Escape(value))
                 .Append('"');
         }
 
@@ -1465,41 +1465,6 @@ namespace VirtualPartner.Runtime
             {
                 var c = value[i];
                 builder.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
-            }
-
-            return builder.ToString();
-        }
-
-        private static string EscapeJson(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-
-            var builder = new StringBuilder(value.Length + 16);
-            for (var i = 0; i < value.Length; i++)
-            {
-                var c = value[i];
-                switch (c)
-                {
-                    case '\\':
-                        builder.Append("\\\\");
-                        break;
-                    case '"':
-                        builder.Append("\\\"");
-                        break;
-                    case '\n':
-                        builder.Append("\\n");
-                        break;
-                    case '\r':
-                        builder.Append("\\r");
-                        break;
-                    case '\t':
-                        builder.Append("\\t");
-                        break;
-                    default:
-                        builder.Append(c);
-                        break;
-                }
             }
 
             return builder.ToString();

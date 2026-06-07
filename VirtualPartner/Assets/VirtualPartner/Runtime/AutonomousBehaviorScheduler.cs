@@ -335,7 +335,7 @@ namespace VirtualPartner.Runtime
                 return string.Empty;
 
             return "{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"stages\":[{\"actions\":[{\"type\":\"animation\",\"name\":\"" +
-                EscapeJson(action.AnimationName) +
+                JsonTextUtility.Escape(action.AnimationName) +
                 "\"}]}]}";
         }
 
@@ -346,7 +346,7 @@ namespace VirtualPartner.Runtime
                 return string.Empty;
 
             return "{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"stages\":[{\"actions\":[{\"type\":\"locomotion\",\"mode\":\"" +
-                EscapeJson(action.LocomotionMode) +
+                JsonTextUtility.Escape(action.LocomotionMode) +
                 "\",\"duration\":" +
                 FormatFloat(duration) +
                 "}]}]}";
@@ -355,13 +355,6 @@ namespace VirtualPartner.Runtime
         private static string FormatFloat(float value)
         {
             return value.ToString("0.###", CultureInfo.InvariantCulture);
-        }
-
-        private static string EscapeJson(string value)
-        {
-            return string.IsNullOrEmpty(value)
-                ? string.Empty
-                : value.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
 
         private bool ValidateReferences()

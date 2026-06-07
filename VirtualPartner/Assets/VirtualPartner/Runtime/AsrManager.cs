@@ -448,7 +448,7 @@ namespace VirtualPartner.Runtime
 
         private IEnumerator CancelServerSessionRoutine(string sessionId)
         {
-            var body = "{\"sessionId\":\"" + EscapeJson(sessionId) + "\"}";
+            var body = "{\"sessionId\":\"" + JsonTextUtility.Escape(sessionId) + "\"}";
             using (var request = CreateJsonRequest("/asr/cancel", body))
             {
                 yield return request.SendWebRequest();
@@ -660,13 +660,6 @@ namespace VirtualPartner.Runtime
         private string BuildUrl(string path)
         {
             return NormalizeServiceUrl() + path;
-        }
-
-        private string EscapeJson(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
 
         [Serializable]
