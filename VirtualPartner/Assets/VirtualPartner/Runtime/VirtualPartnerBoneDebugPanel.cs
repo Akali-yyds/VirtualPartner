@@ -12,6 +12,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private BoneMapProfile boneMapProfile;
         [SerializeField] private Transform boneRoot;
         [SerializeField] private ActionCoordinator actionCoordinator;
+        [Tooltip("Optional. Held while posing to stop the FSM from auto-turning the character. Auto-resolved at runtime if unset.")]
+        [SerializeField] private AutonomousBehaviorScheduler autonomousBehaviorScheduler;
 
         [Header("Runtime Status")]
         [SerializeField] private bool standaloneVisible = true;
@@ -19,18 +21,28 @@ namespace VirtualPartner.Runtime
         [SerializeField] private bool minimized;
         [SerializeField] private Vector3 rotation;
         [SerializeField] private int selectedIndex;
+        [SerializeField] private int pinnedCount;
         [SerializeField, TextArea(4, 8)] private string exportedJson;
         [SerializeField] private int semanticConfigCount;
         [SerializeField] private int controlInstanceCount;
         [SerializeField] private int missingInstanceCount;
         [SerializeField] private bool debugOverlayActive;
         [SerializeField] private string activeDebugBone;
-        [SerializeField] private Rect windowRect = new Rect(20f, 20f, 360f, 560f);
+        [SerializeField] private float exportDuration = 1.0f;
+        [SerializeField] private Rect windowRect = new Rect(20f, 20f, 360f, 640f);
 
         private readonly List<BoneMapInstance> controlInstances = new List<BoneMapInstance>();
+
+        // Multi-hold ("pin") state: every pinned bone is kept applied each frame so a
+        // full multi-bone pose can be dialed in live. Keyed by index into controlInstances.
+        private readonly Dictionary<int, Vector3> heldRotations = new Dictionary<int, Vector3>();
+        private readonly HashSet<int> appliedIndices = new HashSet<int>();
+        private readonly HashSet<int> desiredIndices = new HashSet<int>();
+        private readonly List<int> indexBuffer = new List<int>();
+
         private Vector2 boneListScroll;
-        private Vector2 expandedWindowSize = new Vector2(360f, 560f);
-        private BoneMapInstance appliedInstance;
+        private Vector2 expandedWindowSize = new Vector2(360f, 640f);
+        private int lastSelectedIndex = -1;
 
         public void SetStandaloneVisible(bool visible)
         {
@@ -42,50 +54,121 @@ namespace VirtualPartner.Runtime
             apply = false;
             debugOverlayActive = false;
             activeDebugBone = string.Empty;
+            lastSelectedIndex = -1;
 
             if (!ValidateReferences())
                 return;
+
+            if (autonomousBehaviorScheduler == null)
+                autonomousBehaviorScheduler = FindFirstObjectByType<AutonomousBehaviorScheduler>();
 
             RefreshControlInstances();
         }
 
         private void Update()
         {
-            SyncDebugRequest();
-            RefreshSelectedStatus();
+            SyncSelection();
+            ApplyDesiredOverlays();
+            SuppressAutonomousTurnWhilePosing();
+            pinnedCount = heldRotations.Count;
         }
 
         private void OnDisable()
         {
-            ReleaseAppliedInstance();
+            ReleaseAllApplied();
         }
 
-        private void SyncDebugRequest()
+        // When the selection changes to a pinned bone, load its stored rotation so the
+        // sliders continue editing that bone's actual held value.
+        private void SyncSelection()
         {
-            if (!apply)
-            {
-                ReleaseAppliedInstance();
+            if (selectedIndex == lastSelectedIndex)
                 return;
+
+            lastSelectedIndex = selectedIndex;
+            if (heldRotations.TryGetValue(selectedIndex, out var held))
+                rotation = held;
+        }
+
+        // Build the desired Debug-overlay set (all pinned bones, plus the live-previewed
+        // selected bone when Apply is on), then reconcile against what is applied.
+        private void ApplyDesiredOverlays()
+        {
+            if (actionCoordinator == null)
+                return;
+
+            // Live-editing a pinned + selected bone keeps its stored value in sync.
+            if (apply && IsValidIndex(selectedIndex) && heldRotations.ContainsKey(selectedIndex))
+                heldRotations[selectedIndex] = rotation;
+
+            desiredIndices.Clear();
+            foreach (var pair in heldRotations)
+                desiredIndices.Add(pair.Key);
+            if (apply && IsValidIndex(selectedIndex))
+                desiredIndices.Add(selectedIndex);
+
+            // Release bones that were applied last frame but are no longer desired.
+            indexBuffer.Clear();
+            foreach (var idx in appliedIndices)
+            {
+                if (!desiredIndices.Contains(idx))
+                    indexBuffer.Add(idx);
             }
 
-            var selectedInstance = GetSelectedInstance();
-            if (selectedInstance == null || actionCoordinator == null)
-                return;
+            for (var i = 0; i < indexBuffer.Count; i++)
+            {
+                var idx = indexBuffer[i];
+                if (IsValidIndex(idx))
+                    actionCoordinator.ReleaseDebug(controlInstances[idx]);
+                appliedIndices.Remove(idx);
+            }
 
-            if (appliedInstance != null && appliedInstance.Transform != selectedInstance.Transform)
-                actionCoordinator.ReleaseDebug(appliedInstance);
+            // Apply / refresh every desired bone.
+            foreach (var idx in desiredIndices)
+            {
+                if (!IsValidIndex(idx))
+                    continue;
 
-            appliedInstance = selectedInstance;
-            if (actionCoordinator.RequestDebug(selectedInstance, rotation))
-                BeginDebugOverlay(selectedInstance.DisplayName);
+                var rot = GetRotationForIndex(idx);
+                if (actionCoordinator.RequestDebug(controlInstances[idx], rot))
+                    appliedIndices.Add(idx);
+            }
         }
 
-        private void ReleaseAppliedInstance()
+        private Vector3 GetRotationForIndex(int index)
         {
-            if (appliedInstance != null && actionCoordinator != null)
-                actionCoordinator.ReleaseDebug(appliedInstance);
+            // The live-previewed selected bone uses the working rotation; everything else
+            // (pinned bones) uses its stored held value.
+            if (index == selectedIndex && apply)
+                return rotation;
+            return heldRotations.TryGetValue(index, out var held) ? held : Vector3.zero;
+        }
 
-            appliedInstance = null;
+        // While any debug overlay is active (live preview or pinned bones), keep the FSM
+        // in the user-interaction state so it stops auto-turning the character and holds
+        // it facing the camera. The interaction timeout is refreshed every frame; once
+        // posing stops, the FSM resumes autonomously after the timeout.
+        private void SuppressAutonomousTurnWhilePosing()
+        {
+            if (autonomousBehaviorScheduler == null)
+                return;
+
+            if (apply || heldRotations.Count > 0)
+                autonomousBehaviorScheduler.KeepUserInteractionAlive();
+        }
+
+        private void ReleaseAllApplied()
+        {
+            if (actionCoordinator != null)
+            {
+                foreach (var idx in appliedIndices)
+                {
+                    if (IsValidIndex(idx))
+                        actionCoordinator.ReleaseDebug(controlInstances[idx]);
+                }
+            }
+
+            appliedIndices.Clear();
             EndDebugOverlay();
         }
 
@@ -100,7 +183,7 @@ namespace VirtualPartner.Runtime
             }
 
             debugOverlayActive = actionCoordinator.GetOwner(selectedInstance.Transform) == BoneOwner.Debug;
-            activeDebugBone = $"{selectedInstance.DisplayName} ({actionCoordinator.GetStatus(selectedInstance.Transform)})";
+            activeDebugBone = selectedInstance.DisplayName;
         }
 
         private void OnGUI()
@@ -121,28 +204,26 @@ namespace VirtualPartner.Runtime
             activeDebugBone = string.Empty;
         }
 
-        private void BeginDebugOverlay(string boneName)
-        {
-            debugOverlayActive = true;
-            activeDebugBone = boneName;
-        }
-
         private BoneMapInstance GetSelectedInstance()
         {
-            if (selectedIndex < 0 || selectedIndex >= controlInstances.Count)
-                return null;
+            return IsValidIndex(selectedIndex) ? controlInstances[selectedIndex] : null;
+        }
 
-            return controlInstances[selectedIndex];
+        private bool IsValidIndex(int index)
+        {
+            return index >= 0 && index < controlInstances.Count;
         }
 
         private void DrawWindow(int windowId)
         {
+            RefreshSelectedStatus();
+
             if (GUILayout.Button(minimized ? "Maximize" : "Minimize"))
                 ToggleMinimized();
 
             if (minimized)
             {
-                GUILayout.Label(apply ? "Apply: On" : "Apply: Off");
+                GUILayout.Label($"Apply: {(apply ? "On" : "Off")}  Pins: {heldRotations.Count}");
                 GUI.DragWindow();
                 return;
             }
@@ -158,13 +239,14 @@ namespace VirtualPartner.Runtime
 
         public void DrawEmbedded(bool allowBoneMapRefresh)
         {
+            RefreshSelectedStatus();
+
             GUILayout.Label($"Configs: {semanticConfigCount}  Instances: {controlInstanceCount}  Missing: {missingInstanceCount}");
             GUILayout.Label($"Coordinator: {(actionCoordinator != null ? "Ready" : "Missing")}");
             GUILayout.Label($"Overlay: {(debugOverlayActive ? "On" : "Off")}  Active: {(string.IsNullOrEmpty(activeDebugBone) ? "-" : activeDebugBone)}");
+            GUILayout.Label($"Pinned bones held: {heldRotations.Count}  Applied: {appliedIndices.Count}");
 
-            var nextApply = GUILayout.Toggle(apply, "Apply Debug Overlay");
-            if (apply && !nextApply)
-                EndDebugOverlay();
+            var nextApply = GUILayout.Toggle(apply, "Apply Debug Overlay (live preview selected)");
             apply = nextApply;
 
             if (allowBoneMapRefresh)
@@ -178,6 +260,7 @@ namespace VirtualPartner.Runtime
             }
 
             DrawBoneList();
+            DrawPinControls();
             DrawRotationControls();
             DrawExportControls();
         }
@@ -200,16 +283,20 @@ namespace VirtualPartner.Runtime
 
         private void DrawBoneList()
         {
-            GUILayout.Label("Controlled Bone");
+            GUILayout.Label("Controlled Bone (* = pinned)");
             boneListScroll = GUILayout.BeginScrollView(boneListScroll, GUILayout.Height(140f));
 
             for (var i = 0; i < controlInstances.Count; i++)
             {
                 var previousColor = GUI.backgroundColor;
+                var isPinned = heldRotations.ContainsKey(i);
                 if (i == selectedIndex)
                     GUI.backgroundColor = Color.cyan;
+                else if (isPinned)
+                    GUI.backgroundColor = Color.green;
 
-                if (GUILayout.Button(controlInstances[i].DisplayName))
+                var label = isPinned ? "* " + controlInstances[i].DisplayName : controlInstances[i].DisplayName;
+                if (GUILayout.Button(label))
                     selectedIndex = i;
 
                 GUI.backgroundColor = previousColor;
@@ -218,9 +305,79 @@ namespace VirtualPartner.Runtime
             GUILayout.EndScrollView();
         }
 
+        private void DrawPinControls()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Pin Selected"))
+                PinSelected();
+            if (GUILayout.Button("Pin L/R Pair"))
+                PinSelectedPair();
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Unpin Selected"))
+                UnpinSelected();
+            if (GUILayout.Button("Clear Pins"))
+                ClearPins();
+            GUILayout.EndHorizontal();
+        }
+
+        private void PinSelected()
+        {
+            if (!IsValidIndex(selectedIndex))
+                return;
+
+            heldRotations[selectedIndex] = controlInstances[selectedIndex].Entry.ClampRotation(rotation);
+        }
+
+        // Pin the selected bone and, for side bones, also pin its mirrored side with the
+        // same semantic rotation (runtime mirrors R internally) for easy symmetric poses.
+        private void PinSelectedPair()
+        {
+            if (!IsValidIndex(selectedIndex))
+                return;
+
+            var selected = controlInstances[selectedIndex];
+            var clamped = selected.Entry.ClampRotation(rotation);
+            heldRotations[selectedIndex] = clamped;
+
+            if (selected.Side == BoneSide.None)
+                return;
+
+            var mirrorIndex = FindMirrorIndex(selected);
+            if (mirrorIndex >= 0)
+                heldRotations[mirrorIndex] = controlInstances[mirrorIndex].Entry.ClampRotation(clamped);
+        }
+
+        private int FindMirrorIndex(BoneMapInstance instance)
+        {
+            if (instance == null || instance.Side == BoneSide.None)
+                return -1;
+
+            var mirrorSide = instance.Side == BoneSide.L ? BoneSide.R : BoneSide.L;
+            for (var i = 0; i < controlInstances.Count; i++)
+            {
+                var candidate = controlInstances[i];
+                if (candidate.SemanticBone == instance.SemanticBone && candidate.Side == mirrorSide)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void UnpinSelected()
+        {
+            heldRotations.Remove(selectedIndex);
+        }
+
+        private void ClearPins()
+        {
+            heldRotations.Clear();
+        }
+
         private void DrawRotationControls()
         {
-            if (selectedIndex < 0 || selectedIndex >= controlInstances.Count)
+            if (!IsValidIndex(selectedIndex))
                 return;
 
             var entry = controlInstances[selectedIndex].Entry;
@@ -261,31 +418,61 @@ namespace VirtualPartner.Runtime
 
         private void DrawExportControls()
         {
-            if (GUILayout.Button("Export JSON"))
-                ExportCurrentJson();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Export Selected"))
+                ExportSelectedJson();
+            if (GUILayout.Button("Export All Pinned (StagePlan)"))
+                ExportPinnedStagePlan();
+            GUILayout.EndHorizontal();
 
             if (!string.IsNullOrEmpty(exportedJson))
-                GUILayout.TextArea(exportedJson, GUILayout.Height(110f));
+                GUILayout.TextArea(exportedJson, GUILayout.Height(120f));
         }
 
-        private void ExportCurrentJson()
+        private void ExportSelectedJson()
         {
-            if (selectedIndex < 0 || selectedIndex >= controlInstances.Count)
+            if (!IsValidIndex(selectedIndex))
                 return;
 
             var instance = controlInstances[selectedIndex];
             var clampedRotation = instance.Entry.ClampRotation(rotation);
-            exportedJson = BuildBonePoseJson(instance, clampedRotation);
+            exportedJson = BuildSingleBonePoseJson(instance, clampedRotation);
             GUIUtility.systemCopyBuffer = exportedJson;
             Debug.Log($"[VirtualPartner] Debug bone pose exported:\n{exportedJson}", this);
         }
 
+        // Export every currently-held bone (plus the live-previewed selected bone when
+        // Apply is on) as a single ready-to-play StagePlan, matching what is on screen.
+        private void ExportPinnedStagePlan()
+        {
+            indexBuffer.Clear();
+            foreach (var pair in heldRotations)
+                indexBuffer.Add(pair.Key);
+            if (apply && IsValidIndex(selectedIndex) && !heldRotations.ContainsKey(selectedIndex))
+                indexBuffer.Add(selectedIndex);
+
+            if (indexBuffer.Count == 0)
+            {
+                exportedJson = "No pinned bones to export. Pin bones first.";
+                return;
+            }
+
+            indexBuffer.Sort();
+            exportedJson = BuildStagePlanJson(indexBuffer);
+            GUIUtility.systemCopyBuffer = exportedJson;
+            Debug.Log($"[VirtualPartner] Debug pinned StagePlan exported:\n{exportedJson}", this);
+        }
+
         private void RefreshControlInstances()
         {
+            ReleaseAllApplied();
+            heldRotations.Clear();
+
             missingInstanceCount = boneMapProfile.BuildControlInstances(boneRoot, controlInstances);
             semanticConfigCount = boneMapProfile.SemanticConfigCount;
             controlInstanceCount = controlInstances.Count;
             selectedIndex = Mathf.Clamp(selectedIndex, 0, Mathf.Max(0, controlInstances.Count - 1));
+            lastSelectedIndex = -1;
 
             if (missingInstanceCount > 0)
                 Debug.LogWarning($"[VirtualPartner] BoneMap resolved with {missingInstanceCount} missing debug bone instance(s).", this);
@@ -310,29 +497,68 @@ namespace VirtualPartner.Runtime
             return false;
         }
 
-        private static string BuildBonePoseJson(BoneMapInstance instance, Vector3 semanticRotation)
+        private static string BuildSingleBonePoseJson(BoneMapInstance instance, Vector3 semanticRotation)
         {
             var builder = new StringBuilder();
             builder.AppendLine("{");
             builder.AppendLine("  \"type\": \"bonePose\",");
             builder.AppendLine("  \"bones\": [");
-            builder.AppendLine("    {");
-            builder.Append("      \"bone\": \"").Append(instance.SemanticBone).AppendLine("\",");
-
-            if (instance.Side != BoneSide.None)
-                builder.Append("      \"side\": \"").Append(instance.Side).AppendLine("\",");
-
-            builder.Append("      \"rotation\": { \"x\": ")
-                .Append(FormatFloat(semanticRotation.x))
-                .Append(", \"y\": ")
-                .Append(FormatFloat(semanticRotation.y))
-                .Append(", \"z\": ")
-                .Append(FormatFloat(semanticRotation.z))
-                .AppendLine(" }");
-            builder.AppendLine("    }");
+            AppendBoneEntry(builder, instance, semanticRotation, "    ", true);
             builder.AppendLine("  ]");
             builder.Append("}");
             return builder.ToString();
+        }
+
+        private string BuildStagePlanJson(List<int> indices)
+        {
+            var builder = new StringBuilder();
+            builder.Append("{\"schemaVersion\":\"2.0\",\"type\":\"stagePlan\",\"metadata\":{\"intent\":\"debug_pose\",\"mood\":\"neutral\"},\"stages\":[{\"actions\":[{\"type\":\"bonePose\",\"duration\":")
+                .Append(FormatFloat(Mathf.Max(0.1f, exportDuration)))
+                .Append(",\"bones\":[");
+
+            var wroteAny = false;
+            for (var i = 0; i < indices.Count; i++)
+            {
+                var idx = indices[i];
+                if (!IsValidIndex(idx))
+                    continue;
+
+                var instance = controlInstances[idx];
+                var rot = instance.Entry.ClampRotation(GetRotationForIndex(idx));
+
+                if (wroteAny)
+                    builder.Append(',');
+                AppendInlineBoneEntry(builder, instance, rot);
+                wroteAny = true;
+            }
+
+            builder.Append("]}]}]}");
+            return builder.ToString();
+        }
+
+        private static void AppendBoneEntry(StringBuilder builder, BoneMapInstance instance, Vector3 rotation, string indent, bool last)
+        {
+            builder.Append(indent).AppendLine("{");
+            builder.Append(indent).Append("  \"bone\": \"").Append(instance.SemanticBone).AppendLine("\",");
+            if (instance.Side != BoneSide.None)
+                builder.Append(indent).Append("  \"side\": \"").Append(instance.Side).AppendLine("\",");
+            builder.Append(indent)
+                .Append("  \"rotation\": { \"x\": ").Append(FormatFloat(rotation.x))
+                .Append(", \"y\": ").Append(FormatFloat(rotation.y))
+                .Append(", \"z\": ").Append(FormatFloat(rotation.z))
+                .AppendLine(" }");
+            builder.Append(indent).AppendLine(last ? "}" : "},");
+        }
+
+        private static void AppendInlineBoneEntry(StringBuilder builder, BoneMapInstance instance, Vector3 rotation)
+        {
+            builder.Append("{\"bone\":\"").Append(instance.SemanticBone).Append('"');
+            if (instance.Side != BoneSide.None)
+                builder.Append(",\"side\":\"").Append(instance.Side).Append('"');
+            builder.Append(",\"rotation\":{\"x\":").Append(FormatFloat(rotation.x))
+                .Append(",\"y\":").Append(FormatFloat(rotation.y))
+                .Append(",\"z\":").Append(FormatFloat(rotation.z))
+                .Append("}}");
         }
 
         private static string FormatFloat(float value)

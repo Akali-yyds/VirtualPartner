@@ -7,10 +7,9 @@ using UnityEngine;
 namespace VirtualPartner.Runtime
 {
     /// <summary>
-    /// Generates the "Runtime Generated Capabilities" prompt section (controllable
-    /// bones, primary direction effects, preset animations, locomotion modes,
-    /// expressions). Extracted verbatim from LlmRelay so the relay stays focused on
-    /// request/response orchestration. Output text is unchanged.
+    /// Generates the "Runtime Generated Capabilities" prompt section: controllable
+    /// bones, primary direction effects, hand/wrist orientation hints, preset
+    /// animations, locomotion modes, and expressions.
     /// </summary>
     public sealed class LlmPromptCapabilityBuilder
     {
@@ -57,6 +56,10 @@ namespace VirtualPartner.Runtime
             builder.AppendLine();
             builder.AppendLine("### Primary Direction Single-Axis Effects");
             AppendPrimaryDirectionEffects(builder);
+
+            builder.AppendLine();
+            builder.AppendLine("### Hand And Wrist Orientation Hints");
+            AppendHandAndWristOrientationHints(builder);
 
             builder.AppendLine();
             builder.AppendLine("### Preset Animations");
@@ -220,6 +223,8 @@ namespace VirtualPartner.Runtime
 
             boneMapProfile.BuildControlInstances(boneRoot, promptAxisInstances);
             builder.AppendLine("- Effects describe the visible primary segment direction after a single-axis semantic rotation.");
+            builder.AppendLine("- A 'roll' axis twists the segment: it does not change where the limb points, but it rotates the segment's facing. The value shown is where the segment's side reference faces after the roll. Use roll axes to orient hands, wrists, and palms.");
+            builder.AppendLine("- Combining several axes at once (including roll) and using larger angles is expected for expressive gestures and hand poses; do not restrict yourself to a single small axis when the pose needs more.");
             builder.AppendLine("- Side bones list side=L only. Use the same semantic values for side=R; runtime mirrors them internally.");
 
             for (var i = 0; i < promptAxisInstances.Count; i++)
@@ -236,6 +241,7 @@ namespace VirtualPartner.Runtime
                 if (!TryGetBasePoseRotation(instance.Transform, out var basePoseRotation))
                     continue;
 
+                var rollReferenceLocal = ComputeRollReferenceLocal(primaryLocalDirection);
                 var baseDirection = basePoseRotation * primaryLocalDirection;
                 builder.Append("- ")
                     .Append(instance.SemanticBone);
@@ -248,14 +254,74 @@ namespace VirtualPartner.Runtime
                 builder.Append(" primary=(");
                 AppendDirectionComponents(builder, baseDirection);
                 builder.Append(") effects:");
-                AppendSingleAxisEffect(builder, "x+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(0), new Vector3(PrimaryEffectAngle, 0f, 0f), baseDirection);
-                AppendSingleAxisEffect(builder, "x-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(0), new Vector3(-PrimaryEffectAngle, 0f, 0f), baseDirection);
-                AppendSingleAxisEffect(builder, "y+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(1), new Vector3(0f, PrimaryEffectAngle, 0f), baseDirection);
-                AppendSingleAxisEffect(builder, "y-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(1), new Vector3(0f, -PrimaryEffectAngle, 0f), baseDirection);
-                AppendSingleAxisEffect(builder, "z+", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, PrimaryEffectAngle), baseDirection);
-                AppendSingleAxisEffect(builder, "z-", basePoseRotation, primaryLocalDirection, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, -PrimaryEffectAngle), baseDirection);
+                AppendSingleAxisEffect(builder, "x+", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(0), new Vector3(PrimaryEffectAngle, 0f, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "x-", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(0), new Vector3(-PrimaryEffectAngle, 0f, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "y+", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(1), new Vector3(0f, PrimaryEffectAngle, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "y-", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(1), new Vector3(0f, -PrimaryEffectAngle, 0f), baseDirection);
+                AppendSingleAxisEffect(builder, "z+", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, PrimaryEffectAngle), baseDirection);
+                AppendSingleAxisEffect(builder, "z-", basePoseRotation, primaryLocalDirection, rollReferenceLocal, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, -PrimaryEffectAngle), baseDirection);
                 builder.AppendLine();
             }
+        }
+
+        private void AppendHandAndWristOrientationHints(StringBuilder builder)
+        {
+            if (boneMapProfile == null || boneRoot == null || avatarPoseApplier == null)
+            {
+                builder.AppendLine("- Hand orientation hints unavailable: references missing.");
+                return;
+            }
+
+            if (!avatarPoseApplier.HasBaseRotation)
+            {
+                builder.AppendLine("- BaseRotation not captured yet.");
+                return;
+            }
+
+            boneMapProfile.BuildControlInstances(boneRoot, promptAxisInstances);
+            builder.AppendLine("- Use Clavicle, UpperArm, and Forearm to place the hand near the target area.");
+            builder.AppendLine("- Use Forearm and Hand axes, especially roll-like axes, to orient the wrist or palm.");
+            builder.AppendLine("- `facingRef` is a perpendicular orientation reference for the segment in character space. It is approximate palm/wrist-facing guidance, not an IK target.");
+            builder.AppendLine("- Side bones list side=L only. Use the same semantic values for side=R; runtime mirrors them internally.");
+
+            var wroteAny = false;
+            for (var i = 0; i < promptAxisInstances.Count; i++)
+            {
+                var instance = promptAxisInstances[i];
+                if (instance == null || instance.Entry == null)
+                    continue;
+                if (instance.Entry.UsesPairedPaths || instance.Side != BoneSide.L)
+                    continue;
+                if (instance.SemanticBone != SemanticBone.Forearm && instance.SemanticBone != SemanticBone.Hand)
+                    continue;
+                if (!TryGetPrimaryLocalDirection(instance.SemanticBone, out var primaryLocalDirection))
+                    continue;
+                if (!TryGetBasePoseRotation(instance.Transform, out var basePoseRotation))
+                    continue;
+
+                var facingReferenceLocal = ComputeRollReferenceLocal(primaryLocalDirection);
+                var basePointing = basePoseRotation * primaryLocalDirection;
+                var baseFacing = basePoseRotation * facingReferenceLocal;
+
+                builder.Append("- ")
+                    .Append(instance.SemanticBone)
+                    .Append(" side=L pointing=(");
+                AppendDirectionComponents(builder, basePointing);
+                builder.Append(") facingRef=(");
+                AppendDirectionComponents(builder, baseFacing);
+                builder.Append(") facingEffects:");
+                AppendFacingEffect(builder, "x+", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(0), new Vector3(PrimaryEffectAngle, 0f, 0f));
+                AppendFacingEffect(builder, "x-", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(0), new Vector3(-PrimaryEffectAngle, 0f, 0f));
+                AppendFacingEffect(builder, "y+", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(1), new Vector3(0f, PrimaryEffectAngle, 0f));
+                AppendFacingEffect(builder, "y-", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(1), new Vector3(0f, -PrimaryEffectAngle, 0f));
+                AppendFacingEffect(builder, "z+", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, PrimaryEffectAngle));
+                AppendFacingEffect(builder, "z-", basePoseRotation, facingReferenceLocal, instance.Entry.IsAxisEnabled(2), new Vector3(0f, 0f, -PrimaryEffectAngle));
+                builder.AppendLine();
+                wroteAny = true;
+            }
+
+            if (!wroteAny)
+                builder.AppendLine("- no Forearm or Hand controls configured");
         }
 
         private static void AppendSingleAxisEffect(
@@ -263,6 +329,7 @@ namespace VirtualPartner.Runtime
             string label,
             Quaternion basePoseRotation,
             Vector3 primaryLocalDirection,
+            Vector3 rollReferenceLocal,
             bool enabled,
             Vector3 semanticRotation,
             Vector3 baseDirection)
@@ -280,13 +347,53 @@ namespace VirtualPartner.Runtime
             var effectDirection = basePoseRotation * (Quaternion.Euler(semanticRotation) * primaryLocalDirection);
             if (Vector3.Dot(baseDirection.normalized, effectDirection.normalized) >= TwistDotThreshold)
             {
-                builder.Append("twist/no swing");
+                // Twist/roll axis: pointing direction is unchanged, so report how the
+                // segment's perpendicular side reference reorients instead.
+                var effectRoll = basePoseRotation * (Quaternion.Euler(semanticRotation) * rollReferenceLocal);
+                builder.Append("roll(");
+                AppendDirectionComponents(builder, effectRoll);
+                builder.Append(')');
                 return;
             }
 
             builder.Append('(');
             AppendDirectionComponents(builder, effectDirection);
             builder.Append(')');
+        }
+
+        private static void AppendFacingEffect(
+            StringBuilder builder,
+            string label,
+            Quaternion basePoseRotation,
+            Vector3 facingReferenceLocal,
+            bool enabled,
+            Vector3 semanticRotation)
+        {
+            builder.Append(' ')
+                .Append(label)
+                .Append('=');
+
+            if (!enabled)
+            {
+                builder.Append("disabled");
+                return;
+            }
+
+            var effectFacing = basePoseRotation * (Quaternion.Euler(semanticRotation) * facingReferenceLocal);
+            builder.Append('(');
+            AppendDirectionComponents(builder, effectFacing);
+            builder.Append(')');
+        }
+
+        // A unit local direction perpendicular to the primary (long-axis) direction, used
+        // to describe how a roll/twist reorients the segment's facing.
+        private static Vector3 ComputeRollReferenceLocal(Vector3 primaryLocalDirection)
+        {
+            var reference = Vector3.up - Vector3.Project(Vector3.up, primaryLocalDirection);
+            if (reference.sqrMagnitude < 0.0001f)
+                reference = Vector3.forward - Vector3.Project(Vector3.forward, primaryLocalDirection);
+
+            return reference.sqrMagnitude < 0.0001f ? Vector3.forward : reference.normalized;
         }
 
         private static bool TryGetPrimaryLocalDirection(SemanticBone semanticBone, out Vector3 direction)

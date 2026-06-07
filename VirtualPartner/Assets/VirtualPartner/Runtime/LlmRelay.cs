@@ -50,6 +50,7 @@ namespace VirtualPartner.Runtime
         private const string PresetActionsPromptFileName = "preset-actions.md";
         private const string LocomotionPromptFileName = "locomotion.md";
         private const string ExamplesPromptFileName = "examples.md";
+        private const string NamedGesturesPromptFileName = "named-gestures.md";
 
         [Header("References")]
         [SerializeField] private BoneMapProfile boneMapProfile;
@@ -69,6 +70,7 @@ namespace VirtualPartner.Runtime
         [SerializeField] private TextAsset presetActionsPrompt;
         [SerializeField] private TextAsset locomotionPrompt;
         [SerializeField] private TextAsset examplesPrompt;
+        [SerializeField] private TextAsset namedGesturesPrompt;
 
         [Header("LLM Streaming")]
         [SerializeField] private bool streamStagePlans = true;
@@ -714,6 +716,7 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
             AppendPromptSection(builder, "Format Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
+            AppendPromptSection(builder, "Named Gestures", LoadPromptText(namedGesturesPrompt, NamedGesturesPromptFileName), false);
             AppendPromptSection(builder, "Long Term Memory", BuildMemoryPromptContext(), false);
             AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             capabilityBuilder.Append(builder, LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName));
