@@ -1108,14 +1108,15 @@ private void BuildClearMemoryRow(RectTransform root, float y)
             StagePlanPlayer stagePlanPlayer,
             SpeechBubbleView speechBubbleView,
             AsrManager asrManager,
-            MemorySystem memorySystem)
+            MemorySystem memorySystem,
+            ConversationRequestRegistry requestRegistry)
         {
             if (conversationController == null)
                 conversationController = GetComponent<MomotalkConversationController>();
             if (conversationController == null)
                 return;
 
-            conversationController.ConfigureRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem);
+            conversationController.ConfigureRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem, requestRegistry);
         }
 
         private void HandleConversationContactsChanged()

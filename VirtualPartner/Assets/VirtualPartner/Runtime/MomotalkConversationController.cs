@@ -14,9 +14,8 @@ namespace VirtualPartner.Runtime
     {
         private readonly MomotalkHistoryStore historyStore = new MomotalkHistoryStore();
         private readonly Dictionary<int, MomotalkChatMessageView> typingViews = new Dictionary<int, MomotalkChatMessageView>();
-        private readonly Dictionary<int, string> requestCharacterIds = new Dictionary<int, string>();
         private readonly Dictionary<string, int> unreadCounts = new Dictionary<string, int>();
-        private readonly HashSet<int> clearedRequestIds = new HashSet<int>();
+        private readonly List<int> requestIdBuffer = new List<int>();
 
         private readonly MomotalkChatView chat = new MomotalkChatView();
         private readonly MomotalkVoiceModeView voiceMode = new MomotalkVoiceModeView();
@@ -27,6 +26,7 @@ namespace VirtualPartner.Runtime
         private SpeechBubbleView speechBubbleView;
         private AsrManager asrManager;
         private MemorySystem memorySystem;
+        private ConversationRequestRegistry requestRegistry;
         private CanvasGroup chatView;
         private CharacterRuntimeContext currentContext;
         private bool viewsConfigured;
@@ -49,6 +49,11 @@ namespace VirtualPartner.Runtime
 
         public event System.Action ContactsChanged;
 
+        // Observability for debug panel: lifecycle counts from the single source of truth.
+        public int ActiveRequestCount => requestRegistry != null ? requestRegistry.ActiveCount : 0;
+        public int PendingRequestCount => requestRegistry != null ? requestRegistry.CountByStatus(RequestStatus.Pending) : 0;
+        public int PlayingRequestCount => requestRegistry != null ? requestRegistry.CountByStatus(RequestStatus.Playing) : 0;
+
         public void Configure(MomotalkUIManager manager, CanvasGroup chatCanvasGroup)
         {
             uiManager = manager;
@@ -65,13 +70,15 @@ namespace VirtualPartner.Runtime
             StagePlanPlayer player,
             SpeechBubbleView speechBubble,
             AsrManager asr,
-            MemorySystem memory)
+            MemorySystem memory,
+            ConversationRequestRegistry registry)
         {
             llmRelay = relay;
             stagePlanPlayer = player;
             speechBubbleView = speechBubble;
             asrManager = asr;
             memorySystem = memory;
+            requestRegistry = registry;
             EnsureSubscriptions();
             chat.RefreshMicInteractable(asrManager != null && asrManager.Active);
         }
@@ -267,18 +274,17 @@ namespace VirtualPartner.Runtime
 
             if (!submit.Accepted)
             {
-                if (submit.RequestId > 0)
-                    requestCharacterIds[submit.RequestId] = characterId;
                 AddSystemMessage(characterId, submit.Message, "error", submit.RequestId);
                 return;
             }
 
-            requestCharacterIds[submit.RequestId] = characterId;
-            if (memorySystem != null)
+            if (requestRegistry != null)
             {
-                memorySystem.MarkOlderRequestsReplaced(characterId, submit.RequestId);
-                memorySystem.RegisterUserMessage(characterId, submit.RequestId, text);
+                requestRegistry.Register(submit.RequestId, characterId);
+                requestRegistry.MarkOlderPendingReplaced(characterId, submit.RequestId);
             }
+            if (memorySystem != null)
+                memorySystem.RegisterUserMessage(characterId, submit.RequestId, text);
             ReplaceStaleTypingViews(submit.RequestId);
             var typingView = chat.CreateTypingView(submit.RequestId, avatar);
             typingViews[submit.RequestId] = typingView;
@@ -375,10 +381,10 @@ namespace VirtualPartner.Runtime
         {
             if (failure == null || failure.RequestId <= 0)
                 return;
-            if (clearedRequestIds.Contains(failure.RequestId))
+            if (IsClearedRequest(failure.RequestId))
                 return;
-            if (memorySystem != null)
-                memorySystem.MarkRequestCanceled(failure.RequestId, failure.Message);
+            if (requestRegistry != null)
+                requestRegistry.TrySetStatus(failure.RequestId, RequestStatus.Failed);
 
             var characterId = GetCharacterIdForRequest(failure.RequestId);
             if (string.IsNullOrWhiteSpace(characterId))
@@ -397,10 +403,13 @@ namespace VirtualPartner.Runtime
                 return;
             if (speech.RequestId <= 0)
                 return;
-            if (clearedRequestIds.Contains(speech.RequestId))
+            if (IsClearedRequest(speech.RequestId))
                 return;
             if (stagePlanPlayer != null && speech.RequestId != stagePlanPlayer.CurrentLlmStagePlanRequestId)
                 return;
+
+            if (requestRegistry != null)
+                requestRegistry.TrySetStatus(speech.RequestId, RequestStatus.Playing);
 
             var characterId = string.IsNullOrWhiteSpace(speech.CharacterId) ? GetRuntimeCharacterId() : speech.CharacterId;
             if (string.IsNullOrWhiteSpace(characterId))
@@ -414,7 +423,6 @@ namespace VirtualPartner.Runtime
             historyStore.Append(characterId, record);
             if (memorySystem != null)
                 memorySystem.RecordSpeech(speech);
-            requestCharacterIds.Remove(speech.RequestId);
 
             var avatar = GetAvatarForCharacter(characterId);
             if (IsLoadedConversation(characterId))
@@ -446,11 +454,11 @@ namespace VirtualPartner.Runtime
                 return;
             if (finished.RequestId <= 0)
                 return;
-            if (clearedRequestIds.Contains(finished.RequestId))
+            if (IsClearedRequest(finished.RequestId))
                 return;
 
-            if (memorySystem != null)
-                memorySystem.MarkRequestFinished(finished);
+            if (requestRegistry != null)
+                requestRegistry.TrySetStatus(finished.RequestId, RequestStatus.Finished);
         }
 
         private void ReplaceStaleTypingViews(int newestRequestId)
@@ -467,8 +475,8 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < staleRequestIds.Count; i++)
             {
                 var requestId = staleRequestIds[i];
-                if (memorySystem != null)
-                    memorySystem.MarkRequestReplaced(requestId);
+                if (requestRegistry != null)
+                    requestRegistry.TrySetStatus(requestId, RequestStatus.Replaced);
                 var characterId = GetCharacterIdForRequest(requestId);
                 if (string.IsNullOrWhiteSpace(characterId))
                     characterId = GetCharacterId(currentContext);
@@ -486,7 +494,6 @@ namespace VirtualPartner.Runtime
                 var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
                 typingView.Bind(record, null);
                 typingViews.Remove(requestId);
-                requestCharacterIds.Remove(requestId);
                 if (save)
                     historyStore.Append(characterId, record);
                 chat.ScrollToBottom();
@@ -496,16 +503,12 @@ namespace VirtualPartner.Runtime
 
             if (save)
                 AddSystemMessage(characterId, text, status, requestId);
-            else
-                requestCharacterIds.Remove(requestId);
         }
 
         private void AddSystemMessage(string characterId, string text, string status, int requestId)
         {
             var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
             historyStore.Append(characterId, record);
-            if (requestId > 0)
-                requestCharacterIds.Remove(requestId);
             if (IsLoadedConversation(characterId))
             {
                 chat.CreateMessageView(record, null);
@@ -517,27 +520,20 @@ namespace VirtualPartner.Runtime
 
         private void RebuildPendingTypingViews(string characterId, Sprite avatar, List<MomotalkChatMessageRecord> visibleMessages)
         {
-            if (string.IsNullOrWhiteSpace(characterId))
+            if (string.IsNullOrWhiteSpace(characterId) || requestRegistry == null)
                 return;
 
-            var pendingRequestIds = new List<int>();
-            foreach (var pair in requestCharacterIds)
+            // Non-terminal (Pending/Playing) requests are the ones still awaiting a
+            // visible response; Momotalk owns the pending typing visual for them.
+            requestIdBuffer.Clear();
+            requestRegistry.GetNonTerminalRequestIds(characterId, requestIdBuffer);
+
+            for (var i = 0; i < requestIdBuffer.Count; i++)
             {
-                if (!SameCharacter(pair.Value, characterId))
-                    continue;
-                if (clearedRequestIds.Contains(pair.Key))
-                    continue;
-                if (HasResponseForRequest(pair.Key, visibleMessages))
+                var requestId = requestIdBuffer[i];
+                if (HasResponseForRequest(requestId, visibleMessages))
                     continue;
 
-                // Momotalk owns the pending visual state; LLM/StagePlan can briefly move
-                // between internal states before the first speech event arrives.
-                pendingRequestIds.Add(pair.Key);
-            }
-
-            for (var i = 0; i < pendingRequestIds.Count; i++)
-            {
-                var requestId = pendingRequestIds[i];
                 typingViews[requestId] = chat.CreateTypingView(requestId, avatar);
             }
         }
@@ -580,38 +576,32 @@ namespace VirtualPartner.Runtime
         private void RemoveTyping(int requestId)
         {
             if (!typingViews.TryGetValue(requestId, out var view))
-            {
-                requestCharacterIds.Remove(requestId);
                 return;
-            }
 
             typingViews.Remove(requestId);
-            requestCharacterIds.Remove(requestId);
             if (view != null)
                 Destroy(view.gameObject);
         }
 
         private void CancelLlmForCharacter(string characterId)
         {
-            if (memorySystem != null)
-                memorySystem.CancelCharacterRequests(characterId);
-
-            var removedAnyPendingRequest = false;
             var playingRequestId = stagePlanPlayer != null ? stagePlanPlayer.CurrentLlmStagePlanRequestId : 0;
             var playingCharacterId = playingRequestId > 0 ? GetCharacterIdForRequest(playingRequestId) : string.Empty;
             var shouldStopPlaying = playingRequestId > 0
                 && (string.IsNullOrWhiteSpace(playingCharacterId) || SameCharacter(playingCharacterId, characterId));
-            var requestIds = new List<int>();
-            foreach (var pair in requestCharacterIds)
-            {
-                if (SameCharacter(pair.Value, characterId))
-                    requestIds.Add(pair.Key);
-            }
 
-            for (var i = 0; i < requestIds.Count; i++)
+            // Snapshot the character's in-flight requests before they are canceled.
+            requestIdBuffer.Clear();
+            if (requestRegistry != null)
+                requestRegistry.GetNonTerminalRequestIds(characterId, requestIdBuffer);
+
+            if (requestRegistry != null)
+                requestRegistry.CancelCharacter(characterId);
+
+            var removedAnyPendingRequest = false;
+            for (var i = 0; i < requestIdBuffer.Count; i++)
             {
-                var requestId = requestIds[i];
-                clearedRequestIds.Add(requestId);
+                var requestId = requestIdBuffer[i];
                 if (typingViews.ContainsKey(requestId))
                     removedAnyPendingRequest = true;
                 RemoveTyping(requestId);
@@ -623,8 +613,8 @@ namespace VirtualPartner.Runtime
             if (!shouldStopPlaying)
                 return;
 
-            clearedRequestIds.Add(playingRequestId);
-            requestCharacterIds.Remove(playingRequestId);
+            if (requestRegistry != null)
+                requestRegistry.TrySetStatus(playingRequestId, RequestStatus.Canceled);
             if (llmRelay != null)
                 llmRelay.StopLlmStagePlan();
         }
@@ -689,7 +679,14 @@ namespace VirtualPartner.Runtime
 
         private string GetCharacterIdForRequest(int requestId)
         {
-            return requestCharacterIds.TryGetValue(requestId, out var characterId) ? characterId : string.Empty;
+            return requestRegistry != null ? requestRegistry.GetCharacterId(requestId) : string.Empty;
+        }
+
+        private bool IsClearedRequest(int requestId)
+        {
+            return requestRegistry != null
+                && requestRegistry.TryGet(requestId, out var request)
+                && request.Status == RequestStatus.Canceled;
         }
 
         private Sprite GetAvatarForCharacter(string characterId)

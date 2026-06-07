@@ -372,7 +372,10 @@ namespace VirtualPartner.Runtime
             GUILayout.Label($"Open: {momotalkUIManager.IsOpen}  Loading: {momotalkUIManager.LoadingVisible}  Page: {momotalkUIManager.VisiblePageName}");
             GUILayout.Label($"Selected: {FormatCharacterLabel(momotalkUIManager.SelectedCharacterId, momotalkUIManager.SelectedCharacterName)}");
             if (momotalkConversationController != null)
+            {
                 GUILayout.Label($"Conversation: {FormatEmpty(momotalkConversationController.CurrentCharacterId)}  Unread: {momotalkConversationController.TotalUnreadCount}");
+                GUILayout.Label($"Requests active: {momotalkConversationController.ActiveRequestCount}  pending: {momotalkConversationController.PendingRequestCount}  playing: {momotalkConversationController.PlayingRequestCount}");
+            }
         }
 
         private void DrawTtsOverview()

@@ -50,6 +50,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private float currentIdleTime;
         [SerializeField] private bool runtimeShutdown;
 
+        private readonly ConversationRequestRegistry requestRegistry = new ConversationRequestRegistry();
+
         private IEnumerator Start()
         {
             initialized = false;
@@ -88,7 +90,7 @@ namespace VirtualPartner.Runtime
             speechMouthDriver.Configure(mouthTextureController, expressionActionExecutor);
             ttsManager.Configure(characterProfile, speechMouthDriver, ttsAudioSource);
             asrManager.Configure();
-            memorySystem.Configure(characterProfile);
+            memorySystem.Configure(characterProfile, requestRegistry);
             stagePlanPlayer.Configure(
                 characterProfile,
                 boneMapProfile,
@@ -146,7 +148,7 @@ namespace VirtualPartner.Runtime
             }
 
             if (momotalkUIManager != null)
-                momotalkUIManager.BindConversationRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem);
+                momotalkUIManager.BindConversationRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem, requestRegistry);
 
             yield return null;
 

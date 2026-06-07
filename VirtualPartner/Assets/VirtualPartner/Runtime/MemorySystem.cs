@@ -30,6 +30,8 @@ namespace VirtualPartner.Runtime
         private readonly MemoryJudgeClient judgeClient = new MemoryJudgeClient();
 
         private CharacterProfile defaultProfile;
+        private ConversationRequestRegistry requestRegistry;
+        private bool subscribedToRegistry;
         private Coroutine processRoutine;
         private MemoryTurnState latestTurn;
         private readonly List<int> finalizedTurnBuffer = new List<int>();
@@ -50,12 +52,22 @@ namespace VirtualPartner.Runtime
         public string ConfigPath => judgeClient.ConfigPath;
         public string MemoryRootPath => memoryStore.GetRootPath(GetDefaultCharacterId());
 
-        public void Configure(CharacterProfile profile)
+        public void Configure(CharacterProfile profile, ConversationRequestRegistry registry)
         {
             defaultProfile = profile;
             initialized = true;
             statusText = "Ready.";
             lastMessage = string.Empty;
+
+            if (requestRegistry != null && subscribedToRegistry)
+                requestRegistry.StatusChanged -= HandleRequestStatusChanged;
+            requestRegistry = registry;
+            subscribedToRegistry = false;
+            if (requestRegistry != null)
+            {
+                requestRegistry.StatusChanged += HandleRequestStatusChanged;
+                subscribedToRegistry = true;
+            }
 
             var characterId = GetDefaultCharacterId();
             if (!string.IsNullOrWhiteSpace(characterId))
@@ -66,6 +78,12 @@ namespace VirtualPartner.Runtime
 
         private void OnDisable()
         {
+            if (requestRegistry != null && subscribedToRegistry)
+            {
+                requestRegistry.StatusChanged -= HandleRequestStatusChanged;
+                subscribedToRegistry = false;
+            }
+
             if (processRoutine != null)
             {
                 StopCoroutine(processRoutine);
@@ -74,6 +92,62 @@ namespace VirtualPartner.Runtime
 
             judgeClient.Abort();
             processing = false;
+        }
+
+        // Registry-driven lifecycle: terminal status decides memory enqueue vs drop.
+        private void HandleRequestStatusChanged(ConversationRequest request)
+        {
+            if (request == null)
+                return;
+
+            switch (request.Status)
+            {
+                case RequestStatus.Finished:
+                    FinalizeFinished(request.RequestId, request.CharacterId);
+                    break;
+                case RequestStatus.Failed:
+                case RequestStatus.Canceled:
+                case RequestStatus.Replaced:
+                    DropTurn(request.RequestId, request.Status.ToString());
+                    break;
+            }
+        }
+
+        private void FinalizeFinished(int requestId, string characterId)
+        {
+            if (!turns.TryGetValue(requestId, out var state))
+                return;
+
+            state.CharacterId = NormalizeCharacterId(string.IsNullOrWhiteSpace(characterId) ? state.CharacterId : characterId);
+            latestTurn = state;
+
+            if (state.Dropped)
+            {
+                lastMessage = $"Request {requestId} memory skipped: dropped.";
+                if (!state.Queued)
+                    turns.Remove(requestId);
+                return;
+            }
+
+            if (!state.HasSpeech)
+            {
+                lastMessage = $"Request {requestId} memory skipped: no speech.";
+                turns.Remove(requestId);
+                return;
+            }
+
+            Enqueue(state);
+        }
+
+        private void DropTurn(int requestId, string reason)
+        {
+            if (!turns.TryGetValue(requestId, out var state))
+                return;
+
+            state.Dropped = true;
+            lastMessage = $"Request {requestId} memory dropped: {reason}.";
+            if (!state.Queued)
+                turns.Remove(requestId);
         }
 
         public void RegisterUserMessage(string characterId, int requestId, string userText)
@@ -102,120 +176,15 @@ namespace VirtualPartner.Runtime
 
             if (!turns.TryGetValue(speech.RequestId, out var state))
                 return;
-            if (state.Canceled || state.Replaced)
+            if (state.Dropped)
+                return;
+            if (requestRegistry != null && requestRegistry.IsCanceledOrReplaced(speech.RequestId))
                 return;
 
             state.CharacterId = NormalizeCharacterId(string.IsNullOrWhiteSpace(speech.CharacterId) ? state.CharacterId : speech.CharacterId);
             state.Speeches.Add(speech.Text == null ? string.Empty : speech.Text.Trim());
             latestTurn = state;
             lastMessage = $"Recorded speech for request {speech.RequestId}.";
-        }
-
-        public void MarkRequestFinished(StagePlanFinishedEvent finished)
-        {
-            if (finished == null || finished.RequestId <= 0)
-                return;
-            if (finished.OwnerId != LlmRelay.LlmOwnerId)
-                return;
-            if (!turns.TryGetValue(finished.RequestId, out var state))
-                return;
-
-            state.Finished = true;
-            state.CharacterId = NormalizeCharacterId(string.IsNullOrWhiteSpace(finished.CharacterId) ? state.CharacterId : finished.CharacterId);
-            latestTurn = state;
-
-            if (state.Canceled)
-            {
-                lastMessage = $"Request {state.RequestId} memory skipped: canceled.";
-                turns.Remove(state.RequestId);
-                return;
-            }
-
-            if (state.Replaced)
-            {
-                lastMessage = $"Request {state.RequestId} memory skipped: replaced.";
-                turns.Remove(state.RequestId);
-                return;
-            }
-
-            if (!state.HasSpeech)
-            {
-                lastMessage = $"Request {state.RequestId} memory skipped: no speech.";
-                turns.Remove(state.RequestId);
-                return;
-            }
-
-            Enqueue(state);
-        }
-
-        public void MarkRequestCanceled(int requestId, string reason)
-        {
-            if (requestId <= 0 || !turns.TryGetValue(requestId, out var state))
-                return;
-
-            state.Canceled = true;
-            state.CancelReason = string.IsNullOrWhiteSpace(reason) ? "Canceled." : reason;
-            lastMessage = $"Request {requestId} memory canceled: {state.CancelReason}";
-
-            if (!state.Queued)
-                turns.Remove(requestId);
-        }
-
-        public void MarkRequestReplaced(int requestId)
-        {
-            if (requestId <= 0 || !turns.TryGetValue(requestId, out var state))
-                return;
-
-            if (state.Finished || state.Queued)
-                return;
-
-            state.Replaced = true;
-            lastMessage = $"Request {requestId} memory marked replaced.";
-            turns.Remove(requestId);
-        }
-
-        public void MarkOlderRequestsReplaced(string characterId, int newestRequestId)
-        {
-            var normalized = NormalizeCharacterId(characterId);
-            finalizedTurnBuffer.Clear();
-            foreach (var pair in turns)
-            {
-                var state = pair.Value;
-                if (state == null || state.RequestId == newestRequestId)
-                    continue;
-                if (!SameCharacter(state.CharacterId, normalized))
-                    continue;
-                if (state.Finished || state.Queued)
-                    continue;
-
-                state.Replaced = true;
-                finalizedTurnBuffer.Add(pair.Key);
-            }
-
-            for (var i = 0; i < finalizedTurnBuffer.Count; i++)
-                turns.Remove(finalizedTurnBuffer[i]);
-        }
-
-        public void CancelCharacterRequests(string characterId)
-        {
-            var normalized = NormalizeCharacterId(characterId);
-            finalizedTurnBuffer.Clear();
-            foreach (var pair in turns)
-            {
-                var state = pair.Value;
-                if (state == null || !SameCharacter(state.CharacterId, normalized))
-                    continue;
-
-                state.Canceled = true;
-                state.CancelReason = "Clear Chat canceled this turn.";
-                if (!state.Queued)
-                    finalizedTurnBuffer.Add(pair.Key);
-            }
-
-            for (var i = 0; i < finalizedTurnBuffer.Count; i++)
-                turns.Remove(finalizedTurnBuffer[i]);
-
-            lastMessage = $"Memory turns canceled for {normalized}.";
         }
 
         public string BuildPromptContext(string characterId)
@@ -238,7 +207,7 @@ namespace VirtualPartner.Runtime
         public void ClearMemory(string characterId)
         {
             var normalized = NormalizeCharacterId(characterId);
-            CancelCharacterRequests(normalized);
+            DropCharacterTurns(normalized);
             var fileCount = memoryStore.Clear(normalized);
             loadedMemoryPromptChars = 0;
             memoryPromptTruncated = false;
@@ -264,8 +233,7 @@ namespace VirtualPartner.Runtime
                 return false;
             }
 
-            latestTurn.Canceled = false;
-            latestTurn.Replaced = false;
+            latestTurn.Dropped = false;
             Enqueue(latestTurn);
             return true;
         }
@@ -284,6 +252,25 @@ namespace VirtualPartner.Runtime
             var path = MemoryRootPath;
             memoryStore.EnsureCategoryFiles(GetDefaultCharacterId());
             Application.OpenURL("file:///" + path.Replace("\\", "/"));
+        }
+
+        private void DropCharacterTurns(string characterId)
+        {
+            var normalized = NormalizeCharacterId(characterId);
+            finalizedTurnBuffer.Clear();
+            foreach (var pair in turns)
+            {
+                var state = pair.Value;
+                if (state == null || !SameCharacter(state.CharacterId, normalized))
+                    continue;
+
+                state.Dropped = true;
+                if (!state.Queued)
+                    finalizedTurnBuffer.Add(pair.Key);
+            }
+
+            for (var i = 0; i < finalizedTurnBuffer.Count; i++)
+                turns.Remove(finalizedTurnBuffer[i]);
         }
 
         private void Enqueue(MemoryTurnState state)
@@ -312,7 +299,7 @@ namespace VirtualPartner.Runtime
                 if (state != null)
                     turns.Remove(state.RequestId);
 
-                if (state == null || state.Canceled || state.Replaced || !state.HasSpeech)
+                if (state == null || state.Dropped || !state.HasSpeech)
                 {
                     latestDecision = "Skipped before judge.";
                     latestWritePath = string.Empty;
@@ -339,9 +326,9 @@ namespace VirtualPartner.Runtime
                 latestRawMemoryJudgeResponse = judgeResult != null ? judgeResult.RawResponse : string.Empty;
                 latestParseError = judgeResult != null ? judgeResult.ParseError : "MemoryJudge returned no result.";
 
-                if (state.Canceled || state.Replaced)
+                if (state.Dropped)
                 {
-                    latestDecision = $"Request {state.RequestId} skipped after judge: canceled or replaced.";
+                    latestDecision = $"Request {state.RequestId} skipped after judge: dropped.";
                     latestWritePath = string.Empty;
                     lastMessage = latestDecision;
                     continue;
@@ -440,11 +427,8 @@ namespace VirtualPartner.Runtime
             public string CharacterName { get; set; }
             public int RequestId { get; set; }
             public string UserText { get; set; }
-            public bool Canceled { get; set; }
-            public bool Replaced { get; set; }
-            public bool Finished { get; set; }
+            public bool Dropped { get; set; }
             public bool Queued { get; set; }
-            public string CancelReason { get; set; }
             public List<string> Speeches { get; } = new List<string>();
             public bool HasSpeech => Speeches.Count > 0;
 

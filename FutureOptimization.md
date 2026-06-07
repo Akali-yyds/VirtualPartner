@@ -27,8 +27,14 @@
   - `StreamingPcmBuffer` + `StreamingPcmDownloadHandler` 提取到 `Runtime/TtsStreamingPcmBuffer.cs`，改为可单测的顶层公共类。
   - PCM16 WAV 写入提取到 `Runtime/TtsWavWriter.cs`（`TtsWavWriter.WritePcm16Wav`）。
   - `TtsManager` 移除上述嵌套类与 WAV 字节写入私有方法。
-- 阶段二（待办，需 Play Mode 回归）：把 Mock / GptSoVits / fallback 行为拆到 `ITtsProvider` 策略实现，并抽出 `TtsAudioStreamPlayer`（封装 ring buffer + streaming AudioClip 播放与欠载处理）和 `TtsCache`（缓存 key 与读写）。
-  - 风险：涉及约 30 个实例字段和 3 条协程流（buffered / streaming / fallback）的状态机重组，仅编译通过不足以保证运行行为，必须 Play Mode 全回归（含真实 GPT-SoVITS 流式、缓存命中、降级、terminal 状态、speech 同步）后再合入。
+- 阶段二·缓存提取（已完成，Unity 编译通过，2026-06-07）：
+  - 新增 `Runtime/TtsCache.cs`：`TtsCacheInfo` 结构 + `TtsCache` 静态类，承担缓存 key/path 推导（`BuildInfo`）和原子写盘（`TryWriteBytes` / `TryWritePcm16Wav`）。
+  - `TtsManager` 的 `BuildCacheInfo` 改为薄包装委托给 `TtsCache.BuildInfo`；移除 `Hash` / `SanitizePathSegment` / `GetProjectUserDataRoot` / `TryWriteCacheFile` / `TryWritePcm16WavCacheFile` 及 `System.Security.Cryptography` 引用。
+  - 行为保持：缓存 key/path 推导逻辑逐字迁移，既有缓存文件仍命中。
+- 阶段二·剩余（**暂缓，按需触发**）：把 Mock / GptSoVits / fallback 行为拆到 `ITtsProvider` 策略实现，并抽出 `TtsAudioStreamPlayer`（封装 streaming AudioClip 播放与欠载处理）。
+  - 暂缓理由（2026-06-07 评估）：这是纯架构重构，不改变运行时行为（不提速、不加功能、不修 bug），收益仅在可维护性/可测性/可扩展性。当前只有一个真实引擎 GptSoVits（+ Mock + fallback），策略抽象属于为尚未发生的扩展提前买单；而该改动需重组约 30 个状态字段和 3 条协程流，风险最高且仅编译通过不足以保证行为正确，必须 Play Mode 全回归。高风险 + 低当前收益。
+  - 触发条件：当确实要新增第二个 TTS 引擎（如换本地模型或接云端 TTS），或该类的维护成本变得明显时，再以分阶段 spec（requirements → design → tasks，参照 `request-lifecycle` 做法）推进。
+  - 注：阶段一与阶段二·缓存提取已经拿到大部分现实收益（buffer/wav/cache 已独立可测），核心状态机暂留在 `TtsManager`。
 
 ## UnityWebRequest 失效路径显式 Dispose
 

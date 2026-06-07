@@ -1,6 +1,6 @@
 # VirtualPartner 当前 TODO
 
-更新时间：2026-06-05
+更新时间：2026-06-07
 
 本文记录当前活跃 TODO。当前主线是 `LlmRelay` prompt 工程、StagePlan 2.0 质量优化与流式 StagePlan 执行体验；Stage 3 AgentLoop 不在当前活跃开发路径中。
 
@@ -93,6 +93,35 @@
 - [x] 21:9 视图覆盖完整，16:9 视图裁切自然。
 - [x] Play Mode 下角色 idle、移动区域、障碍区域、Momotalk UI 正常。
 - [x] 简单 Momotalk 消息仍能走 `LlmRelay -> StagePlanPlayer` 播放链路。
+
+## 已完成阶段：TTS / ASR 服务优化
+
+目标：在不改变主链路的前提下，修复 TTS/ASR 的资源与正确性问题、提升识别鲁棒性，并对 `TtsManager` 做低风险结构拆分。详细背景与暂缓项见根目录 `FutureOptimization.md`。
+
+### 已完成改动
+
+- [x] TTS：修复 streaming/加载/Mock `AudioClip` 原生内存泄漏（切换/停止时 `Destroy`）。
+- [x] TTS：health/voice 元数据带 TTL 缓存（默认 30s，失败失效），去掉"每句话一次 `/health`"。
+- [x] TTS：`AbortActiveRequest` 在打断路径显式 `Dispose` UnityWebRequest。
+- [x] TTS：结构拆分阶段一——`StreamingPcmBuffer` / `StreamingPcmDownloadHandler` 提取到 `TtsStreamingPcmBuffer.cs`，WAV 写入提取到 `TtsWavWriter.cs`。
+- [x] TTS：结构拆分阶段二·缓存——新增 `TtsCache.cs`（key/path 推导 + 原子写盘），缓存逻辑逐字迁移，既有缓存仍命中。
+- [x] ASR：删除死代码 `run_asr_session` 与冗余 `ACTIVE_CANCEL_EVENT`，统一取消路径。
+- [x] ASR：识别解码移到独立 worker 线程，不再阻塞常驻麦克风采集。
+- [x] ASR：接入 silero VAD 做分段（替换裸能量阈值），清理无用累加器与 `energy_threshold` 配置。
+- [x] ASR：`/asr/start` 预热期返回 425（warming up）而非 503，纳入麦克风预热状态判断。
+
+### 已通过验收
+
+- [x] Unity Console 无 C# 编译错误（TtsManager 及新增文件）。
+- [x] Python 服务 `py_compile` 通过、`config.json` 合法、模块可导入。
+- [x] Play Mode：TTS 连续发声/流式/缓存命中/打断/降级正常，原生内存不随发声累积。
+- [x] Play Mode：ASR silero VAD 分段、连续识别、取消、超时、预热 425 行为正常。
+
+### 暂缓项（见 FutureOptimization.md）
+
+- [ ] ASR 标点恢复（CTC 模型无标点 token，需独立标点模型，暂缓）。
+- [ ] TTS 结构拆分阶段二·剩余（`ITtsProvider` 策略 + `TtsAudioStreamPlayer`）：纯重构、当前只有一个真实引擎、风险高，按需触发。
+- [ ] ASR VAD 阈值自适应：以实际使用反馈驱动，不提前优化。
 
 ## Prompt 质量原则
 

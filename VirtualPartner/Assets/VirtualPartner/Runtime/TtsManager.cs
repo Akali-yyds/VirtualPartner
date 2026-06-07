@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -595,7 +594,7 @@ namespace VirtualPartner.Runtime
                     yield break;
                 }
 
-                if (!TryWriteCacheFile(audioBytes, cachePath, out var writeFailure))
+                if (!TtsCache.TryWriteBytes(audioBytes, cachePath, out var writeFailure))
                 {
                     StartFallbackWithWarning(text, writeFailure);
                     yield break;
@@ -699,7 +698,7 @@ namespace VirtualPartner.Runtime
 
                 if (cacheCompletedStream && buffer.RawByteCount > 0)
                 {
-                    if (!TryWritePcm16WavCacheFile(buffer.GetRawBytes(), sampleRate, 1, cachePath, out var writeFailure))
+                    if (!TtsCache.TryWritePcm16Wav(buffer.GetRawBytes(), sampleRate, 1, cachePath, out var writeFailure))
                         Debug.LogWarning($"[VirtualPartner] TTS stream cache warning: {writeFailure}", this);
                 }
 
@@ -1066,33 +1065,21 @@ namespace VirtualPartner.Runtime
             string resolvedPromptLang,
             string resolvedTextLang)
         {
-            var speedText = currentSpeed.ToString("0.###", CultureInfo.InvariantCulture);
-            var versionText = string.IsNullOrWhiteSpace(engineVersion) ? MockVersion : engineVersion.Trim();
-            var rawKey = string.Join(
-                "|",
-                currentCharacterId,
-                currentProvider,
-                currentVoiceId,
-                text ?? string.Empty,
-                currentEmotion,
-                speedText,
-                refHash ?? string.Empty,
-                promptHash ?? string.Empty,
-                resolvedPromptLang ?? string.Empty,
-                resolvedTextLang ?? string.Empty,
-                versionText);
-            var hash = Hash(rawKey);
-
-            cacheKey = string.Join(
-                "/",
+            var info = TtsCache.BuildInfo(
                 currentCharacterId,
                 currentProvider,
                 currentVoiceId,
                 currentEmotion,
-                speedText,
-                versionText,
-                hash);
-            cachePath = Path.Combine(GetProjectUserDataRoot(), "TTSCache", SanitizePathSegment(currentCharacterId), $"{hash}.wav");
+                currentSpeed,
+                text,
+                engineVersion,
+                refHash,
+                promptHash,
+                resolvedPromptLang,
+                resolvedTextLang,
+                MockVersion);
+            cacheKey = info.Key;
+            cachePath = info.Path;
         }
 
         private TtsRequest CreateCurrentRequest(string text)
@@ -1107,15 +1094,6 @@ namespace VirtualPartner.Runtime
                 duration,
                 cacheKey,
                 cachePath);
-        }
-
-        private string GetProjectUserDataRoot()
-        {
-            var projectRoot = Directory.GetParent(Application.dataPath);
-            if (projectRoot == null)
-                return Path.Combine(Application.persistentDataPath, "VirtualPartner", "UserData");
-
-            return Path.Combine(projectRoot.FullName, "UserData");
         }
 
         private void ApplyAudioSourceSettings()
@@ -1183,72 +1161,6 @@ namespace VirtualPartner.Runtime
         private bool IsSessionCurrent(int sessionId)
         {
             return sessionId == speechSessionId && active && !terminalReady;
-        }
-
-        private bool TryWriteCacheFile(byte[] audioBytes, string targetPath, out string failureReason)
-        {
-            failureReason = string.Empty;
-            try
-            {
-                var directory = Path.GetDirectoryName(targetPath);
-                if (!string.IsNullOrWhiteSpace(directory))
-                    Directory.CreateDirectory(directory);
-
-                var tempPath = targetPath + ".tmp";
-                if (File.Exists(tempPath))
-                    File.Delete(tempPath);
-                File.WriteAllBytes(tempPath, audioBytes);
-
-                if (File.Exists(targetPath))
-                    File.Replace(tempPath, targetPath, null);
-                else
-                    File.Move(tempPath, targetPath);
-
-                return true;
-            }
-            catch (Exception exception)
-            {
-                failureReason = $"TTS cache write failed: {exception.Message}";
-                return false;
-            }
-        }
-
-        private bool TryWritePcm16WavCacheFile(byte[] pcmBytes, int sampleRate, int channels, string targetPath, out string failureReason)
-        {
-            failureReason = string.Empty;
-            if (pcmBytes == null || pcmBytes.Length == 0)
-            {
-                failureReason = "TTS stream cache write failed: audio is empty.";
-                return false;
-            }
-
-            try
-            {
-                var directory = Path.GetDirectoryName(targetPath);
-                if (!string.IsNullOrWhiteSpace(directory))
-                    Directory.CreateDirectory(directory);
-
-                var tempPath = targetPath + ".tmp";
-                if (File.Exists(tempPath))
-                    File.Delete(tempPath);
-
-                using (var stream = File.Create(tempPath))
-                {
-                    TtsWavWriter.WritePcm16Wav(stream, pcmBytes, sampleRate, channels);
-                }
-
-                if (File.Exists(targetPath))
-                    File.Replace(tempPath, targetPath, null);
-                else
-                    File.Move(tempPath, targetPath);
-
-                return true;
-            }
-            catch (Exception exception)
-            {
-                failureReason = $"TTS stream cache write failed: {exception.Message}";
-                return false;
-            }
         }
 
         private bool TryResolveVoiceHealth(TtsHealthResponse health, string voiceId, out TtsHealthVoice voice, out string failureReason)
@@ -1448,19 +1360,6 @@ namespace VirtualPartner.Runtime
             return normalized.Length <= 60 ? normalized : normalized.Substring(0, 60) + "...";
         }
 
-        private static string Hash(string value)
-        {
-            using (var sha = SHA256.Create())
-            {
-                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(value ?? string.Empty));
-                var builder = new StringBuilder(16);
-                for (var i = 0; i < 8 && i < bytes.Length; i++)
-                    builder.Append(bytes[i].ToString("x2", CultureInfo.InvariantCulture));
-
-                return builder.ToString();
-            }
-        }
-
         private static string DecodeUtf8(byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0)
@@ -1474,22 +1373,6 @@ namespace VirtualPartner.Runtime
             {
                 return string.Empty;
             }
-        }
-
-        private static string SanitizePathSegment(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return "unknown";
-
-            var invalid = Path.GetInvalidFileNameChars();
-            var builder = new StringBuilder(value.Length);
-            for (var i = 0; i < value.Length; i++)
-            {
-                var c = value[i];
-                builder.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
-            }
-
-            return builder.ToString();
         }
 
         [Serializable]
