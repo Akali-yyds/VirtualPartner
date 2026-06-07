@@ -5,8 +5,11 @@ namespace VirtualPartner.Runtime
 {
     public sealed class MomotalkChatMessageView : MonoBehaviour
     {
-        private const float BubbleHorizontalPadding = 52f;
-        private const float BubbleVerticalPadding = 28f;
+        private const float BubbleHorizontalPadding = 40f;
+        private const float BubbleVerticalPadding = 40f;
+        private const float MessageBubbleMinHeight = 84f;
+        private const float SystemBubbleMinHeight = 84f;
+        private const float TypingBubbleMinHeight = 76f;
 
         [SerializeField] private Image avatarImage;
         [SerializeField] private Image bubbleImage;
@@ -72,8 +75,10 @@ namespace VirtualPartner.Runtime
                 {
                     layout.preferredWidth = record.sender == "system"
                         ? 650f
-                        : Mathf.Clamp((record.text != null ? record.text.Length : 0) * 22f + 104f, 180f, 620f);
-                    layout.minHeight = 78f;
+                        : Mathf.Clamp((record.text != null ? record.text.Length : 0) * 22f + 132f, 210f, 620f);
+                    layout.minHeight = record.sender == "system"
+                        ? SystemBubbleMinHeight
+                        : MessageBubbleMinHeight;
                     ApplyTextDrivenHeight(layout, record.text);
                 }
 
@@ -106,7 +111,8 @@ namespace VirtualPartner.Runtime
                 if (layout != null)
                 {
                     layout.preferredWidth = 136f;
-                    layout.minHeight = 68f;
+                    layout.minHeight = TypingBubbleMinHeight;
+                    layout.preferredHeight = TypingBubbleMinHeight;
                 }
 
                 var fitter = bubbleImage.GetComponent<ContentSizeFitter>();
@@ -177,55 +183,36 @@ namespace VirtualPartner.Runtime
         {
             return userBubbleSprite != null
                 ? userBubbleSprite
-                : userBubbleSprite = CreateRoundedSprite(new Color(0.27f, 0.49f, 0.78f, 1f), 6);
+                : userBubbleSprite = MomotalkUIStyle.Rounded(MomotalkUIStyle.UserBubble, 18);
         }
 
         private static Sprite GetCharacterBubbleSprite()
         {
             return characterBubbleSprite != null
                 ? characterBubbleSprite
-                : characterBubbleSprite = CreateRoundedSprite(new Color(0.26f, 0.29f, 0.42f, 1f), 6);
+                : characterBubbleSprite = MomotalkUIStyle.Rounded(MomotalkUIStyle.CharacterBubble, 18);
         }
 
         private static Sprite GetSystemBubbleSprite()
         {
             return systemBubbleSprite != null
                 ? systemBubbleSprite
-                : systemBubbleSprite = CreateRoundedSprite(new Color(0.94f, 0.95f, 0.96f, 1f), 6);
+                : systemBubbleSprite = MomotalkUIStyle.Rounded(MomotalkUIStyle.SystemBubble, 14);
         }
 
         private static Sprite GetTypingBubbleSprite()
         {
             return typingBubbleSprite != null
                 ? typingBubbleSprite
-                : typingBubbleSprite = CreateRoundedSprite(new Color(0.26f, 0.29f, 0.42f, 1f), 5);
+                : typingBubbleSprite = MomotalkUIStyle.Rounded(MomotalkUIStyle.CharacterBubble, 18);
         }
 
         private static Color GetTextColor(string sender)
         {
             if (sender == "system")
-                return new Color(0.42f, 0.46f, 0.52f, 1f);
+                return MomotalkUIStyle.TextSecondary;
 
             return Color.white;
-        }
-
-        private static Sprite CreateRoundedSprite(Color color, int radius)
-        {
-            const int size = 32;
-            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            var clear = new Color(0f, 0f, 0f, 0f);
-            for (var y = 0; y < size; y++)
-            {
-                for (var x = 0; x < size; x++)
-                {
-                    var dx = x < radius ? radius - x : (x >= size - radius ? x - (size - radius - 1) : 0);
-                    var dy = y < radius ? radius - y : (y >= size - radius ? y - (size - radius - 1) : 0);
-                    texture.SetPixel(x, y, dx * dx + dy * dy <= radius * radius ? color : clear);
-                }
-            }
-
-            texture.Apply();
-            return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
         }
 
         internal static Sprite GetCircleMaskSprite()

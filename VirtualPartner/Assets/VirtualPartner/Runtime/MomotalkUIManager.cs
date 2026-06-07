@@ -127,6 +127,9 @@ namespace VirtualPartner.Runtime
             EnsureMoreButton();
             EnsureChatInfoView();
             EnsureOpenButtonUnreadDot();
+            ApplyStaticVisualStyle();
+            if (conversationController != null)
+                conversationController.SetUiFont(GetUiFont());
 
             ApplyPhoneLayout();
             SetClosedImmediate();
@@ -489,67 +492,13 @@ namespace VirtualPartner.Runtime
             if (contactSearchInput != null || contactListView == null)
                 return;
 
-            var searchBar = FindChildRecursive(contactListView.transform, "SearchBar") as RectTransform;
-            if (searchBar == null)
+            var search = MomotalkContactListLayout.ApplySearch(contactListView, GetUiFont());
+            if (search == null || search.InputField == null)
                 return;
 
-            contactSearchInput = searchBar.GetComponent<InputField>();
-            if (contactSearchInput == null)
-                contactSearchInput = searchBar.gameObject.AddComponent<InputField>();
-
-            var placeholder = searchBar.Find("SearchPlaceholder") != null
-                ? searchBar.Find("SearchPlaceholder").GetComponent<Text>()
-                : null;
-            if (placeholder != null)
-            {
-                placeholder.text = "Search";
-                placeholder.raycastTarget = false;
-                var placeholderRect = placeholder.transform as RectTransform;
-                if (placeholderRect != null)
-                {
-                    placeholderRect.anchorMin = Vector2.zero;
-                    placeholderRect.anchorMax = Vector2.one;
-                    placeholderRect.offsetMin = new Vector2(96f, 0f);
-                    placeholderRect.offsetMax = new Vector2(-32f, 0f);
-                }
-            }
-
-            var inputTextRect = searchBar.Find("SearchInputText") as RectTransform;
-            if (inputTextRect == null)
-            {
-                inputTextRect = new GameObject("SearchInputText", typeof(RectTransform), typeof(Text)).GetComponent<RectTransform>();
-                inputTextRect.SetParent(searchBar, false);
-            }
-
-            inputTextRect.anchorMin = Vector2.zero;
-            inputTextRect.anchorMax = Vector2.one;
-            inputTextRect.offsetMin = new Vector2(96f, 0f);
-            inputTextRect.offsetMax = new Vector2(-32f, 0f);
-
-            var inputText = inputTextRect.GetComponent<Text>();
-            inputText.alignment = TextAnchor.MiddleLeft;
-            inputText.color = new Color(0.16f, 0.2f, 0.26f, 1f);
-            inputText.font = GetUiFont();
-            inputText.fontSize = 28;
-            inputText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            inputText.verticalOverflow = VerticalWrapMode.Truncate;
-            inputText.supportRichText = false;
-            inputText.raycastTarget = false;
-
-            contactSearchInput.textComponent = inputText;
-            contactSearchInput.placeholder = placeholder;
-            contactSearchInput.contentType = InputField.ContentType.Standard;
-            contactSearchInput.lineType = InputField.LineType.SingleLine;
-            contactSearchInput.interactable = true;
+            contactSearchInput = search.InputField;
             contactSearchInput.onValueChanged.RemoveListener(HandleSearchChanged);
             contactSearchInput.onValueChanged.AddListener(HandleSearchChanged);
-
-            var graphic = searchBar.GetComponent<Image>();
-            if (graphic != null)
-            {
-                graphic.raycastTarget = true;
-                contactSearchInput.targetGraphic = graphic;
-            }
         }
 
         private void EnsureMoreButton()
@@ -561,43 +510,14 @@ namespace VirtualPartner.Runtime
             if (topBar == null)
                 return;
 
-            var buttonRect = topBar.Find("MoreButton") as RectTransform;
-            if (buttonRect == null)
-            {
-                buttonRect = new GameObject("MoreButton", typeof(RectTransform), typeof(Button), typeof(MomotalkUIButtonFeedback)).GetComponent<RectTransform>();
-                buttonRect.SetParent(topBar, false);
-            }
-
-            buttonRect.anchorMin = new Vector2(1f, 0.5f);
-            buttonRect.anchorMax = new Vector2(1f, 0.5f);
-            buttonRect.pivot = new Vector2(0.5f, 0.5f);
-            buttonRect.anchoredPosition = new Vector2(-90f, 0f);
-            buttonRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 78f);
-            buttonRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 78f);
-
-            var label = buttonRect.Find("MoreText") != null
-                ? buttonRect.Find("MoreText").GetComponent<Text>()
-                : null;
-            if (label == null)
-            {
-                label = new GameObject("MoreText", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
-                label.transform.SetParent(buttonRect, false);
-            }
-
-            var labelRect = label.transform as RectTransform;
-            labelRect.anchorMin = Vector2.zero;
-            labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = Vector2.zero;
-            labelRect.offsetMax = Vector2.zero;
-            label.text = "···";
-            label.font = GetUiFont();
-            label.fontSize = 42;
-            label.alignment = TextAnchor.MiddleCenter;
-            label.color = Color.white;
-            label.raycastTarget = true;
-
-            moreButton = buttonRect.GetComponent<Button>();
-            moreButton.targetGraphic = label;
+            moreButton = MomotalkTopBarLayout.ConfigureAction(
+                topBar,
+                moreButton,
+                "MoreButton",
+                "MoreIcon",
+                "more_icon.png",
+                MomotalkTopBarActionSlot.Right,
+                MomotalkTopBarLayout.DetailIconSize);
             moreButton.onClick.RemoveListener(ShowChatInfo);
             moreButton.onClick.AddListener(ShowChatInfo);
         }
@@ -618,7 +538,7 @@ namespace VirtualPartner.Runtime
             root.offsetMin = Vector2.zero;
             root.offsetMax = Vector2.zero;
             root.SetSiblingIndex(chatView.transform.GetSiblingIndex() + 1);
-            root.GetComponent<Image>().color = new Color(0.97f, 0.98f, 1f, 1f);
+            root.GetComponent<Image>().color = Color.white;
             chatInfoView = root.GetComponent<CanvasGroup>();
 
             BuildChatInfoHeader(root);
@@ -632,36 +552,7 @@ namespace VirtualPartner.Runtime
         {
             var topBar = new GameObject("TopBar", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
             topBar.SetParent(root, false);
-            topBar.anchorMin = new Vector2(0f, 1f);
-            topBar.anchorMax = new Vector2(1f, 1f);
-            topBar.pivot = new Vector2(0.5f, 1f);
-            topBar.anchoredPosition = Vector2.zero;
-            topBar.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 176f);
-            topBar.GetComponent<Image>().color = new Color(0.965f, 0.545f, 0.647f, 1f);
-
-            var backRect = new GameObject("BackButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(MomotalkUIButtonFeedback)).GetComponent<RectTransform>();
-            backRect.SetParent(topBar, false);
-            backRect.anchorMin = new Vector2(0f, 0.5f);
-            backRect.anchorMax = new Vector2(0f, 0.5f);
-            backRect.pivot = new Vector2(0.5f, 0.5f);
-            backRect.anchoredPosition = new Vector2(92f, 0f);
-            backRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 78f);
-            backRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 78f);
-            var backHitArea = backRect.GetComponent<Image>();
-            backHitArea.color = new Color(1f, 1f, 1f, 0f);
-            backHitArea.raycastTarget = true;
-            var backText = CreateText(backRect, "BackText", "<", 48, Color.white, TextAnchor.MiddleCenter);
-            chatInfoBackButton = backRect.GetComponent<Button>();
-            chatInfoBackButton.targetGraphic = backHitArea;
-            chatInfoBackButton.onClick.RemoveListener(ShowChatFromInfo);
-            chatInfoBackButton.onClick.AddListener(ShowChatFromInfo);
-
-            var title = CreateText(topBar, "Title", "Chat Info", 40, Color.white, TextAnchor.MiddleCenter);
-            var titleRect = title.transform as RectTransform;
-            titleRect.anchorMin = Vector2.zero;
-            titleRect.anchorMax = Vector2.one;
-            titleRect.offsetMin = new Vector2(170f, 0f);
-            titleRect.offsetMax = new Vector2(-170f, 0f);
+            ApplyChatInfoTopBarLayout(topBar);
         }
 
         private void BuildChatInfoContent(RectTransform root)
@@ -672,9 +563,9 @@ namespace VirtualPartner.Runtime
             avatarRect.anchorMin = new Vector2(0.5f, 1f);
             avatarRect.anchorMax = new Vector2(0.5f, 1f);
             avatarRect.pivot = new Vector2(0.5f, 1f);
-            avatarRect.anchoredPosition = new Vector2(0f, -260f);
-            avatarRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 420f);
-            avatarRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 420f);
+            avatarRect.anchoredPosition = new Vector2(0f, -220f);
+            avatarRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300f);
+            avatarRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 300f);
             chatInfoAvatarImage = MomotalkAvatarUtility.EnsureCircularAvatarImage(avatarMask);
 
             chatInfoNameText = CreateText(root, "Name", string.Empty, 44, new Color(0.12f, 0.14f, 0.18f, 1f), TextAnchor.MiddleCenter);
@@ -682,170 +573,64 @@ namespace VirtualPartner.Runtime
             nameRect.anchorMin = new Vector2(0.5f, 1f);
             nameRect.anchorMax = new Vector2(0.5f, 1f);
             nameRect.pivot = new Vector2(0.5f, 1f);
-            nameRect.anchoredPosition = new Vector2(0f, -708f);
+            nameRect.anchoredPosition = new Vector2(0f, -548f);
             nameRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 760f);
             nameRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 72f);
 
-            BuildStickyRow(root, -820f);
-            BuildClearHistoryRow(root, -990f);
-            BuildClearMemoryRow(root, -1160f);
+            BuildStickyRow(root, -680f);
+            BuildClearHistoryRow(root, -840f);
+            BuildClearMemoryRow(root, -1000f);
         }
 
         private void BuildStickyRow(RectTransform root, float y)
         {
-            var row = CreateInfoRow(root, "StickyRow", y);
-            var iconCircle = CreateIconCircle(row, new Color(0.86f, 0.97f, 0.91f, 1f));
-            var pin = new GameObject("PinIcon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            pin.transform.SetParent(iconCircle, false);
-            var pinRect = pin.transform as RectTransform;
-            pinRect.anchorMin = new Vector2(0.5f, 0.5f);
-            pinRect.anchorMax = new Vector2(0.5f, 0.5f);
-            pinRect.pivot = new Vector2(0.5f, 0.5f);
-            pinRect.anchoredPosition = Vector2.zero;
-            pinRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 42f);
-            pinRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 42f);
-            pin.sprite = pinIconSprite;
-            pin.color = new Color(0.12f, 0.72f, 0.48f, 1f);
-            pin.preserveAspect = true;
-            pin.raycastTarget = false;
+            var row = MomotalkInfoRowLayout.CreateRow(root, "StickyRow", y);
+            var iconCircle = MomotalkInfoRowLayout.CreateIconCircle(row, new Color(0.86f, 0.97f, 0.91f, 1f));
+            MomotalkInfoRowLayout.CreateIcon(iconCircle, "PinIcon", pinIconSprite, 42f, new Color(0.12f, 0.72f, 0.48f, 1f));
+            MomotalkInfoRowLayout.CreateTitleBlock(row, "Sticky on Top", "Keep this chat at the top of your chat list.", GetUiFont());
 
-            CreateRowTitle(row, "Sticky on Top", "Keep this chat at the top of your chat list.");
-
-            var toggleRect = new GameObject("StickyToggle", typeof(RectTransform), typeof(Toggle)).GetComponent<RectTransform>();
-            toggleRect.SetParent(row, false);
-            toggleRect.anchorMin = new Vector2(1f, 0.5f);
-            toggleRect.anchorMax = new Vector2(1f, 0.5f);
-            toggleRect.pivot = new Vector2(1f, 0.5f);
-            toggleRect.anchoredPosition = new Vector2(-34f, 0f);
-            toggleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 112f);
-            toggleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 58f);
-
-            stickyToggleTrack = new GameObject("Track", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            stickyToggleTrack.transform.SetParent(toggleRect, false);
-            var trackRect = stickyToggleTrack.transform as RectTransform;
-            trackRect.anchorMin = Vector2.zero;
-            trackRect.anchorMax = Vector2.one;
-            trackRect.offsetMin = Vector2.zero;
-            trackRect.offsetMax = Vector2.zero;
-            stickyToggleTrack.raycastTarget = true;
-
-            stickyToggleKnob = new GameObject("Knob", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-            stickyToggleKnob.SetParent(toggleRect, false);
-            stickyToggleKnob.anchorMin = new Vector2(0.5f, 0.5f);
-            stickyToggleKnob.anchorMax = new Vector2(0.5f, 0.5f);
-            stickyToggleKnob.pivot = new Vector2(0.5f, 0.5f);
-            stickyToggleKnob.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 46f);
-            stickyToggleKnob.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 46f);
-            var knobImage = stickyToggleKnob.GetComponent<Image>();
-            knobImage.sprite = MomotalkChatMessageView.GetCircleMaskSprite();
-            knobImage.color = Color.white;
-            knobImage.raycastTarget = false;
-
-            stickyToggle = toggleRect.GetComponent<Toggle>();
-            stickyToggle.targetGraphic = stickyToggleTrack;
-            stickyToggle.graphic = null;
+            var toggle = MomotalkInfoRowLayout.CreateToggle(row);
+            stickyToggle = toggle.Toggle;
+            stickyToggleTrack = toggle.Track;
+            stickyToggleKnob = toggle.Knob;
             stickyToggle.onValueChanged.RemoveListener(HandleStickyChanged);
             stickyToggle.onValueChanged.AddListener(HandleStickyChanged);
             UpdateStickyToggleVisual(false);
         }
 
-        private void BuildClearHistoryRow(RectTransform root, float y)
+private void BuildClearHistoryRow(RectTransform root, float y)
         {
-            var row = CreateInfoRow(root, "ClearHistoryRow", y);
-            var iconCircle = CreateIconCircle(row, new Color(1f, 0.9f, 0.91f, 1f));
-            var clearMark = CreateText(iconCircle, "IconText", "X", 34, new Color(0.96f, 0.32f, 0.34f, 1f), TextAnchor.MiddleCenter);
-            clearMark.raycastTarget = false;
-            CreateRowTitle(row, "Clear Chat History", "Delete all messages in this chat.");
-            var arrow = CreateText(row, "Arrow", ">", 42, new Color(0.62f, 0.64f, 0.68f, 1f), TextAnchor.MiddleCenter);
-            var arrowRect = arrow.transform as RectTransform;
-            arrowRect.anchorMin = new Vector2(1f, 0.5f);
-            arrowRect.anchorMax = new Vector2(1f, 0.5f);
-            arrowRect.pivot = new Vector2(1f, 0.5f);
-            arrowRect.anchoredPosition = new Vector2(-34f, 0f);
-            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 60f);
-            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80f);
+            var row = MomotalkInfoRowLayout.CreateRow(root, "ClearHistoryRow", y);
+            var iconCircle = MomotalkInfoRowLayout.CreateIconCircle(row, new Color(1f, 0.9f, 0.91f, 1f));
+            MomotalkInfoRowLayout.CreateIcon(iconCircle, "DeleteIcon", MomotalkUIStyle.Icon("\u5220\u9664.png"), 46f, MomotalkUIStyle.Danger);
+            MomotalkInfoRowLayout.CreateTitleBlock(row, "Clear Chat History", "Delete all messages in this chat.", GetUiFont());
+            MomotalkInfoRowLayout.CreateArrow(row, GetUiFont());
 
-            clearHistoryButton = row.gameObject.AddComponent<Button>();
-            clearHistoryButton.targetGraphic = row.GetComponent<Image>();
+            clearHistoryButton = MomotalkInfoRowLayout.ConfigureButton(row);
             clearHistoryButton.onClick.RemoveListener(ShowClearHistoryConfirmation);
             clearHistoryButton.onClick.AddListener(ShowClearHistoryConfirmation);
-            row.gameObject.AddComponent<MomotalkUIButtonFeedback>();
         }
 
-        private void BuildClearMemoryRow(RectTransform root, float y)
+private void BuildClearMemoryRow(RectTransform root, float y)
         {
-            var row = CreateInfoRow(root, "ClearMemoryRow", y);
-            var iconCircle = CreateIconCircle(row, new Color(0.9f, 0.93f, 1f, 1f));
-            var clearMark = CreateText(iconCircle, "IconText", "M", 32, new Color(0.28f, 0.43f, 0.92f, 1f), TextAnchor.MiddleCenter);
-            clearMark.raycastTarget = false;
-            CreateRowTitle(row, "Clear Memory", "Delete long-term memories for this character.");
-            var arrow = CreateText(row, "Arrow", ">", 42, new Color(0.62f, 0.64f, 0.68f, 1f), TextAnchor.MiddleCenter);
-            var arrowRect = arrow.transform as RectTransform;
-            arrowRect.anchorMin = new Vector2(1f, 0.5f);
-            arrowRect.anchorMax = new Vector2(1f, 0.5f);
-            arrowRect.pivot = new Vector2(1f, 0.5f);
-            arrowRect.anchoredPosition = new Vector2(-34f, 0f);
-            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 60f);
-            arrowRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80f);
+            var row = MomotalkInfoRowLayout.CreateRow(root, "ClearMemoryRow", y);
+            var iconCircle = MomotalkInfoRowLayout.CreateIconCircle(row, new Color(1f, 0.91f, 0.94f, 1f));
+            MomotalkInfoRowLayout.CreateIcon(iconCircle, "ClearCacheIcon", MomotalkUIStyle.Icon("\u6E05\u9664\u7F13\u5B58.png"), 46f, MomotalkUIStyle.TopBarPink);
+            MomotalkInfoRowLayout.CreateTitleBlock(row, "Clear Memory", "Delete long-term memories for this character.", GetUiFont());
+            MomotalkInfoRowLayout.CreateArrow(row, GetUiFont());
 
-            clearMemoryButton = row.gameObject.AddComponent<Button>();
-            clearMemoryButton.targetGraphic = row.GetComponent<Image>();
+            clearMemoryButton = MomotalkInfoRowLayout.ConfigureButton(row);
             clearMemoryButton.onClick.RemoveListener(ShowClearMemoryConfirmation);
             clearMemoryButton.onClick.AddListener(ShowClearMemoryConfirmation);
-            row.gameObject.AddComponent<MomotalkUIButtonFeedback>();
         }
 
-        private RectTransform CreateInfoRow(RectTransform root, string name, float y)
-        {
-            var row = new GameObject(name, typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-            row.SetParent(root, false);
-            row.anchorMin = new Vector2(0.5f, 1f);
-            row.anchorMax = new Vector2(0.5f, 1f);
-            row.pivot = new Vector2(0.5f, 1f);
-            row.anchoredPosition = new Vector2(0f, y);
-            row.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 900f);
-            row.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 140f);
-            row.GetComponent<Image>().color = Color.white;
-            return row;
-        }
 
-        private RectTransform CreateIconCircle(RectTransform row, Color color)
-        {
-            var iconCircle = new GameObject("IconCircle", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
-            iconCircle.SetParent(row, false);
-            iconCircle.anchorMin = new Vector2(0f, 0.5f);
-            iconCircle.anchorMax = new Vector2(0f, 0.5f);
-            iconCircle.pivot = new Vector2(0.5f, 0.5f);
-            iconCircle.anchoredPosition = new Vector2(84f, 0f);
-            iconCircle.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 82f);
-            iconCircle.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 82f);
-            var image = iconCircle.GetComponent<Image>();
-            image.sprite = MomotalkChatMessageView.GetCircleMaskSprite();
-            image.color = color;
-            image.raycastTarget = false;
-            return iconCircle;
-        }
 
-        private void CreateRowTitle(RectTransform row, string title, string subtitle)
-        {
-            var titleText = CreateText(row, "Title", title, 32, new Color(0.08f, 0.1f, 0.14f, 1f), TextAnchor.MiddleLeft);
-            var titleRect = titleText.transform as RectTransform;
-            titleRect.anchorMin = new Vector2(0f, 0.5f);
-            titleRect.anchorMax = new Vector2(1f, 0.5f);
-            titleRect.pivot = new Vector2(0f, 0.5f);
-            titleRect.anchoredPosition = new Vector2(150f, 24f);
-            titleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 560f);
-            titleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 50f);
 
-            var subtitleText = CreateText(row, "Subtitle", subtitle, 24, new Color(0.42f, 0.45f, 0.5f, 1f), TextAnchor.MiddleLeft);
-            var subtitleRect = subtitleText.transform as RectTransform;
-            subtitleRect.anchorMin = new Vector2(0f, 0.5f);
-            subtitleRect.anchorMax = new Vector2(1f, 0.5f);
-            subtitleRect.pivot = new Vector2(0f, 0.5f);
-            subtitleRect.anchoredPosition = new Vector2(150f, -24f);
-            subtitleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 560f);
-            subtitleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 44f);
-        }
+
+
+
+
 
         private void BuildClearConfirmation(RectTransform root)
         {
@@ -866,7 +651,9 @@ namespace VirtualPartner.Runtime
             dialog.anchoredPosition = Vector2.zero;
             dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 720f);
             dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 330f);
-            dialog.GetComponent<Image>().color = Color.white;
+            var dialogImage = dialog.GetComponent<Image>();
+            MomotalkUIStyle.ApplyRounded(dialogImage, Color.white, 20, true);
+            MomotalkUIStyle.ApplySoftShadow(dialogImage, new Color(0f, 0f, 0f, 0.18f), new Vector2(0f, -8f));
 
             var title = CreateText(dialog, "Title", "Clear Chat History?", 34, new Color(0.1f, 0.12f, 0.16f, 1f), TextAnchor.MiddleCenter);
             var titleRect = title.transform as RectTransform;
@@ -911,7 +698,9 @@ namespace VirtualPartner.Runtime
             dialog.anchoredPosition = Vector2.zero;
             dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 720f);
             dialog.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 330f);
-            dialog.GetComponent<Image>().color = Color.white;
+            var dialogImage = dialog.GetComponent<Image>();
+            MomotalkUIStyle.ApplyRounded(dialogImage, Color.white, 20, true);
+            MomotalkUIStyle.ApplySoftShadow(dialogImage, new Color(0f, 0f, 0f, 0.18f), new Vector2(0f, -8f));
 
             var title = CreateText(dialog, "Title", "Clear Memory?", 34, new Color(0.1f, 0.12f, 0.16f, 1f), TextAnchor.MiddleCenter);
             var titleRect = title.transform as RectTransform;
@@ -948,7 +737,7 @@ namespace VirtualPartner.Runtime
             rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 230f);
             rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 72f);
             var image = rect.GetComponent<Image>();
-            image.color = background;
+            MomotalkUIStyle.ApplyRounded(image, background, 18, true);
 
             var text = CreateText(rect, "Text", label, 28, textColor, TextAnchor.MiddleCenter);
             var textRect = text.transform as RectTransform;
@@ -1023,9 +812,14 @@ namespace VirtualPartner.Runtime
         private void UpdateStickyToggleVisual(bool sticky)
         {
             if (stickyToggleTrack != null)
+            {
+                MomotalkUIStyle.ApplyRounded(stickyToggleTrack, sticky
+                    ? MomotalkUIStyle.Success
+                    : new Color(0.72f, 0.74f, 0.78f, 1f), 24, true);
                 stickyToggleTrack.color = sticky
                     ? new Color(0.12f, 0.78f, 0.42f, 1f)
                     : new Color(0.72f, 0.74f, 0.78f, 1f);
+            }
             if (stickyToggleKnob != null)
                 stickyToggleKnob.anchoredPosition = new Vector2(sticky ? 26f : -26f, 0f);
         }
@@ -1070,6 +864,113 @@ namespace VirtualPartner.Runtime
             return text != null ? text.font : null;
         }
 
+        private void ApplyChatTopBarLayout(RectTransform chatTopBar)
+        {
+            if (chatTopBar == null)
+                return;
+
+            MomotalkTopBarLayout.ApplyRoot(chatTopBar);
+
+            backButton = MomotalkTopBarLayout.ConfigureAction(
+                chatTopBar,
+                backButton,
+                "BackButton",
+                "BackIcon",
+                "back_icon.png",
+                MomotalkTopBarActionSlot.Left,
+                MomotalkTopBarLayout.BackIconSize);
+            if (backButton != null)
+            {
+                backButton.onClick.RemoveListener(ShowContactList);
+                backButton.onClick.AddListener(ShowContactList);
+            }
+
+            moreButton = MomotalkTopBarLayout.ConfigureAction(
+                chatTopBar,
+                moreButton,
+                "MoreButton",
+                "MoreIcon",
+                "more_icon.png",
+                MomotalkTopBarActionSlot.Right,
+                MomotalkTopBarLayout.DetailIconSize);
+            if (moreButton != null)
+            {
+                moreButton.onClick.RemoveListener(ShowChatInfo);
+                moreButton.onClick.AddListener(ShowChatInfo);
+            }
+
+            chatNameText = MomotalkTopBarLayout.ConfigureCenterTitle(chatTopBar, chatNameText, "ChatTitle", null, GetUiFont());
+        }
+
+        private void ApplyChatInfoTopBarLayout(RectTransform chatInfoTopBar)
+        {
+            if (chatInfoTopBar == null)
+                return;
+
+            MomotalkTopBarLayout.ApplyRoot(chatInfoTopBar);
+
+            chatInfoBackButton = MomotalkTopBarLayout.ConfigureAction(
+                chatInfoTopBar,
+                chatInfoBackButton,
+                "BackButton",
+                "BackIcon",
+                "back_icon.png",
+                MomotalkTopBarActionSlot.Left,
+                MomotalkTopBarLayout.BackIconSize);
+            if (chatInfoBackButton != null)
+            {
+                chatInfoBackButton.onClick.RemoveListener(ShowChatFromInfo);
+                chatInfoBackButton.onClick.AddListener(ShowChatFromInfo);
+            }
+
+            MomotalkTopBarLayout.ConfigureCenterTitle(chatInfoTopBar, null, "Title", "Chat Info", GetUiFont());
+        }
+
+
+
+
+
+        private void ApplyStaticVisualStyle()
+        {
+            ApplyGroupBackground(contactListView, Color.white);
+            ApplyGroupBackground(chatView, Color.white);
+            ApplyGroupBackground(chatInfoView, Color.white);
+
+            MomotalkContactListLayout.ApplyHeader(contactListView, GetUiFont());
+
+            var chatTopBar = FindChildRecursive(chatView != null ? chatView.transform : null, "TopBar") as RectTransform;
+            if (chatTopBar != null)
+                ApplyChatTopBarLayout(chatTopBar);
+
+            var chatInfoTopBar = FindChildRecursive(chatInfoView != null ? chatInfoView.transform : null, "TopBar") as RectTransform;
+            if (chatInfoTopBar != null)
+                ApplyChatInfoTopBarLayout(chatInfoTopBar);
+
+            MomotalkContactListLayout.ApplySearch(contactListView, GetUiFont());
+            MomotalkContactListLayout.ApplyListRoot(contactListView);
+            MomotalkContactListLayout.ApplyContactItemTemplate(contactItemTemplate);
+
+            var inputBar = FindChildRecursive(chatView != null ? chatView.transform : null, "InputBar") as RectTransform;
+            if (inputBar != null)
+                MomotalkInputBarLayout.Apply(inputBar, GetUiFont());
+
+            if (emptyContactsText != null)
+                MomotalkUIStyle.ApplyText(emptyContactsText, 28, MomotalkUIStyle.TextSecondary, TextAnchor.MiddleCenter, GetUiFont());
+        }
+
+        private static void ApplyGroupBackground(CanvasGroup group, Color color)
+        {
+            if (group == null)
+                return;
+
+            var image = group.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = color;
+                image.raycastTarget = true;
+            }
+        }
+
         private static Transform FindChildRecursive(Transform root, string childName)
         {
             if (root == null || string.IsNullOrWhiteSpace(childName))
@@ -1091,24 +992,7 @@ namespace VirtualPartner.Runtime
 
         private static Sprite LoadIconSprite(string relativeAssetPath)
         {
-            var path = Path.Combine(Application.dataPath, relativeAssetPath);
-            if (!File.Exists(path))
-                return null;
-
-            try
-            {
-                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                if (!texture.LoadImage(File.ReadAllBytes(path)))
-                    return null;
-
-                texture.wrapMode = TextureWrapMode.Clamp;
-                return Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning($"[VirtualPartner] Momotalk icon load failed: {exception.Message}");
-                return null;
-            }
+            return MomotalkUIStyle.Icon(Path.GetFileName(relativeAssetPath));
         }
 
         private static Sprite CreateFallbackPinSprite()

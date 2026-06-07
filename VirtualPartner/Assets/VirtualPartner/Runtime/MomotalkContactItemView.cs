@@ -97,7 +97,7 @@ namespace VirtualPartner.Runtime
             badgeRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 42f);
 
             unreadBackground = badgeRoot.GetComponent<Image>();
-            unreadBackground.color = new Color(0.95f, 0.18f, 0.28f, 1f);
+            MomotalkUIStyle.ApplySliced(unreadBackground, MomotalkUIStyle.Texture("status_badge_bg.png", 10f), MomotalkUIStyle.Danger, false);
 
             var textObject = new GameObject("UnreadText", typeof(RectTransform), typeof(Text));
             textObject.transform.SetParent(badgeRoot.transform, false);
@@ -108,10 +108,7 @@ namespace VirtualPartner.Runtime
             textRect.offsetMax = Vector2.zero;
 
             unreadText = textObject.GetComponent<Text>();
-            unreadText.alignment = TextAnchor.MiddleCenter;
-            unreadText.color = Color.white;
-            unreadText.fontSize = 24;
-            unreadText.raycastTarget = false;
+            MomotalkUIStyle.ApplyText(unreadText, 24, Color.white, TextAnchor.MiddleCenter);
         }
 
         private void EnsureStickyPin()
@@ -130,7 +127,7 @@ namespace VirtualPartner.Runtime
             pinRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 38f);
 
             stickyPinImage = pinRoot.GetComponent<Image>();
-            stickyPinImage.color = new Color(0.12f, 0.72f, 0.48f, 1f);
+            stickyPinImage.color = MomotalkUIStyle.Success;
             stickyPinImage.preserveAspect = true;
             stickyPinImage.raycastTarget = false;
             stickyPinImage.gameObject.SetActive(false);

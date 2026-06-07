@@ -14,11 +14,10 @@ namespace VirtualPartner.Runtime
     public sealed class MomotalkConversationController : MonoBehaviour
     {
         private const float ChatAvatarSize = 104f;
-        private const float MessageRowHeight = 112f;
-        private const float MessageBubbleMinHeight = 78f;
+        private const float MessageRowHeight = 118f;
+        private const float MessageBubbleMinHeight = 84f;
         private const float TypingBubbleWidth = 136f;
-        private const float TypingBubbleMinHeight = 68f;
-
+        private const float TypingBubbleMinHeight = 76f;
         private readonly MomotalkHistoryStore historyStore = new MomotalkHistoryStore();
         private readonly Dictionary<int, MomotalkChatMessageView> typingViews = new Dictionary<int, MomotalkChatMessageView>();
         private readonly Dictionary<int, string> requestCharacterIds = new Dictionary<int, string>();
@@ -72,6 +71,7 @@ namespace VirtualPartner.Runtime
         {
             uiManager = manager;
             chatView = chatCanvasGroup;
+            ResolveUiFont();
             llmRelay = UnityEngine.Object.FindFirstObjectByType<LlmRelay>();
             stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
             speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
@@ -79,6 +79,15 @@ namespace VirtualPartner.Runtime
             memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
             EnsureSubscriptions();
             EnsureChatUi();
+        }
+
+        public void SetUiFont(Font font)
+        {
+            if (font == null)
+                return;
+
+            uiFont = font;
+            ApplyFontToExistingTexts();
         }
 
         private void OnDestroy()
@@ -656,6 +665,8 @@ namespace VirtualPartner.Runtime
             if (chatView == null)
                 return;
 
+            ResolveUiFont();
+
             var chatRoot = chatView.transform as RectTransform;
             if (chatRoot == null)
                 return;
@@ -686,8 +697,8 @@ namespace VirtualPartner.Runtime
 
             scrollObject.anchorMin = Vector2.zero;
             scrollObject.anchorMax = Vector2.one;
-            scrollObject.offsetMin = new Vector2(24f, 112f);
-            scrollObject.offsetMax = new Vector2(-24f, -132f);
+            scrollObject.offsetMin = new Vector2(36f, 128f);
+            scrollObject.offsetMax = new Vector2(-36f, -132f);
             var inputBar = chatRoot.Find("InputBar");
             scrollObject.SetSiblingIndex(inputBar != null ? inputBar.GetSiblingIndex() : chatRoot.childCount - 1);
             if (inputBar != null)
@@ -727,8 +738,8 @@ namespace VirtualPartner.Runtime
             scrollContent.sizeDelta = new Vector2(0f, 0f);
 
             var layout = scrollContent.GetComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(20, 20, 24, 24);
-            layout.spacing = 22f;
+            layout.padding = new RectOffset(12, 12, 28, 34);
+            layout.spacing = 36f;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
@@ -748,104 +759,60 @@ namespace VirtualPartner.Runtime
 
         private void EnsureInputBar(RectTransform chatRoot)
         {
-            var inputBar = chatRoot.Find("InputBar") as RectTransform;
+            var inputBar = MomotalkInputBarLayout.EnsureBar(chatRoot);
             if (inputBar == null)
                 return;
 
-            var inputRoot = inputBar.Find("DisabledInputField") as RectTransform;
-            if (inputRoot == null)
+            var elements = MomotalkInputBarLayout.Apply(inputBar, ResolveUiFont());
+            if (elements == null || elements.InputField == null || elements.InputText == null)
                 return;
 
-            inputField = inputRoot.GetComponent<InputField>();
-            if (inputField == null)
-                inputField = inputRoot.gameObject.AddComponent<InputField>();
-
-            var textTransform = inputRoot.Find("InputText") as RectTransform;
-            if (textTransform == null)
-            {
-                textTransform = new GameObject("InputText", typeof(RectTransform), typeof(Text)).GetComponent<RectTransform>();
-                textTransform.SetParent(inputRoot, false);
-            }
-
-            textTransform.anchorMin = Vector2.zero;
-            textTransform.anchorMax = Vector2.one;
-            textTransform.offsetMin = new Vector2(16f, 0f);
-            textTransform.offsetMax = new Vector2(-16f, 0f);
-            var inputText = textTransform.GetComponent<Text>();
-            inputText.alignment = TextAnchor.MiddleLeft;
-            inputText.color = new Color(0.16f, 0.2f, 0.26f, 1f);
-            inputText.fontSize = 25;
-            inputText.raycastTarget = false;
-
-            var placeholder = inputRoot.Find("Placeholder") != null
-                ? inputRoot.Find("Placeholder").GetComponent<Text>()
-                : null;
-            if (placeholder != null)
-            {
-                placeholder.text = "Aa";
-                placeholder.color = new Color(0.55f, 0.57f, 0.64f, 0.75f);
-                placeholder.raycastTarget = false;
-                if (placeholder.font != null)
-                    uiFont = placeholder.font;
-            }
-
-            inputField.textComponent = inputText;
-            inputField.placeholder = placeholder;
+            inputField = elements.InputField;
+            inputField.textComponent = elements.InputText;
+            inputField.placeholder = elements.Placeholder;
             inputField.contentType = InputField.ContentType.Standard;
             inputField.lineType = InputField.LineType.SingleLine;
             inputField.interactable = true;
             inputField.onSubmit.RemoveListener(HandleInputSubmit);
             inputField.onSubmit.AddListener(HandleInputSubmit);
 
-            var inputGraphic = inputRoot.GetComponent<Image>();
-            if (inputGraphic != null)
+            if (elements.InputBackground != null)
             {
-                inputGraphic.raycastTarget = true;
-                inputField.targetGraphic = inputGraphic;
+                elements.InputBackground.raycastTarget = true;
+                inputField.targetGraphic = elements.InputBackground;
             }
 
-            if (uiFont != null)
-                inputText.font = uiFont;
-            inputText.supportRichText = false;
-            inputText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            inputText.verticalOverflow = VerticalWrapMode.Truncate;
-            inputText.text = inputField.text;
+            ApplyTextFont(elements.InputText);
+            elements.InputText.text = inputField.text;
 
-            var sendTransform = inputBar.Find("SendIcon");
-            if (sendTransform != null)
+            sendButton = elements.SendButton;
+            if (sendButton != null)
             {
-                sendButton = sendTransform.GetComponent<Button>();
-                if (sendButton == null)
-                    sendButton = sendTransform.gameObject.AddComponent<Button>();
-                var sendGraphic = sendTransform.GetComponent<Graphic>();
-                if (sendGraphic != null)
+                if (elements.SendGraphic != null)
                 {
-                    sendGraphic.raycastTarget = true;
-                    sendButton.targetGraphic = sendGraphic;
+                    elements.SendGraphic.raycastTarget = true;
+                    elements.SendGraphic.color = Color.white;
+                    sendButton.targetGraphic = elements.SendGraphic;
                 }
+
                 sendButton.onClick.RemoveListener(SendCurrentInput);
                 sendButton.onClick.AddListener(SendCurrentInput);
             }
 
-            var micTransform = inputBar.Find("MicIcon");
-            if (micTransform != null)
+            micButton = elements.MicButton;
+            micGraphic = elements.MicGraphic;
+            if (micButton != null && micGraphic != null)
             {
-                micButton = micTransform.GetComponent<Button>();
-                if (micButton == null)
-                    micButton = micTransform.gameObject.AddComponent<Button>();
-                micGraphic = micTransform.GetComponent<Graphic>();
-                if (micGraphic != null)
+                micButton.transition = Selectable.Transition.None;
+                if (!micDefaultColorCaptured)
                 {
-                    if (!micDefaultColorCaptured)
-                    {
-                        micDefaultColor = micGraphic.color;
-                        micDefaultColorCaptured = true;
-                    }
-
-                    micGraphic.raycastTarget = true;
-                    micButton.targetGraphic = micGraphic;
+                    micDefaultColor = Color.white;
+                    micDefaultColorCaptured = true;
                 }
 
+                micGraphic.color = micDefaultColor;
+                micGraphic.raycastTarget = true;
+                micButton.targetGraphic = micGraphic;
                 micButton.onClick.RemoveListener(StartVoiceMode);
                 micButton.onClick.AddListener(StartVoiceMode);
             }
@@ -876,7 +843,8 @@ namespace VirtualPartner.Runtime
 
             voiceModeView = panel.GetComponent<CanvasGroup>();
             voiceModeBackground = panel.GetComponent<Image>();
-            voiceModeBackground.color = new Color(0.96f, 0.98f, 1f, 0.96f);
+            MomotalkUIStyle.ApplyRounded(voiceModeBackground, new Color(0.96f, 0.98f, 1f, 0.96f), 18, true);
+            MomotalkUIStyle.ApplySoftShadow(voiceModeBackground, new Color(0.18f, 0.23f, 0.32f, 0.12f), new Vector2(0f, -4f));
             voiceModeBackground.raycastTarget = true;
 
             voiceModeStatusText = EnsurePanelText(panel, "Status", 26, TextAnchor.MiddleLeft, new Vector2(24f, 48f), new Vector2(-160f, 92f));
@@ -896,7 +864,7 @@ namespace VirtualPartner.Runtime
             cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 122f);
             cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 54f);
             var cancelImage = cancelRect.GetComponent<Image>();
-            cancelImage.color = new Color(0.88f, 0.91f, 0.96f, 1f);
+            MomotalkUIStyle.ApplyRounded(cancelImage, new Color(0.88f, 0.91f, 0.96f, 1f), 16, true);
             voiceCancelButton = cancelRect.GetComponent<Button>();
             voiceCancelButton.targetGraphic = cancelImage;
             voiceCancelButton.onClick.RemoveListener(CancelOrCloseVoiceMode);
@@ -921,15 +889,9 @@ namespace VirtualPartner.Runtime
             textRect.offsetMin = offsetMin;
             textRect.offsetMax = offsetMax;
             var text = textRect.GetComponent<Text>();
-            text.alignment = alignment;
-            text.fontSize = fontSize;
-            text.color = new Color(0.16f, 0.2f, 0.26f, 1f);
-            text.raycastTarget = false;
-            text.supportRichText = false;
+            MomotalkUIStyle.ApplyText(text, fontSize, MomotalkUIStyle.TextPrimary, alignment, ResolveUiFont());
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
-            if (uiFont != null)
-                text.font = uiFont;
             return text;
         }
 
@@ -1015,7 +977,7 @@ namespace VirtualPartner.Runtime
             if (micButton != null)
                 micButton.interactable = !active;
             if (micGraphic != null)
-                micGraphic.color = active ? new Color(0.38f, 0.65f, 1f, 1f) : micDefaultColor;
+                micGraphic.color = micDefaultColor;
         }
 
         private MomotalkChatMessageView CreateTypingView(int requestId, Sprite avatar)
@@ -1028,12 +990,13 @@ namespace VirtualPartner.Runtime
             var textRect = text.GetComponent<RectTransform>();
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(22f, 12f);
-            textRect.offsetMax = new Vector2(-22f, -12f);
+            textRect.offsetMin = new Vector2(20f, 20f);
+            textRect.offsetMax = new Vector2(-20f, -20f);
             text.alignment = TextAnchor.MiddleLeft;
-            if (uiFont != null)
-                text.font = uiFont;
+            ApplyTextFont(text);
             text.fontSize = 32;
+            text.supportRichText = false;
+            text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
 
@@ -1086,19 +1049,20 @@ namespace VirtualPartner.Runtime
             if (!isUser && !isSystem)
                 avatarImage = CreateAvatar(row.transform, avatar);
 
-            var width = isSystem ? 650f : Mathf.Clamp((record.text != null ? record.text.Length : 0) * 22f + 104f, 180f, 620f);
+            var width = isSystem ? 650f : Mathf.Clamp((record.text != null ? record.text.Length : 0) * 22f + 132f, 210f, 620f);
             var bubble = CreateBubble(row.transform, width, MessageBubbleMinHeight, false);
             var text = new GameObject("Text", typeof(RectTransform), typeof(Text), typeof(ContentSizeFitter)).GetComponent<Text>();
             text.transform.SetParent(bubble.transform, false);
             var textRect = text.GetComponent<RectTransform>();
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(26f, 14f);
-            textRect.offsetMax = new Vector2(-26f, -14f);
+            textRect.offsetMin = new Vector2(20f, 20f);
+            textRect.offsetMax = new Vector2(-20f, -20f);
             text.alignment = isSystem ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
-            if (uiFont != null)
-                text.font = uiFont;
+            ApplyTextFont(text);
             text.fontSize = isSystem ? 25 : 32;
+            text.supportRichText = false;
+            text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
 
@@ -1146,8 +1110,54 @@ namespace VirtualPartner.Runtime
             layout.preferredWidth = width;
             layout.minHeight = minHeight;
             bubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-            bubble.GetComponent<Image>().type = Image.Type.Sliced;
+            var image = bubble.GetComponent<Image>();
+            var sprite = typing
+                ? MomotalkUIStyle.Texture("chat_bubble_left.png", 18f)
+                : MomotalkUIStyle.Texture("chat_bubble_right.png", 18f);
+            MomotalkUIStyle.ApplySliced(image, sprite, Color.white, false);
             return bubble;
+        }
+
+        private Font ResolveUiFont()
+        {
+            if (uiFont != null)
+                return uiFont;
+
+            var chatText = chatView != null ? chatView.GetComponentInChildren<Text>(true) : null;
+            if (chatText != null && chatText.font != null)
+            {
+                uiFont = chatText.font;
+                return uiFont;
+            }
+
+            var rootText = GetComponentInChildren<Text>(true);
+            if (rootText != null && rootText.font != null)
+                uiFont = rootText.font;
+
+            return uiFont;
+        }
+
+        private void ApplyTextFont(Text text)
+        {
+            if (text == null)
+                return;
+
+            var font = ResolveUiFont();
+            if (font != null)
+                text.font = font;
+        }
+
+        private void ApplyFontToExistingTexts()
+        {
+            if (chatView == null || uiFont == null)
+                return;
+
+            var texts = chatView.GetComponentsInChildren<Text>(true);
+            for (var i = 0; i < texts.Length; i++)
+            {
+                if (texts[i] != null)
+                    texts[i].font = uiFont;
+            }
         }
 
         private void ClearMessages()
