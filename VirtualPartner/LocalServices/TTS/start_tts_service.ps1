@@ -8,11 +8,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$WrapperRoot = $ScriptRoot
+$ProjectRoot = (Resolve-Path (Join-Path $ScriptRoot "..\..\..")).Path
 $GptRoot = "F:\Project\TTS\GPT-SoVITS"
 $GptStartScript = Join-Path $GptRoot "start.ps1"
 $RuntimePython = Join-Path $GptRoot "Runtime\python.exe"
-$WrapperRoot = Join-Path $ProjectRoot "VirtualPartner\LocalServices\TTS"
 $WrapperScript = Join-Path $WrapperRoot "tts_service.py"
 $WrapperLogs = Join-Path $WrapperRoot "logs"
 $WrapperOutLog = Join-Path $WrapperLogs "tts_wrapper.out.log"

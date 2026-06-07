@@ -1101,6 +1101,23 @@ private void BuildClearMemoryRow(RectTransform root, float y)
                 && string.Equals(selectedContext.CharacterId, characterId, System.StringComparison.OrdinalIgnoreCase);
         }
 
+        // Forwarded runtime dependency injection from VirtualPartnerStage1Bootstrap
+        // (composition root) into the owned conversation controller.
+        public void BindConversationRuntime(
+            LlmRelay llmRelay,
+            StagePlanPlayer stagePlanPlayer,
+            SpeechBubbleView speechBubbleView,
+            AsrManager asrManager,
+            MemorySystem memorySystem)
+        {
+            if (conversationController == null)
+                conversationController = GetComponent<MomotalkConversationController>();
+            if (conversationController == null)
+                return;
+
+            conversationController.ConfigureRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem);
+        }
+
         private void HandleConversationContactsChanged()
         {
             if (visiblePage == MomotalkPage.ContactList && contactListView != null && contactListView.gameObject.activeInHierarchy)

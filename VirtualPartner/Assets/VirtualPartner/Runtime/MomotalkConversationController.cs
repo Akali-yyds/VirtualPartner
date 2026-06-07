@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace VirtualPartner.Runtime
 {
@@ -13,16 +12,14 @@ namespace VirtualPartner.Runtime
 
     public sealed class MomotalkConversationController : MonoBehaviour
     {
-        private const float ChatAvatarSize = 104f;
-        private const float MessageRowHeight = 118f;
-        private const float MessageBubbleMinHeight = 84f;
-        private const float TypingBubbleWidth = 136f;
-        private const float TypingBubbleMinHeight = 76f;
         private readonly MomotalkHistoryStore historyStore = new MomotalkHistoryStore();
         private readonly Dictionary<int, MomotalkChatMessageView> typingViews = new Dictionary<int, MomotalkChatMessageView>();
         private readonly Dictionary<int, string> requestCharacterIds = new Dictionary<int, string>();
         private readonly Dictionary<string, int> unreadCounts = new Dictionary<string, int>();
         private readonly HashSet<int> clearedRequestIds = new HashSet<int>();
+
+        private readonly MomotalkChatView chat = new MomotalkChatView();
+        private readonly MomotalkVoiceModeView voiceMode = new MomotalkVoiceModeView();
 
         private MomotalkUIManager uiManager;
         private LlmRelay llmRelay;
@@ -32,22 +29,7 @@ namespace VirtualPartner.Runtime
         private MemorySystem memorySystem;
         private CanvasGroup chatView;
         private CharacterRuntimeContext currentContext;
-        private RectTransform scrollContent;
-        private ScrollRect scrollRect;
-        private InputField inputField;
-        private Button sendButton;
-        private Button micButton;
-        private Button voiceCancelButton;
-        private CanvasGroup voiceModeView;
-        private Text voiceModeStatusText;
-        private Text voiceModeBodyText;
-        private Text voiceModeCancelText;
-        private Image voiceModeBackground;
-        private Graphic micGraphic;
-        private Font uiFont;
-        private Color micDefaultColor = Color.white;
-        private bool micDefaultColorCaptured;
-        private Coroutine hideVoiceModeRoutine;
+        private bool viewsConfigured;
         private bool subscribedToLlmRelay;
         private bool subscribedToStagePlanPlayer;
         private bool subscribedToAsrManager;
@@ -71,14 +53,27 @@ namespace VirtualPartner.Runtime
         {
             uiManager = manager;
             chatView = chatCanvasGroup;
-            ResolveUiFont();
-            llmRelay = UnityEngine.Object.FindFirstObjectByType<LlmRelay>();
-            stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
-            speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
-            asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
-            memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
+            EnsureViewsConfigured();
             EnsureSubscriptions();
-            EnsureChatUi();
+            chat.RefreshMicInteractable(asrManager != null && asrManager.Active);
+        }
+
+        // Composition-root injection (VirtualPartnerStage1Bootstrap). Replaces the
+        // previous FindFirstObjectByType lookups so dependencies are explicit.
+        public void ConfigureRuntime(
+            LlmRelay relay,
+            StagePlanPlayer player,
+            SpeechBubbleView speechBubble,
+            AsrManager asr,
+            MemorySystem memory)
+        {
+            llmRelay = relay;
+            stagePlanPlayer = player;
+            speechBubbleView = speechBubble;
+            asrManager = asr;
+            memorySystem = memory;
+            EnsureSubscriptions();
+            chat.RefreshMicInteractable(asrManager != null && asrManager.Active);
         }
 
         public void SetUiFont(Font font)
@@ -86,20 +81,39 @@ namespace VirtualPartner.Runtime
             if (font == null)
                 return;
 
-            uiFont = font;
-            ApplyFontToExistingTexts();
+            chat.SetUiFont(font);
+            voiceMode.SetUiFont(font);
+        }
+
+        private void EnsureViewsConfigured()
+        {
+            if (chatView == null)
+                return;
+
+            chat.Configure(chatView, this);
+            if (!viewsConfigured)
+            {
+                chat.SendRequested += SendCurrentInput;
+                chat.MicRequested += StartVoiceMode;
+                voiceMode.CancelRequested += CancelOrCloseVoiceMode;
+                viewsConfigured = true;
+            }
+
+            voiceMode.Configure(chat.ChatRoot, chat.InputBar, chat.ResolveUiFont(), this);
         }
 
         private void OnDestroy()
         {
-            if (sendButton != null)
-                sendButton.onClick.RemoveListener(SendCurrentInput);
-            if (inputField != null)
-                inputField.onSubmit.RemoveListener(HandleInputSubmit);
-            if (micButton != null)
-                micButton.onClick.RemoveListener(StartVoiceMode);
-            if (voiceCancelButton != null)
-                voiceCancelButton.onClick.RemoveListener(CancelOrCloseVoiceMode);
+            if (viewsConfigured)
+            {
+                chat.SendRequested -= SendCurrentInput;
+                chat.MicRequested -= StartVoiceMode;
+                voiceMode.CancelRequested -= CancelOrCloseVoiceMode;
+            }
+
+            chat.Teardown();
+            voiceMode.Teardown();
+
             if (llmRelay != null && subscribedToLlmRelay)
                 llmRelay.RequestFailed -= HandleLlmRequestFailed;
             if (stagePlanPlayer != null && subscribedToStagePlanPlayer)
@@ -113,7 +127,7 @@ namespace VirtualPartner.Runtime
 
         private void Update()
         {
-            if (asrManager != null && asrManager.Active && voiceModeView != null && voiceModeView.alpha > 0f)
+            if (asrManager != null && asrManager.Active && voiceMode.IsVisible)
                 RefreshVoiceModeFromAsr();
         }
 
@@ -127,21 +141,22 @@ namespace VirtualPartner.Runtime
         {
             currentContext = context;
             typingViews.Clear();
-            EnsureChatUi();
-            ClearMessages();
+            EnsureViewsConfigured();
+            chat.ClearMessages();
 
             var characterId = GetCharacterId(context);
             if (string.IsNullOrWhiteSpace(characterId))
                 return;
 
             ClearUnread(characterId);
+            var avatar = context != null && context.Profile != null ? context.Profile.AvatarIcon : null;
             var messages = historyStore.LoadRecent(characterId);
             for (var i = 0; i < messages.Count; i++)
-                CreateMessageView(messages[i], context != null && context.Profile != null ? context.Profile.AvatarIcon : null);
+                chat.CreateMessageView(messages[i], avatar);
 
-            RebuildPendingTypingViews(characterId, context != null && context.Profile != null ? context.Profile.AvatarIcon : null, messages);
-            ScrollToBottom();
-            FocusInputField();
+            RebuildPendingTypingViews(characterId, avatar, messages);
+            chat.ScrollToBottom();
+            chat.FocusInput();
             ContactsChanged?.Invoke();
             Debug.Log($"[VirtualPartner] Momotalk history path: {historyStore.GetPath(characterId)}", this);
         }
@@ -169,7 +184,7 @@ namespace VirtualPartner.Runtime
             ClearUnread(characterId);
 
             if (IsLoadedConversation(characterId))
-                ClearMessages();
+                chat.ClearMessages();
 
             ContactsChanged?.Invoke();
         }
@@ -179,9 +194,6 @@ namespace VirtualPartner.Runtime
             var characterId = GetCharacterId(context);
             if (string.IsNullOrWhiteSpace(characterId))
                 return;
-
-            if (memorySystem == null)
-                memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
 
             if (memorySystem == null)
                 return;
@@ -223,12 +235,12 @@ namespace VirtualPartner.Runtime
 
         private void SendCurrentInput()
         {
-            if (inputField == null || currentContext == null)
+            if (currentContext == null)
                 return;
 
             EnsureSubscriptions();
 
-            var text = inputField.text == null ? string.Empty : inputField.text.Trim();
+            var text = chat.InputText == null ? string.Empty : chat.InputText.Trim();
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
@@ -242,10 +254,10 @@ namespace VirtualPartner.Runtime
 
             var userRecord = MomotalkHistoryStore.CreateMessage("user", text, "sent", submit != null ? submit.RequestId : 0, -1, -1);
             historyStore.Append(characterId, userRecord);
-            CreateMessageView(userRecord, avatar);
+            chat.CreateMessageView(userRecord, avatar);
 
-            inputField.text = string.Empty;
-            FocusInputField();
+            chat.InputText = string.Empty;
+            chat.FocusInput();
 
             if (submit == null)
             {
@@ -268,25 +280,20 @@ namespace VirtualPartner.Runtime
                 memorySystem.RegisterUserMessage(characterId, submit.RequestId, text);
             }
             ReplaceStaleTypingViews(submit.RequestId);
-            var typingView = CreateTypingView(submit.RequestId, avatar);
+            var typingView = chat.CreateTypingView(submit.RequestId, avatar);
             typingViews[submit.RequestId] = typingView;
             ContactsChanged?.Invoke();
-            ScrollToBottom();
-        }
-
-        private void HandleInputSubmit(string text)
-        {
-            SendCurrentInput();
+            chat.ScrollToBottom();
         }
 
         private void StartVoiceMode()
         {
             EnsureSubscriptions();
-            EnsureChatUi();
+            EnsureViewsConfigured();
 
             if (asrManager == null)
             {
-                ShowVoiceMode("ASR unavailable", "ASR manager is missing.", true);
+                voiceMode.Show("ASR unavailable", "ASR manager is missing.", true);
                 return;
             }
 
@@ -296,10 +303,10 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            ShowVoiceMode("Listening", "Starting voice input...", false);
+            voiceMode.Show("Listening", "Starting voice input...", false);
             if (!asrManager.StartRecognition(out var failureReason))
             {
-                ShowVoiceMode("ASR unavailable", failureReason, true);
+                voiceMode.Show("ASR unavailable", failureReason, true);
                 return;
             }
 
@@ -314,7 +321,8 @@ namespace VirtualPartner.Runtime
                 return;
             }
 
-            HideVoiceMode();
+            voiceMode.Hide();
+            chat.RefreshMicInteractable(asrManager != null && asrManager.Active);
         }
 
         private void HandleAsrRecognitionFinished(AsrRecognitionResult result)
@@ -328,15 +336,15 @@ namespace VirtualPartner.Runtime
                     HandleAsrDone(result);
                     break;
                 case AsrRecognitionStatus.Error:
-                    ShowVoiceMode("ASR error", string.IsNullOrWhiteSpace(result.Error) ? "ASR failed." : result.Error, true);
+                    voiceMode.Show("ASR error", string.IsNullOrWhiteSpace(result.Error) ? "ASR failed." : result.Error, true);
                     break;
                 case AsrRecognitionStatus.Canceled:
-                    ShowVoiceMode("Canceled", "Voice input canceled.", false);
-                    ScheduleVoiceModeHide(0.5f);
+                    voiceMode.Show("Canceled", "Voice input canceled.", false);
+                    voiceMode.ScheduleHide(0.5f);
                     break;
             }
 
-            RefreshMicButtonState();
+            chat.RefreshMicInteractable(asrManager != null && asrManager.Active);
         }
 
         private void HandleAsrDone(AsrRecognitionResult result)
@@ -344,24 +352,23 @@ namespace VirtualPartner.Runtime
             var recognizedText = result.Text == null ? string.Empty : result.Text.Trim();
             if (string.IsNullOrWhiteSpace(recognizedText))
             {
-                ShowVoiceMode("No speech recognized", "No speech recognized.", true);
+                voiceMode.Show("No speech recognized", "No speech recognized.", true);
                 return;
             }
 
-            if (inputField != null)
-                inputField.text = recognizedText;
+            chat.InputText = recognizedText;
 
             if (result.ResultMode == AsrResultMode.AutoSendToLlm)
             {
-                ShowVoiceMode("Done", "Sending recognized text...", false);
+                voiceMode.Show("Done", "Sending recognized text...", false);
                 SendCurrentInput();
-                ScheduleVoiceModeHide(0.75f);
+                voiceMode.ScheduleHide(0.75f);
                 return;
             }
 
-            ShowVoiceMode("Done", recognizedText, false);
-            FocusInputField();
-            ScheduleVoiceModeHide(0.75f);
+            voiceMode.Show("Done", recognizedText, false);
+            chat.FocusInput();
+            voiceMode.ScheduleHide(0.75f);
         }
 
         private void HandleLlmRequestFailed(LlmRequestFailure failure)
@@ -419,10 +426,10 @@ namespace VirtualPartner.Runtime
                 }
                 else
                 {
-                    CreateMessageView(record, avatar);
+                    chat.CreateMessageView(record, avatar);
                 }
 
-                ScrollToBottom();
+                chat.ScrollToBottom();
             }
 
             if (uiManager == null || !uiManager.IsCurrentChatVisible(characterId))
@@ -482,7 +489,7 @@ namespace VirtualPartner.Runtime
                 requestCharacterIds.Remove(requestId);
                 if (save)
                     historyStore.Append(characterId, record);
-                ScrollToBottom();
+                chat.ScrollToBottom();
                 ContactsChanged?.Invoke();
                 return;
             }
@@ -501,8 +508,8 @@ namespace VirtualPartner.Runtime
                 requestCharacterIds.Remove(requestId);
             if (IsLoadedConversation(characterId))
             {
-                CreateMessageView(record, null);
-                ScrollToBottom();
+                chat.CreateMessageView(record, null);
+                chat.ScrollToBottom();
             }
 
             ContactsChanged?.Invoke();
@@ -531,7 +538,7 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < pendingRequestIds.Count; i++)
             {
                 var requestId = pendingRequestIds[i];
-                typingViews[requestId] = CreateTypingView(requestId, avatar);
+                typingViews[requestId] = chat.CreateTypingView(requestId, avatar);
             }
         }
 
@@ -629,17 +636,6 @@ namespace VirtualPartner.Runtime
 
         private void EnsureSubscriptions()
         {
-            if (llmRelay == null)
-                llmRelay = UnityEngine.Object.FindFirstObjectByType<LlmRelay>();
-            if (stagePlanPlayer == null)
-                stagePlanPlayer = UnityEngine.Object.FindFirstObjectByType<StagePlanPlayer>();
-            if (speechBubbleView == null)
-                speechBubbleView = UnityEngine.Object.FindFirstObjectByType<SpeechBubbleView>();
-            if (asrManager == null)
-                asrManager = UnityEngine.Object.FindFirstObjectByType<AsrManager>();
-            if (memorySystem == null)
-                memorySystem = UnityEngine.Object.FindFirstObjectByType<MemorySystem>();
-
             if (llmRelay != null && !subscribedToLlmRelay)
             {
                 llmRelay.RequestFailed += HandleLlmRequestFailed;
@@ -660,296 +656,6 @@ namespace VirtualPartner.Runtime
             }
         }
 
-        private void EnsureChatUi()
-        {
-            if (chatView == null)
-                return;
-
-            ResolveUiFont();
-
-            var chatRoot = chatView.transform as RectTransform;
-            if (chatRoot == null)
-                return;
-
-            var emptyArea = chatRoot.Find("EmptyMessageArea");
-            if (emptyArea != null)
-                emptyArea.gameObject.SetActive(false);
-            var profileRow = chatRoot.Find("ProfileRow");
-            if (profileRow != null)
-                profileRow.gameObject.SetActive(false);
-
-            EnsureScrollView(chatRoot);
-            EnsureInputBar(chatRoot);
-            RefreshMicButtonState();
-        }
-
-        private void EnsureScrollView(RectTransform chatRoot)
-        {
-            if (scrollRect != null && scrollContent != null)
-                return;
-
-            var scrollObject = chatRoot.Find("MessageScrollView") as RectTransform;
-            if (scrollObject == null)
-            {
-                scrollObject = new GameObject("MessageScrollView", typeof(RectTransform), typeof(Image), typeof(ScrollRect)).GetComponent<RectTransform>();
-                scrollObject.SetParent(chatRoot, false);
-            }
-
-            scrollObject.anchorMin = Vector2.zero;
-            scrollObject.anchorMax = Vector2.one;
-            scrollObject.offsetMin = new Vector2(36f, 128f);
-            scrollObject.offsetMax = new Vector2(-36f, -132f);
-            var inputBar = chatRoot.Find("InputBar");
-            scrollObject.SetSiblingIndex(inputBar != null ? inputBar.GetSiblingIndex() : chatRoot.childCount - 1);
-            if (inputBar != null)
-                inputBar.SetAsLastSibling();
-
-            var background = scrollObject.GetComponent<Image>();
-            background.color = new Color(1f, 1f, 1f, 0f);
-            background.raycastTarget = true;
-
-            var viewport = scrollObject.Find("Viewport") as RectTransform;
-            if (viewport == null)
-            {
-                viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask)).GetComponent<RectTransform>();
-                viewport.SetParent(scrollObject, false);
-            }
-
-            viewport.anchorMin = Vector2.zero;
-            viewport.anchorMax = Vector2.one;
-            viewport.offsetMin = Vector2.zero;
-            viewport.offsetMax = Vector2.zero;
-            var viewportImage = viewport.GetComponent<Image>();
-            viewportImage.color = Color.white;
-            viewportImage.raycastTarget = false;
-            viewport.GetComponent<Mask>().showMaskGraphic = false;
-
-            scrollContent = viewport.Find("Content") as RectTransform;
-            if (scrollContent == null)
-            {
-                scrollContent = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter)).GetComponent<RectTransform>();
-                scrollContent.SetParent(viewport, false);
-            }
-
-            scrollContent.anchorMin = new Vector2(0f, 1f);
-            scrollContent.anchorMax = new Vector2(1f, 1f);
-            scrollContent.pivot = new Vector2(0.5f, 1f);
-            scrollContent.anchoredPosition = Vector2.zero;
-            scrollContent.sizeDelta = new Vector2(0f, 0f);
-
-            var layout = scrollContent.GetComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 12, 28, 34);
-            layout.spacing = 36f;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            var fitter = scrollContent.GetComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            scrollRect = scrollObject.GetComponent<ScrollRect>();
-            scrollRect.viewport = viewport;
-            scrollRect.content = scrollContent;
-            scrollRect.horizontal = false;
-            scrollRect.vertical = true;
-            scrollRect.movementType = ScrollRect.MovementType.Clamped;
-        }
-
-        private void EnsureInputBar(RectTransform chatRoot)
-        {
-            var inputBar = MomotalkInputBarLayout.EnsureBar(chatRoot);
-            if (inputBar == null)
-                return;
-
-            var elements = MomotalkInputBarLayout.Apply(inputBar, ResolveUiFont());
-            if (elements == null || elements.InputField == null || elements.InputText == null)
-                return;
-
-            inputField = elements.InputField;
-            inputField.textComponent = elements.InputText;
-            inputField.placeholder = elements.Placeholder;
-            inputField.contentType = InputField.ContentType.Standard;
-            inputField.lineType = InputField.LineType.SingleLine;
-            inputField.interactable = true;
-            inputField.onSubmit.RemoveListener(HandleInputSubmit);
-            inputField.onSubmit.AddListener(HandleInputSubmit);
-
-            if (elements.InputBackground != null)
-            {
-                elements.InputBackground.raycastTarget = true;
-                inputField.targetGraphic = elements.InputBackground;
-            }
-
-            ApplyTextFont(elements.InputText);
-            elements.InputText.text = inputField.text;
-
-            sendButton = elements.SendButton;
-            if (sendButton != null)
-            {
-                if (elements.SendGraphic != null)
-                {
-                    elements.SendGraphic.raycastTarget = true;
-                    elements.SendGraphic.color = Color.white;
-                    sendButton.targetGraphic = elements.SendGraphic;
-                }
-
-                sendButton.onClick.RemoveListener(SendCurrentInput);
-                sendButton.onClick.AddListener(SendCurrentInput);
-            }
-
-            micButton = elements.MicButton;
-            micGraphic = elements.MicGraphic;
-            if (micButton != null && micGraphic != null)
-            {
-                micButton.transition = Selectable.Transition.None;
-                if (!micDefaultColorCaptured)
-                {
-                    micDefaultColor = Color.white;
-                    micDefaultColorCaptured = true;
-                }
-
-                micGraphic.color = micDefaultColor;
-                micGraphic.raycastTarget = true;
-                micButton.targetGraphic = micGraphic;
-                micButton.onClick.RemoveListener(StartVoiceMode);
-                micButton.onClick.AddListener(StartVoiceMode);
-            }
-
-            EnsureVoiceModePanel(chatRoot, inputBar);
-            RefreshMicButtonState();
-        }
-
-        private void EnsureVoiceModePanel(RectTransform chatRoot, RectTransform inputBar)
-        {
-            if (voiceModeView != null)
-                return;
-
-            var panel = chatRoot.Find("VoiceModePanel") as RectTransform;
-            if (panel == null)
-            {
-                panel = new GameObject("VoiceModePanel", typeof(RectTransform), typeof(CanvasGroup), typeof(Image)).GetComponent<RectTransform>();
-                panel.SetParent(chatRoot, false);
-            }
-
-            panel.anchorMin = new Vector2(0f, 0f);
-            panel.anchorMax = new Vector2(1f, 0f);
-            panel.pivot = new Vector2(0.5f, 0f);
-            panel.offsetMin = new Vector2(44f, 118f);
-            panel.offsetMax = new Vector2(-44f, 218f);
-            if (inputBar != null)
-                panel.SetSiblingIndex(inputBar.GetSiblingIndex());
-
-            voiceModeView = panel.GetComponent<CanvasGroup>();
-            voiceModeBackground = panel.GetComponent<Image>();
-            MomotalkUIStyle.ApplyRounded(voiceModeBackground, new Color(0.96f, 0.98f, 1f, 0.96f), 18, true);
-            MomotalkUIStyle.ApplySoftShadow(voiceModeBackground, new Color(0.18f, 0.23f, 0.32f, 0.12f), new Vector2(0f, -4f));
-            voiceModeBackground.raycastTarget = true;
-
-            voiceModeStatusText = EnsurePanelText(panel, "Status", 26, TextAnchor.MiddleLeft, new Vector2(24f, 48f), new Vector2(-160f, 92f));
-            voiceModeBodyText = EnsurePanelText(panel, "Body", 22, TextAnchor.MiddleLeft, new Vector2(24f, 10f), new Vector2(-160f, 52f));
-
-            var cancelRect = panel.Find("CancelButton") as RectTransform;
-            if (cancelRect == null)
-            {
-                cancelRect = new GameObject("CancelButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(MomotalkUIButtonFeedback)).GetComponent<RectTransform>();
-                cancelRect.SetParent(panel, false);
-            }
-
-            cancelRect.anchorMin = new Vector2(1f, 0.5f);
-            cancelRect.anchorMax = new Vector2(1f, 0.5f);
-            cancelRect.pivot = new Vector2(1f, 0.5f);
-            cancelRect.anchoredPosition = new Vector2(-18f, 0f);
-            cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 122f);
-            cancelRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 54f);
-            var cancelImage = cancelRect.GetComponent<Image>();
-            MomotalkUIStyle.ApplyRounded(cancelImage, new Color(0.88f, 0.91f, 0.96f, 1f), 16, true);
-            voiceCancelButton = cancelRect.GetComponent<Button>();
-            voiceCancelButton.targetGraphic = cancelImage;
-            voiceCancelButton.onClick.RemoveListener(CancelOrCloseVoiceMode);
-            voiceCancelButton.onClick.AddListener(CancelOrCloseVoiceMode);
-
-            voiceModeCancelText = EnsurePanelText(cancelRect, "Text", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.zero);
-            voiceModeCancelText.text = "Cancel";
-            HideVoiceMode();
-        }
-
-        private Text EnsurePanelText(RectTransform parent, string name, int fontSize, TextAnchor alignment, Vector2 offsetMin, Vector2 offsetMax)
-        {
-            var textRect = parent.Find(name) as RectTransform;
-            if (textRect == null)
-            {
-                textRect = new GameObject(name, typeof(RectTransform), typeof(Text)).GetComponent<RectTransform>();
-                textRect.SetParent(parent, false);
-            }
-
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = offsetMin;
-            textRect.offsetMax = offsetMax;
-            var text = textRect.GetComponent<Text>();
-            MomotalkUIStyle.ApplyText(text, fontSize, MomotalkUIStyle.TextPrimary, alignment, ResolveUiFont());
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
-            return text;
-        }
-
-        private void ShowVoiceMode(string title, string body, bool error)
-        {
-            if (hideVoiceModeRoutine != null)
-            {
-                StopCoroutine(hideVoiceModeRoutine);
-                hideVoiceModeRoutine = null;
-            }
-
-            if (voiceModeView == null)
-                return;
-
-            voiceModeView.alpha = 1f;
-            voiceModeView.interactable = true;
-            voiceModeView.blocksRaycasts = true;
-            if (voiceModeStatusText != null)
-                voiceModeStatusText.text = title ?? string.Empty;
-            if (voiceModeBodyText != null)
-                voiceModeBodyText.text = body ?? string.Empty;
-            if (voiceModeCancelText != null)
-                voiceModeCancelText.text = error ? "Close" : "Cancel";
-            if (voiceModeBackground != null)
-                voiceModeBackground.color = error ? new Color(1f, 0.93f, 0.94f, 0.98f) : new Color(0.96f, 0.98f, 1f, 0.96f);
-        }
-
-        private void HideVoiceMode()
-        {
-            if (hideVoiceModeRoutine != null)
-            {
-                StopCoroutine(hideVoiceModeRoutine);
-                hideVoiceModeRoutine = null;
-            }
-
-            if (voiceModeView == null)
-                return;
-
-            voiceModeView.alpha = 0f;
-            voiceModeView.interactable = false;
-            voiceModeView.blocksRaycasts = false;
-            RefreshMicButtonState();
-        }
-
-        private void ScheduleVoiceModeHide(float delay)
-        {
-            if (hideVoiceModeRoutine != null)
-                StopCoroutine(hideVoiceModeRoutine);
-            hideVoiceModeRoutine = StartCoroutine(HideVoiceModeAfterDelay(delay));
-        }
-
-        private System.Collections.IEnumerator HideVoiceModeAfterDelay(float delay)
-        {
-            yield return new WaitForSeconds(Mathf.Max(0f, delay));
-            hideVoiceModeRoutine = null;
-            HideVoiceMode();
-        }
-
         private void RefreshVoiceModeFromAsr()
         {
             if (asrManager == null)
@@ -958,251 +664,17 @@ namespace VirtualPartner.Runtime
             switch (asrManager.Status)
             {
                 case AsrRecognitionStatus.Listening:
-                    ShowVoiceMode("Listening", "Listening for your voice...", false);
+                    voiceMode.Show("Listening", "Listening for your voice...", false);
                     break;
                 case AsrRecognitionStatus.Recognizing:
-                    ShowVoiceMode("Recognizing", "Recognizing speech...", false);
+                    voiceMode.Show("Recognizing", "Recognizing speech...", false);
                     break;
                 case AsrRecognitionStatus.Error:
-                    ShowVoiceMode("ASR error", asrManager.LatestError, true);
+                    voiceMode.Show("ASR error", asrManager.LatestError, true);
                     break;
             }
 
-            RefreshMicButtonState();
-        }
-
-        private void RefreshMicButtonState()
-        {
-            var active = asrManager != null && asrManager.Active;
-            if (micButton != null)
-                micButton.interactable = !active;
-            if (micGraphic != null)
-                micGraphic.color = micDefaultColor;
-        }
-
-        private MomotalkChatMessageView CreateTypingView(int requestId, Sprite avatar)
-        {
-            var row = CreateRow("TypingRow", TextAnchor.MiddleLeft);
-            var avatarImage = CreateAvatar(row.transform, avatar);
-            var bubble = CreateBubble(row.transform, TypingBubbleWidth, TypingBubbleMinHeight, true);
-            var text = new GameObject("Text", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
-            text.transform.SetParent(bubble.transform, false);
-            var textRect = text.GetComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(20f, 20f);
-            textRect.offsetMax = new Vector2(-20f, -20f);
-            text.alignment = TextAnchor.MiddleLeft;
-            ApplyTextFont(text);
-            text.fontSize = 32;
-            text.supportRichText = false;
-            text.raycastTarget = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-
-            var dots = new Image[3];
-            var dotsRoot = new GameObject("Dots", typeof(RectTransform), typeof(HorizontalLayoutGroup)).GetComponent<RectTransform>();
-            dotsRoot.SetParent(bubble.transform, false);
-            dotsRoot.anchorMin = Vector2.zero;
-            dotsRoot.anchorMax = Vector2.one;
-            dotsRoot.offsetMin = new Vector2(24f, 0f);
-            dotsRoot.offsetMax = new Vector2(-24f, 0f);
-            var dotsLayout = dotsRoot.GetComponent<HorizontalLayoutGroup>();
-            dotsLayout.childAlignment = TextAnchor.MiddleCenter;
-            dotsLayout.spacing = 10f;
-            dotsLayout.childControlWidth = true;
-            dotsLayout.childControlHeight = true;
-            dotsLayout.childForceExpandWidth = false;
-            dotsLayout.childForceExpandHeight = false;
-
-            for (var i = 0; i < dots.Length; i++)
-            {
-                var dot = new GameObject("Dot", typeof(RectTransform), typeof(Image), typeof(LayoutElement)).GetComponent<Image>();
-                dot.transform.SetParent(dotsRoot, false);
-                dot.sprite = MomotalkChatMessageView.GetCircleMaskSprite();
-                dot.type = Image.Type.Simple;
-                dot.color = new Color(0.78f, 0.80f, 0.86f, 0.8f);
-                dot.raycastTarget = false;
-                var dotLayout = dot.GetComponent<LayoutElement>();
-                dotLayout.minWidth = 14f;
-                dotLayout.minHeight = 14f;
-                dotLayout.preferredWidth = 14f;
-                dotLayout.preferredHeight = 14f;
-                dots[i] = dot;
-            }
-
-            var view = row.AddComponent<MomotalkChatMessageView>();
-            view.Initialize(avatarImage, bubble.GetComponent<Image>(), text, dots);
-            view.BindTyping(requestId, avatar);
-            return view;
-        }
-
-        private MomotalkChatMessageView CreateMessageView(MomotalkChatMessageRecord record, Sprite avatar)
-        {
-            if (record == null || scrollContent == null)
-                return null;
-
-            var isUser = record.sender == "user";
-            var isSystem = record.sender == "system";
-            var row = CreateRow(record.sender + "Row", isUser ? TextAnchor.MiddleRight : (isSystem ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft));
-            Image avatarImage = null;
-            if (!isUser && !isSystem)
-                avatarImage = CreateAvatar(row.transform, avatar);
-
-            var width = isSystem ? 650f : Mathf.Clamp((record.text != null ? record.text.Length : 0) * 22f + 132f, 210f, 620f);
-            var bubble = CreateBubble(row.transform, width, MessageBubbleMinHeight, false);
-            var text = new GameObject("Text", typeof(RectTransform), typeof(Text), typeof(ContentSizeFitter)).GetComponent<Text>();
-            text.transform.SetParent(bubble.transform, false);
-            var textRect = text.GetComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(20f, 20f);
-            textRect.offsetMax = new Vector2(-20f, -20f);
-            text.alignment = isSystem ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
-            ApplyTextFont(text);
-            text.fontSize = isSystem ? 25 : 32;
-            text.supportRichText = false;
-            text.raycastTarget = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-
-            var view = row.AddComponent<MomotalkChatMessageView>();
-            view.Initialize(avatarImage, bubble.GetComponent<Image>(), text, null);
-            view.Bind(record, avatar);
-            return view;
-        }
-
-        private GameObject CreateRow(string name, TextAnchor alignment)
-        {
-            var row = new GameObject(name, typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(scrollContent, false);
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = alignment;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = false;
-            layout.spacing = 18f;
-            var layoutElement = row.GetComponent<LayoutElement>();
-            layoutElement.minHeight = MessageRowHeight;
-            layoutElement.preferredHeight = MessageRowHeight;
-            layoutElement.flexibleWidth = 1f;
-            return row;
-        }
-
-        private Image CreateAvatar(Transform parent, Sprite avatar)
-        {
-            var maskImage = new GameObject("Avatar", typeof(RectTransform), typeof(Image), typeof(Mask), typeof(LayoutElement)).GetComponent<Image>();
-            maskImage.transform.SetParent(parent, false);
-            maskImage.GetComponent<LayoutElement>().preferredWidth = ChatAvatarSize;
-            maskImage.GetComponent<LayoutElement>().preferredHeight = ChatAvatarSize;
-
-            var image = MomotalkAvatarUtility.EnsureCircularAvatarImage(maskImage);
-            MomotalkAvatarUtility.SetAvatar(image, avatar, avatar != null);
-            return image;
-        }
-
-        private RectTransform CreateBubble(Transform parent, float width, float minHeight, bool typing)
-        {
-            var bubble = new GameObject("Bubble", typeof(RectTransform), typeof(Image), typeof(LayoutElement), typeof(ContentSizeFitter)).GetComponent<RectTransform>();
-            bubble.SetParent(parent, false);
-            var layout = bubble.GetComponent<LayoutElement>();
-            layout.preferredWidth = width;
-            layout.minHeight = minHeight;
-            bubble.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.Unconstrained;
-            var image = bubble.GetComponent<Image>();
-            var sprite = typing
-                ? MomotalkUIStyle.Texture("chat_bubble_left.png", 18f)
-                : MomotalkUIStyle.Texture("chat_bubble_right.png", 18f);
-            MomotalkUIStyle.ApplySliced(image, sprite, Color.white, false);
-            return bubble;
-        }
-
-        private Font ResolveUiFont()
-        {
-            if (uiFont != null)
-                return uiFont;
-
-            var chatText = chatView != null ? chatView.GetComponentInChildren<Text>(true) : null;
-            if (chatText != null && chatText.font != null)
-            {
-                uiFont = chatText.font;
-                return uiFont;
-            }
-
-            var rootText = GetComponentInChildren<Text>(true);
-            if (rootText != null && rootText.font != null)
-                uiFont = rootText.font;
-
-            return uiFont;
-        }
-
-        private void ApplyTextFont(Text text)
-        {
-            if (text == null)
-                return;
-
-            var font = ResolveUiFont();
-            if (font != null)
-                text.font = font;
-        }
-
-        private void ApplyFontToExistingTexts()
-        {
-            if (chatView == null || uiFont == null)
-                return;
-
-            var texts = chatView.GetComponentsInChildren<Text>(true);
-            for (var i = 0; i < texts.Length; i++)
-            {
-                if (texts[i] != null)
-                    texts[i].font = uiFont;
-            }
-        }
-
-        private void ClearMessages()
-        {
-            if (scrollContent == null)
-                return;
-
-            for (var i = scrollContent.childCount - 1; i >= 0; i--)
-                Destroy(scrollContent.GetChild(i).gameObject);
-        }
-
-        private void ScrollToBottom()
-        {
-            if (scrollContent != null)
-                LayoutRebuilder.MarkLayoutForRebuild(scrollContent);
-            if (scrollRect != null && gameObject.activeInHierarchy)
-                StartCoroutine(ScrollToBottomRoutine());
-        }
-
-        private void FocusInputField()
-        {
-            if (inputField != null && gameObject.activeInHierarchy)
-                StartCoroutine(FocusInputFieldRoutine());
-        }
-
-        private System.Collections.IEnumerator ScrollToBottomRoutine()
-        {
-            yield return null;
-            Canvas.ForceUpdateCanvases();
-            if (scrollContent != null)
-                LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
-            Canvas.ForceUpdateCanvases();
-            if (scrollRect != null)
-                scrollRect.verticalNormalizedPosition = 0f;
-        }
-
-        private System.Collections.IEnumerator FocusInputFieldRoutine()
-        {
-            yield return null;
-            yield return null;
-            if (inputField == null || !inputField.gameObject.activeInHierarchy)
-                yield break;
-
-            inputField.Select();
-            inputField.ActivateInputField();
+            chat.RefreshMicInteractable(asrManager.Active);
         }
 
         private string GetRuntimeCharacterId()

@@ -145,6 +145,9 @@ namespace VirtualPartner.Runtime
                     momotalkUIManager);
             }
 
+            if (momotalkUIManager != null)
+                momotalkUIManager.BindConversationRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem);
+
             yield return null;
 
             if (!ValidateStaticBaseline())
