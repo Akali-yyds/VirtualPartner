@@ -150,7 +150,7 @@ namespace VirtualPartner.Runtime
             stagePlanPlayer = stagePlayer;
             autonomousBehaviorScheduler = scheduler;
             memorySystem = memory;
-            capabilityBuilder.Configure(boneMapProfile, characterProfile, boneRoot, avatarPoseApplier, presetAnimationProfile, locomotionProfile);
+            ConfigureCapabilityBuilder();
             configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
             initialized = ValidateReferences();
 
@@ -518,7 +518,6 @@ namespace VirtualPartner.Runtime
 
             while (textHandler.TryDequeueChunk(out var chunk))
             {
-                lastRawResponse = textHandler.RawText;
                 if (!sseParser.Append(chunk, out var payloads, out failureReason))
                     return false;
 
@@ -562,7 +561,6 @@ namespace VirtualPartner.Runtime
                     continue;
 
                 stageParser.Append(deltaContent);
-                lastExtractedStagePlan = stageParser.Content;
 
                 while (stageParser.TryDequeueStage(out var stageJson))
                 {
@@ -708,6 +706,8 @@ namespace VirtualPartner.Runtime
 
         private string BuildDeveloperPrompt(string historyContext)
         {
+            ConfigureCapabilityBuilder();
+
             var builder = new StringBuilder(12288);
             AppendTargetCharacterSection(builder);
             AppendPromptSection(builder, "Character", LoadPromptText(characterPrompt, CharacterPromptFileName), false);
@@ -721,6 +721,17 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             capabilityBuilder.Append(builder, LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName));
             return builder.ToString();
+        }
+
+        private void ConfigureCapabilityBuilder()
+        {
+            capabilityBuilder.Configure(
+                boneMapProfile,
+                characterProfile,
+                boneRoot,
+                avatarPoseApplier,
+                presetAnimationProfile,
+                locomotionProfile);
         }
 
         private string BuildMemoryPromptContext()
@@ -939,6 +950,7 @@ namespace VirtualPartner.Runtime
             if (autonomousBehaviorScheduler == null)
                 return Fail("AutonomousBehaviorScheduler reference is missing.");
 
+            ConfigureCapabilityBuilder();
             initialized = true;
             return true;
         }

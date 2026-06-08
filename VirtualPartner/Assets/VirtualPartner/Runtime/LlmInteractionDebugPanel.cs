@@ -5,6 +5,8 @@ namespace VirtualPartner.Runtime
     [DisallowMultipleComponent]
     public sealed class LlmInteractionDebugPanel : MonoBehaviour
     {
+        private const int ResponsePreviewCharLimit = 6000;
+
         [Header("References")]
         [SerializeField] private LlmRelay llmRelay;
 
@@ -18,6 +20,10 @@ namespace VirtualPartner.Runtime
         private Vector2 responseScroll;
         private Vector2 stagePlanScroll;
         private Vector2 expandedWindowSize = new Vector2(430f, 520f);
+        private string cachedRawResponseSource;
+        private string cachedRawResponsePreview;
+        private string cachedStagePlanSource;
+        private string cachedStagePlanPreview;
 
         public void SetStandaloneVisible(bool visible)
         {
@@ -140,15 +146,77 @@ namespace VirtualPartner.Runtime
             if (llmRelay == null)
                 return;
 
-            GUILayout.Label("Last Raw Response");
-            responseScroll = GUILayout.BeginScrollView(responseScroll, GUILayout.Height(120f));
-            GUILayout.TextArea(llmRelay.LastRawResponse);
+            if (llmRelay.RequestPending || llmRelay.StreamingRequestActive)
+            {
+                GUILayout.Space(8f);
+                GUILayout.Label("LLM response is loading.");
+                GUILayout.Label("Raw response and extracted StagePlan will appear after the request completes.");
+                if (!string.IsNullOrWhiteSpace(llmRelay.LastStreamingStatus))
+                    GUILayout.Label($"Stream: {llmRelay.LastStreamingStatus}");
+                return;
+            }
+
+            DrawResponseTextArea(
+                "Last Raw Response",
+                llmRelay.LastRawResponse,
+                ref responseScroll,
+                ref cachedRawResponseSource,
+                ref cachedRawResponsePreview);
+
+            DrawResponseTextArea(
+                "Last Extracted StagePlan",
+                llmRelay.LastExtractedStagePlan,
+                ref stagePlanScroll,
+                ref cachedStagePlanSource,
+                ref cachedStagePlanPreview);
+        }
+
+        private static void DrawResponseTextArea(
+            string title,
+            string text,
+            ref Vector2 scroll,
+            ref string cachedSource,
+            ref string cachedPreview)
+        {
+            text = text ?? string.Empty;
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"{title} ({text.Length} chars)");
+            var previousEnabled = GUI.enabled;
+            GUI.enabled = !string.IsNullOrEmpty(text);
+            if (GUILayout.Button("Copy", GUILayout.Width(72f)))
+                GUIUtility.systemCopyBuffer = text;
+            GUI.enabled = previousEnabled;
+            GUILayout.EndHorizontal();
+
+            scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(120f));
+            GUILayout.TextArea(GetPreview(text, ref cachedSource, ref cachedPreview));
             GUILayout.EndScrollView();
 
-            GUILayout.Label("Last Extracted StagePlan");
-            stagePlanScroll = GUILayout.BeginScrollView(stagePlanScroll, GUILayout.Height(120f));
-            GUILayout.TextArea(llmRelay.LastExtractedStagePlan);
-            GUILayout.EndScrollView();
+            if (text.Length > ResponsePreviewCharLimit)
+                GUILayout.Label($"Preview truncated to {ResponsePreviewCharLimit} chars. Use Copy for full text.");
+        }
+
+        private static string GetPreview(string text, ref string cachedSource, ref string cachedPreview)
+        {
+            if (ReferenceEquals(text, cachedSource))
+                return cachedPreview;
+
+            cachedSource = text;
+            cachedPreview = BuildPreview(text);
+            return cachedPreview;
+        }
+
+        private static string BuildPreview(string text)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= ResponsePreviewCharLimit)
+                return text ?? string.Empty;
+
+            var headLength = ResponsePreviewCharLimit / 2;
+            var tailLength = ResponsePreviewCharLimit - headLength;
+            return text.Substring(0, headLength)
+                + "\n\n... preview truncated ...\n\n"
+                + text.Substring(text.Length - tailLength, tailLength);
         }
 
         private void ToggleMinimized()
