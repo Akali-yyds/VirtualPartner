@@ -85,6 +85,7 @@ namespace VirtualPartner.Runtime
         private bool isOpen;
         private bool loadingVisible;
         private bool suppressStickyCallback;
+        private bool openButtonSuppressed;
         private float openX;
         private float closedX;
 
@@ -101,6 +102,13 @@ namespace VirtualPartner.Runtime
             ? selectedContext.Profile.DisplayName
             : string.Empty;
         public bool HasSelectedConversation => selectedContext != null;
+
+        public void SetOpenButtonSuppressed(bool suppressed)
+        {
+            openButtonSuppressed = suppressed;
+            UpdateOpenButtonRootVisibility();
+            UpdateOpenButtonUnreadDot();
+        }
 
         private void Awake()
         {
@@ -256,7 +264,7 @@ namespace VirtualPartner.Runtime
             yield return AnimatePanel(phonePanel != null ? phonePanel.anchoredPosition.x : closedX, closedX);
 
             SetActive(phonePanel != null ? phonePanel.gameObject : null, false);
-            SetActive(openButtonRoot, true);
+            UpdateOpenButtonRootVisibility();
             UpdateOpenButtonUnreadDot();
             activeRoutine = null;
         }
@@ -1058,7 +1066,7 @@ private void BuildClearMemoryRow(RectTransform root, float y)
             SetPanelX(closedX);
             SetActive(phonePanel != null ? phonePanel.gameObject : null, false);
             SetActive(outsideCloseOverlay, false);
-            SetActive(openButtonRoot, true);
+            UpdateOpenButtonRootVisibility();
             if (conversationController != null)
                 conversationController.SetPhoneOpen(false, sceneSpeechBubbleModeWhenMomotalkOpen);
             UpdateOpenButtonUnreadDot();
@@ -1161,7 +1169,12 @@ private void BuildClearMemoryRow(RectTransform root, float y)
         {
             EnsureOpenButtonUnreadDot();
             if (openButtonUnreadDot != null)
-                openButtonUnreadDot.gameObject.SetActive(!isOpen && conversationController != null && conversationController.HasAnyUnread());
+                openButtonUnreadDot.gameObject.SetActive(!isOpen && !openButtonSuppressed && conversationController != null && conversationController.HasAnyUnread());
+        }
+
+        private void UpdateOpenButtonRootVisibility()
+        {
+            SetActive(openButtonRoot, !isOpen && !openButtonSuppressed);
         }
     }
 }
