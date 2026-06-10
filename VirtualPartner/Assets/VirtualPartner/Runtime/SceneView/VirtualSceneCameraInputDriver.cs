@@ -31,6 +31,12 @@ namespace VirtualPartner.Runtime
         [SerializeField, Min(0.01f)]
         [Tooltip("Zoom delta sent to the camera controller for each mouse-wheel notch. Increase this if wheel zoom feels too slow.")]
         private float wheelZoomStep = 20f;
+        [SerializeField, Min(0.01f)]
+        [Tooltip("Closest allowed camera orbit radius. Lower values allow stronger zoom-in.")]
+        private float minZoomRadius = 0.8f;
+        [SerializeField, Min(0.01f)]
+        [Tooltip("Farthest allowed camera orbit radius. Higher values allow more zoom-out.")]
+        private float maxZoomRadius = 24f;
 
         private DragMode dragMode;
         private Vector2 lastPointerPosition;
@@ -43,6 +49,7 @@ namespace VirtualPartner.Runtime
         public void Configure(VirtualSceneCameraController controller)
         {
             cameraController = controller;
+            ApplyZoomLimits();
         }
 
         public void SetInputEnabled(bool enabled)
@@ -210,6 +217,15 @@ namespace VirtualPartner.Runtime
             orbitSensitivity = Mathf.Max(0.01f, orbitSensitivity);
             panSensitivity = Mathf.Max(0.01f, panSensitivity);
             wheelZoomStep = Mathf.Max(0.01f, wheelZoomStep);
+            minZoomRadius = Mathf.Max(0.01f, minZoomRadius);
+            maxZoomRadius = Mathf.Max(minZoomRadius, maxZoomRadius);
+            ApplyZoomLimits();
+        }
+
+        private void ApplyZoomLimits()
+        {
+            if (cameraController != null)
+                cameraController.SetZoomRadiusLimits(minZoomRadius, maxZoomRadius);
         }
 
         private static float GetScrollSteps(float scrollDelta)

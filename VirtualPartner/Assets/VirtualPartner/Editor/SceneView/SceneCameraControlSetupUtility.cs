@@ -26,6 +26,7 @@ namespace VirtualPartner.EditorTools
             var cameraIcon = GetOrCreateIcon(IconFolder + "/camera_icon.png", DrawCameraIcon);
             var resetIcon = GetOrCreateIcon(IconFolder + "/reset_icon.png", DrawResetIcon);
             var exitIcon = GetOrCreateIcon(IconFolder + "/exit_icon.png", DrawExitIcon);
+            var debugIcon = GetOrCreateIcon(IconFolder + "/debug_icon.png", DrawDebugIcon);
             var buttonSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/VirtualPartner/UI/Momotalk/Textures/unread_dot.png");
 
             var canvasRect = EnsureCanvas();
@@ -47,6 +48,16 @@ namespace VirtualPartner.EditorTools
                 new Vector2(-76f, 180f),
                 new Color32(0x69, 0xA8, 0xE8, 0xFF),
                 cameraIcon,
+                buttonSprite,
+                180f);
+
+            var debugButton = CreateRoundButton(
+                "RuntimeDebugToggleButton",
+                entryGroupRect,
+                new Vector2(1f, 0f),
+                new Vector2(-76f, 284f),
+                new Color32(0x5B, 0x6A, 0x7E, 0xFF),
+                debugIcon,
                 buttonSprite);
 
             var resetButton = CreateRoundButton(
@@ -71,21 +82,35 @@ namespace VirtualPartner.EditorTools
             var inputDriver = GetOrAdd<VirtualSceneCameraInputDriver>(root.gameObject);
             var controller = GetOrAdd<SceneCameraModeController>(root.gameObject);
             var cameraController = UnityEngine.Object.FindFirstObjectByType<VirtualSceneCameraController>(FindObjectsInactive.Include);
+            var debugPanel = UnityEngine.Object.FindFirstObjectByType<VirtualPartnerRuntimeDebugPanel>(FindObjectsInactive.Include);
             var momotalk = UnityEngine.Object.FindFirstObjectByType<MomotalkUIManager>(FindObjectsInactive.Include);
             var roomRoot = GameObject.Find("sb_CH0310_bg_01");
 
             AssignView(view, entryGroup, modeGroup, entryButton, exitButton, resetButton);
             AssignInputDriver(inputDriver, cameraController);
+            AssignCameraController(cameraController);
             AssignController(controller, view, cameraController, inputDriver, momotalk, roomRoot != null ? roomRoot.transform : null);
+            AssignDebugToggle(
+                GetOrAdd<RuntimeDebugPanelToggleButton>(debugButton.gameObject),
+                debugButton,
+                debugButton.GetComponent<Image>(),
+                debugPanel);
 
             view.SetModeActive(false);
             inputDriver.SetInputEnabled(false);
+            if (debugPanel != null)
+                debugPanel.SetVisible(false);
 
             EditorUtility.SetDirty(canvasRect.gameObject);
             EditorUtility.SetDirty(root.gameObject);
             EditorUtility.SetDirty(view);
             EditorUtility.SetDirty(inputDriver);
             EditorUtility.SetDirty(controller);
+            EditorUtility.SetDirty(debugButton.gameObject);
+            if (cameraController != null)
+                EditorUtility.SetDirty(cameraController);
+            if (debugPanel != null)
+                EditorUtility.SetDirty(debugPanel);
 
             var scene = EditorSceneManager.GetActiveScene();
             EditorSceneManager.MarkSceneDirty(scene);
@@ -138,7 +163,8 @@ namespace VirtualPartner.EditorTools
             Vector2 anchoredPosition,
             Color color,
             Sprite iconSprite,
-            Sprite buttonSprite)
+            Sprite buttonSprite,
+            float iconRotationZ = 0f)
         {
             var rect = FindOrCreateRect(name, parent);
             rect.anchorMin = anchor;
@@ -167,6 +193,7 @@ namespace VirtualPartner.EditorTools
             iconRect.anchoredPosition = Vector2.zero;
             iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 48f);
             iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 48f);
+            iconRect.localEulerAngles = new Vector3(0f, 0f, iconRotationZ);
 
             var icon = GetOrAdd<Image>(iconRect.gameObject);
             icon.sprite = iconSprite;
@@ -200,6 +227,19 @@ namespace VirtualPartner.EditorTools
             serializedObject.FindProperty("cameraController").objectReferenceValue = cameraController;
             serializedObject.FindProperty("inputEnabled").boolValue = false;
             serializedObject.FindProperty("wheelZoomStep").floatValue = 20f;
+            serializedObject.FindProperty("minZoomRadius").floatValue = 0.8f;
+            serializedObject.FindProperty("maxZoomRadius").floatValue = 24f;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void AssignCameraController(VirtualSceneCameraController cameraController)
+        {
+            if (cameraController == null)
+                return;
+
+            var serializedObject = new SerializedObject(cameraController);
+            serializedObject.FindProperty("minRadius").floatValue = 0.8f;
+            serializedObject.FindProperty("maxRadius").floatValue = 24f;
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -219,6 +259,20 @@ namespace VirtualPartner.EditorTools
             serializedObject.FindProperty("panBoundsSourceRoot").objectReferenceValue = panBoundsSourceRoot;
             serializedObject.FindProperty("panBoundsPadding").floatValue = 0.8f;
             serializedObject.FindProperty("configurePanBoundsOnAwake").boolValue = true;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void AssignDebugToggle(
+            RuntimeDebugPanelToggleButton toggle,
+            Button button,
+            Image buttonBackground,
+            VirtualPartnerRuntimeDebugPanel debugPanel)
+        {
+            var serializedObject = new SerializedObject(toggle);
+            serializedObject.FindProperty("toggleButton").objectReferenceValue = button;
+            serializedObject.FindProperty("debugPanel").objectReferenceValue = debugPanel;
+            serializedObject.FindProperty("closePanelOnAwake").boolValue = true;
+            serializedObject.FindProperty("buttonBackground").objectReferenceValue = buttonBackground;
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -324,6 +378,16 @@ namespace VirtualPartner.EditorTools
             var white = new Color32(255, 255, 255, 255);
             DrawLine(texture, 42, 42, 86, 86, 9, white);
             DrawLine(texture, 86, 42, 42, 86, 9, white);
+        }
+
+        private static void DrawDebugIcon(Texture2D texture)
+        {
+            var white = new Color32(255, 255, 255, 255);
+            FillRoundedRect(texture, 30, 30, 68, 68, 12, white);
+            FillRoundedRect(texture, 38, 38, 52, 52, 8, new Color32(0x5B, 0x6A, 0x7E, 0xFF));
+            DrawLine(texture, 48, 54, 80, 54, 5, white);
+            DrawLine(texture, 48, 66, 72, 66, 5, white);
+            DrawLine(texture, 48, 78, 84, 78, 5, white);
         }
 
         private static void FillRoundedRect(Texture2D texture, int x, int y, int width, int height, int radius, Color32 color)

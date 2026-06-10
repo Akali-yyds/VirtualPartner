@@ -17,9 +17,12 @@ namespace VirtualPartner.Runtime
         [SerializeField] private Vector2 verticalRange = new Vector2(-8f, 42f);
 
         [Header("Zoom")]
+        [Tooltip("Camera radius delta applied by Zoom(delta). Larger values make every input delta move farther.")]
         [SerializeField] private float zoomUnitsPerUnit = 0.03f;
-        [SerializeField] private float minRadius = 2.5f;
-        [SerializeField] private float maxRadius = 12f;
+        [Tooltip("Closest allowed Cinemachine orbit radius. Lower this to allow stronger zoom-in.")]
+        [SerializeField] private float minRadius = 0.8f;
+        [Tooltip("Farthest allowed Cinemachine orbit radius. Raise this to allow more zoom-out.")]
+        [SerializeField] private float maxRadius = 24f;
 
         [Header("Pan")]
         [SerializeField] private float panUnitsPerUnit = 0.01f;
@@ -36,6 +39,16 @@ namespace VirtualPartner.Runtime
 
         public CinemachineCamera SceneCamera => sceneCamera;
         public Transform FocusTarget => focusTarget;
+        public float ZoomUnitsPerUnit => zoomUnitsPerUnit;
+        public float MinRadius => minRadius;
+        public float MaxRadius => maxRadius;
+
+        public void SetZoomRadiusLimits(float min, float max)
+        {
+            minRadius = Mathf.Max(0.01f, min);
+            maxRadius = Mathf.Max(minRadius, max);
+            ClampCurrentRadius();
+        }
 
         public void SetPanBounds(Bounds bounds, float padding)
         {
@@ -141,12 +154,14 @@ namespace VirtualPartner.Runtime
         {
             minRadius = Mathf.Max(0.01f, minRadius);
             maxRadius = Mathf.Max(minRadius, maxRadius);
+            zoomUnitsPerUnit = Mathf.Max(0.0001f, zoomUnitsPerUnit);
             verticalRange.y = Mathf.Max(verticalRange.x, verticalRange.y);
             panBounds.size = new Vector3(
                 Mathf.Max(0.01f, panBounds.size.x),
                 Mathf.Max(0.01f, panBounds.size.y),
                 Mathf.Max(0.01f, panBounds.size.z));
             CaptureDefaults();
+            ClampCurrentRadius();
         }
 
         private void Update()
@@ -186,6 +201,15 @@ namespace VirtualPartner.Runtime
             defaultHorizontal = orbitalFollow.HorizontalAxis.Value;
             defaultVertical = orbitalFollow.VerticalAxis.Value;
             defaultRadius = Mathf.Clamp(orbitalFollow.Radius, minRadius, maxRadius);
+        }
+
+        private void ClampCurrentRadius()
+        {
+            if (orbitalFollow == null)
+                return;
+
+            orbitalFollow.Radius = Mathf.Clamp(orbitalFollow.Radius, minRadius, maxRadius);
+            defaultRadius = Mathf.Clamp(defaultRadius, minRadius, maxRadius);
         }
 
         private Vector3 ClampFocusPosition(Vector3 position)

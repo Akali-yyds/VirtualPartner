@@ -259,7 +259,9 @@ namespace VirtualPartner.Runtime
             if (llmRelay != null)
                 submit = llmRelay.SubmitWithResult(text, historyContext);
 
-            var userRecord = MomotalkHistoryStore.CreateMessage("user", text, "sent", submit != null ? submit.RequestId : 0, -1, -1);
+            var requestId = submit != null ? submit.RequestId : 0;
+            var turnId = MomotalkHistoryStore.CreateTurnId(characterId, requestId);
+            var userRecord = MomotalkHistoryStore.CreateMessage("user", text, "sent", requestId, -1, -1, turnId);
             historyStore.Append(characterId, userRecord);
             chat.CreateMessageView(userRecord, avatar);
 
@@ -268,19 +270,19 @@ namespace VirtualPartner.Runtime
 
             if (submit == null)
             {
-                AddSystemMessage(characterId, "LLM relay is missing.", "error", 0);
+                AddSystemMessage(characterId, "LLM relay is missing.", "error", 0, turnId);
                 return;
             }
 
             if (!submit.Accepted)
             {
-                AddSystemMessage(characterId, submit.Message, "error", submit.RequestId);
+                AddSystemMessage(characterId, submit.Message, "error", submit.RequestId, turnId);
                 return;
             }
 
             if (requestRegistry != null)
             {
-                requestRegistry.Register(submit.RequestId, characterId);
+                requestRegistry.Register(submit.RequestId, characterId, turnId);
                 requestRegistry.MarkOlderPendingReplaced(characterId, submit.RequestId);
             }
             if (memorySystem != null)
@@ -419,7 +421,14 @@ namespace VirtualPartner.Runtime
                 && !SameCharacter(expectedCharacterId, characterId))
                 return;
 
-            var record = MomotalkHistoryStore.CreateMessage("character", speech.Text, "shown", speech.RequestId, speech.StageIndex, speech.ActionIndex);
+            var record = MomotalkHistoryStore.CreateMessage(
+                "character",
+                speech.Text,
+                "shown",
+                speech.RequestId,
+                speech.StageIndex,
+                speech.ActionIndex,
+                GetTurnIdForRequest(speech.RequestId));
             historyStore.Append(characterId, record);
             if (memorySystem != null)
                 memorySystem.RecordSpeech(speech);
@@ -489,9 +498,10 @@ namespace VirtualPartner.Runtime
 
         private void ReplaceTypingWithSystem(string characterId, int requestId, string text, string status, bool save)
         {
+            var turnId = GetTurnIdForRequest(requestId);
             if (typingViews.TryGetValue(requestId, out var typingView) && typingView != null)
             {
-                var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
+                var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1, turnId);
                 typingView.Bind(record, null);
                 typingViews.Remove(requestId);
                 if (save)
@@ -502,12 +512,12 @@ namespace VirtualPartner.Runtime
             }
 
             if (save)
-                AddSystemMessage(characterId, text, status, requestId);
+                AddSystemMessage(characterId, text, status, requestId, turnId);
         }
 
-        private void AddSystemMessage(string characterId, string text, string status, int requestId)
+        private void AddSystemMessage(string characterId, string text, string status, int requestId, string turnId = "")
         {
-            var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1);
+            var record = MomotalkHistoryStore.CreateMessage("system", text, status, requestId, -1, -1, turnId);
             historyStore.Append(characterId, record);
             if (IsLoadedConversation(characterId))
             {
@@ -531,22 +541,22 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < requestIdBuffer.Count; i++)
             {
                 var requestId = requestIdBuffer[i];
-                if (HasResponseForRequest(requestId, visibleMessages))
+                if (HasResponseForTurn(GetTurnIdForRequest(requestId), visibleMessages))
                     continue;
 
                 typingViews[requestId] = chat.CreateTypingView(requestId, avatar);
             }
         }
 
-        private static bool HasResponseForRequest(int requestId, List<MomotalkChatMessageRecord> messages)
+        private static bool HasResponseForTurn(string turnId, List<MomotalkChatMessageRecord> messages)
         {
-            if (requestId <= 0 || messages == null)
+            if (string.IsNullOrWhiteSpace(turnId) || messages == null)
                 return false;
 
             for (var i = 0; i < messages.Count; i++)
             {
                 var message = messages[i];
-                if (message == null || message.requestId != requestId)
+                if (message == null || message.turnId != turnId)
                     continue;
                 if (message.sender == "character" || message.sender == "system")
                     return true;
@@ -680,6 +690,11 @@ namespace VirtualPartner.Runtime
         private string GetCharacterIdForRequest(int requestId)
         {
             return requestRegistry != null ? requestRegistry.GetCharacterId(requestId) : string.Empty;
+        }
+
+        private string GetTurnIdForRequest(int requestId)
+        {
+            return requestRegistry != null ? requestRegistry.GetTurnId(requestId) : string.Empty;
         }
 
         private bool IsClearedRequest(int requestId)

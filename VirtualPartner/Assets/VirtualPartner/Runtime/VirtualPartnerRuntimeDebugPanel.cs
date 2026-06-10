@@ -47,6 +47,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Display")]
         [SerializeField] private bool hideLegacyStandalonePanels = true;
+        [SerializeField] private bool visible;
         [SerializeField] private bool minimized;
         [SerializeField] private DebugSection selectedSection;
         [SerializeField] private Rect windowRect = new Rect(20f, 20f, 780f, 620f);
@@ -61,6 +62,18 @@ namespace VirtualPartner.Runtime
         private Vector2 memoryRawScroll;
         private MomotalkConversationController momotalkConversationController;
         private readonly List<CharacterRuntimeContext> debugCharacterContexts = new List<CharacterRuntimeContext>();
+
+        public bool Visible => visible;
+
+        public void SetVisible(bool value)
+        {
+            visible = value;
+        }
+
+        public void ToggleVisible()
+        {
+            SetVisible(!visible);
+        }
 
         private void Awake()
         {
@@ -127,7 +140,7 @@ namespace VirtualPartner.Runtime
 
         private void OnGUI()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !visible)
                 return;
 
             windowRect = GUILayout.Window(

@@ -10,6 +10,7 @@ namespace VirtualPartner.Runtime
     public sealed class MomotalkChatMessageRecord
     {
         public string messageId;
+        public string turnId;
         public string sender;
         public string text;
         public string timestampUtc;
@@ -161,11 +162,13 @@ namespace VirtualPartner.Runtime
             string status,
             int requestId,
             int stageIndex,
-            int actionIndex)
+            int actionIndex,
+            string turnId = "")
         {
             return new MomotalkChatMessageRecord
             {
                 messageId = "msg_" + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff"),
+                turnId = turnId ?? string.Empty,
                 sender = sender,
                 text = text ?? string.Empty,
                 timestampUtc = DateTime.UtcNow.ToString("o"),
@@ -174,6 +177,13 @@ namespace VirtualPartner.Runtime
                 actionIndex = actionIndex,
                 status = status ?? string.Empty
             };
+        }
+
+        public static string CreateTurnId(string characterId, int requestId)
+        {
+            var normalizedCharacterId = NormalizeCharacterId(characterId);
+            var requestPart = requestId > 0 ? requestId.ToString() : "local";
+            return $"turn_{normalizedCharacterId}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{requestPart}_{Guid.NewGuid():N}";
         }
 
         private static string NormalizeCharacterId(string characterId)

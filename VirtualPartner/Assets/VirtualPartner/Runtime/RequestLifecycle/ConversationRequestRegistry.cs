@@ -38,13 +38,13 @@ namespace VirtualPartner.Runtime
 
         public int TrackedCount => requests.Count;
 
-        public ConversationRequest Register(int requestId, string characterId)
+        public ConversationRequest Register(int requestId, string characterId, string turnId = "")
         {
             if (requestId <= 0)
                 return null;
 
             var normalized = NormalizeCharacterId(characterId);
-            var request = new ConversationRequest(requestId, normalized);
+            var request = new ConversationRequest(requestId, normalized, NormalizeTurnId(turnId, requestId));
             requests[requestId] = request;
             insertionOrder.Enqueue(requestId);
             Prune();
@@ -59,6 +59,11 @@ namespace VirtualPartner.Runtime
         public string GetCharacterId(int requestId)
         {
             return requests.TryGetValue(requestId, out var request) ? request.CharacterId : string.Empty;
+        }
+
+        public string GetTurnId(int requestId)
+        {
+            return requests.TryGetValue(requestId, out var request) ? request.TurnId : string.Empty;
         }
 
         public bool IsCanceledOrReplaced(int requestId)
@@ -212,6 +217,11 @@ namespace VirtualPartner.Runtime
         private static string NormalizeCharacterId(string characterId)
         {
             return string.IsNullOrWhiteSpace(characterId) ? "unknown" : characterId.Trim().ToLowerInvariant();
+        }
+
+        private static string NormalizeTurnId(string turnId, int requestId)
+        {
+            return string.IsNullOrWhiteSpace(turnId) ? $"request:{requestId}" : turnId.Trim();
         }
     }
 }
