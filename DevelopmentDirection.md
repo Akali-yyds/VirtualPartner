@@ -1,6 +1,6 @@
 # VirtualPartner 当前开发方向
 
-更新时间：2026-05-25
+更新时间：2026-06-10
 
 本文记录当前活跃开发方向。历史 AgentRun / ToolRegistry / AgentLoop 探索已经归档，不再作为当前主链路。
 
@@ -78,7 +78,26 @@ Momotalk 聊天记录和长期记忆是两套不同状态：
 
 长期记忆仍只服务当前 `LlmRelay` prompt 注入，不在本阶段重新设计 MemoryJudge。
 
-## 6. Agent 探索状态
+## 6. 场景呈现、描边与镜头控制
+
+当前场景呈现层已经从“固定镜头 + 背景图”推进到“固定背景 + 可移动场景相机 + 可调外轮廓提示”的结构：
+
+- `BackgroundCamera` 保持固定背景图不随场景镜头移动。
+- `SceneCamera` 作为主交互相机，保留 `MainCamera` tag，并挂载 `CinemachineBrain`。
+- `VirtualSceneCameraController` 只提供相机控制 API：`Orbit`、`Zoom`、`Pan`、`Focus`、`ResetView`。
+- `VirtualSceneCameraInputDriver` 只在镜头控制模式启用时读取输入，当前支持 PC 鼠标右键旋转、中键或 `Shift + 左键` 平移、滚轮缩放。
+- 缩放速度、最近半径、最远半径暴露在 `VirtualSceneCameraInputDriver` Inspector 中，便于手动调参。
+- `SceneCameraControlCanvas` 独立于 Momotalk，右下角入口进入镜头控制模式；进入后显示 `Exit` 和 `Reset`。
+- Runtime Debug 面板默认不显示，通过独立 Debug 圆形按钮打开/关闭，不再 Play Mode 自动盖住画面。
+
+描边当前采用“房间整体 mask silhouette”思路，不对每个家具、角色、房间内部边缘做全场景边缘检测：
+
+- 描边目标来自场景边界代理/整体轮廓 mask，而不是逐对象描边。
+- 描边宽度、颜色、透明度、柔和度由 Renderer Feature 设置控制。
+- 目标效果是类似角色外轮廓的场景最外侧提示线；进入房间内部时不应出现内部边界描边。
+- 后续如果继续调整描边，应优先保持“描谁”和“怎么描”解耦，避免把真实房间模型、家具和角色直接纳入同一描边检测。
+
+## 7. Agent 探索状态
 
 Stage 3 AgentRun / ToolRegistry / AgentLoop 的代码和文档已经迁出当前活跃基线。它们是研究资产，不是当前产品路径。
 

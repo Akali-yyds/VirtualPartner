@@ -1,6 +1,6 @@
 # VirtualPartner 当前 TODO
 
-更新时间：2026-06-07
+更新时间：2026-06-10
 
 本文记录当前活跃 TODO。当前主线是 `LlmRelay` prompt 工程、StagePlan 2.0 质量优化与流式 StagePlan 执行体验；Stage 3 AgentLoop 不在当前活跃开发路径中。
 
@@ -13,6 +13,9 @@
 - [x] 根目录原文档已备份到 `Archive/RootDocs_20260525_prompt_pivot/`。
 - [x] LLM Streaming StagePlan 执行链路完成并通过人工验收。
 - [x] 校园户外背景接入完成并通过人工验收。
+- [x] 场景边界描边第一轮完成，当前效果已人工确认可接受。
+- [x] 镜头控制第一轮完成：右下角入口、独占控制模式、旋转/平移/缩放、退出与重置。
+- [x] Runtime Debug 面板改为默认隐藏，通过独立圆形按钮打开/关闭。
 
 ## 当前活跃主线：Prompt Engineering
 
@@ -93,6 +96,40 @@
 - [x] 21:9 视图覆盖完整，16:9 视图裁切自然。
 - [x] Play Mode 下角色 idle、移动区域、障碍区域、Momotalk UI 正常。
 - [x] 简单 Momotalk 消息仍能走 `LlmRelay -> StagePlanPlayer` 播放链路。
+
+## 已完成阶段：场景边界描边与镜头控制第一轮
+
+目标：在不改动 Momotalk、LLM、StagePlan、TTS/ASR、Memory 主链路的前提下，完成固定背景与可移动场景相机的结构整理，增加稳定的场景外轮廓描边，并提供第一轮用户可用的镜头控制模式。
+
+### 已完成改动
+
+- [x] 建立 `BackgroundCamera + SceneCamera` 结构：背景保持固定，场景相机负责房间、角色、描边和后续镜头移动。
+- [x] `SceneCamera` 保留 `MainCamera` tag，并接入 `CinemachineBrain`，避免破坏现有 `Camera.main` 逻辑。
+- [x] 新增 `VirtualSceneCameraController`，对外提供 `Orbit`、`Zoom`、`Pan`、`Focus`、`ResetView`，不感知 UI。
+- [x] 新增 `VirtualSceneCameraInputDriver`，只在镜头模式启用时读取 PC 鼠标输入。
+- [x] 滚轮缩放步长、最近缩放半径、最远缩放半径暴露到同一个输入组件，便于 Inspector 手动调整。
+- [x] 新增独立 `SceneCameraControlCanvas`，右下角相机入口进入镜头控制模式；进入后显示 `Exit` 与 `Reset`。
+- [x] 相机入口图标已旋转 180 度，避免视觉方向错误。
+- [x] 镜头控制模式与 Momotalk 入口互斥，进入镜头模式时隐藏/禁用 Momotalk 入口，退出后恢复。
+- [x] Runtime Debug 面板新增 `visible` 状态，Play Mode 默认不绘制。
+- [x] 新增 `RuntimeDebugPanelToggleButton`，通过右下角独立按钮打开/关闭 Debug 面板。
+- [x] 场景描边改为房间整体 mask silhouette 思路，只描场景最外轮廓，不对床、桌子、角色或房间内部边缘做逐对象描边。
+- [x] 描边颜色、宽度、透明度、柔和度保留为可调参数。
+
+### 已通过验证
+
+- [x] Unity MCP 刷新后无 C# 编译错误。
+- [x] `SampleScene.unity` 中存在 `SceneCameraControlCanvas`、相机入口按钮、Debug toggle 按钮、镜头输入组件和镜头控制器。
+- [x] MCP 验证相机图标 Z 旋转为 180 度。
+- [x] MCP 验证 Debug 面板默认 `visible=false`，Debug toggle 的 button、panel、background 引用齐全。
+- [x] MCP 验证镜头缩放参数已写入场景：`wheelZoomStep=20`、`minZoomRadius=0.8`、`maxZoomRadius=24`。
+- [x] 人工确认当前场景描边视觉效果可接受。
+
+### 仍需手动关注
+
+- [ ] 后续大幅旋转、进入房间内部、极限缩放时，继续观察描边是否只保留外轮廓。
+- [ ] 后续根据手感调整 `wheelZoomStep`、`minZoomRadius`、`maxZoomRadius`。
+- [ ] 后续如果要支持触屏或移动端，再新增触摸输入 Driver，不混进当前 PC 鼠标输入逻辑。
 
 ## 已完成阶段：TTS / ASR 服务优化
 
