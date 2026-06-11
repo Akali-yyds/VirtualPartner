@@ -9,6 +9,18 @@ using UnityEngine.Networking;
 
 namespace VirtualPartner.Runtime
 {
+    [Serializable]
+    public sealed class LlmRelayConfigDraft
+    {
+        public string apiKey;
+        public string model;
+        public string chatCompletionsUrl;
+        public string baseUrl;
+        public bool useJsonResponseFormat = true;
+        public bool supportsDeveloperRole;
+        public float interactionTimeoutSeconds = 10f;
+    }
+
     public sealed class LlmSubmitResult
     {
         public LlmSubmitResult(bool accepted, int requestId, string message)
@@ -43,6 +55,7 @@ namespace VirtualPartner.Runtime
         private const string ConfigRelativePath = "UserSettings/VirtualPartnerLlmConfig.json";
         private const float DefaultInteractionTimeout = 10f;
         private const int RequestTimeoutSeconds = 120;
+        private const int ConfigTestTimeoutSeconds = 30;
         private const string PromptFolderName = "Prompts";
         private const string CharacterPromptFileName = "character.md";
         private const string StagePlanRulesPromptFileName = "stageplan-rules.md";
@@ -91,6 +104,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private int pendingRequestId;
         [SerializeField] private string statusText = "Not configured.";
         [SerializeField] private string configStatus = "Not loaded.";
+        [SerializeField] private bool configTestPending;
+        [SerializeField] private string configTestStatus;
         [SerializeField] private string lastError;
         [SerializeField] private string lastPromptStatus;
         [SerializeField] private string lastStreamingStatus;
@@ -99,7 +114,9 @@ namespace VirtualPartner.Runtime
 
         private LlmRelayConfig config = new LlmRelayConfig();
         private UnityWebRequest activeRequest;
+        private UnityWebRequest activeConfigTestRequest;
         private Coroutine activeCoroutine;
+        private Coroutine configTestCoroutine;
         private string configPath;
         private readonly LlmPromptCapabilityBuilder capabilityBuilder = new LlmPromptCapabilityBuilder();
 
@@ -116,6 +133,8 @@ namespace VirtualPartner.Runtime
         public int PendingRequestId => pendingRequestId;
         public string StatusText => statusText;
         public string ConfigStatus => configStatus;
+        public bool ConfigTestPending => configTestPending;
+        public string ConfigTestStatus => configTestStatus;
         public string LastError => lastError;
         public string LastPromptStatus => lastPromptStatus;
         public string LastStreamingStatus => lastStreamingStatus;
@@ -151,7 +170,7 @@ namespace VirtualPartner.Runtime
             autonomousBehaviorScheduler = scheduler;
             memorySystem = memory;
             ConfigureCapabilityBuilder();
-            configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
+            EnsureConfigPath();
             initialized = ValidateReferences();
 
             if (initialized)
@@ -163,8 +182,7 @@ namespace VirtualPartner.Runtime
             configLoaded = false;
             configReady = false;
 
-            if (string.IsNullOrWhiteSpace(configPath))
-                configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
+            EnsureConfigPath();
 
             var path = configPath;
             if (!File.Exists(path))
@@ -172,6 +190,8 @@ namespace VirtualPartner.Runtime
                 config = new LlmRelayConfig();
                 configStatus = $"Missing config: {path}";
                 statusText = "Config missing.";
+                if (memorySystem != null)
+                    memorySystem.ReloadJudgeConfig();
                 return false;
             }
 
@@ -184,6 +204,8 @@ namespace VirtualPartner.Runtime
                 config = new LlmRelayConfig();
                 configStatus = $"Config parse failed: {exception.Message}";
                 statusText = "Config failed.";
+                if (memorySystem != null)
+                    memorySystem.ReloadJudgeConfig();
                 return false;
             }
 
@@ -195,8 +217,88 @@ namespace VirtualPartner.Runtime
 
             if (autonomousBehaviorScheduler != null)
                 autonomousBehaviorScheduler.SetUserInteractionTimeout(config.InteractionTimeoutSeconds);
+            if (memorySystem != null)
+                memorySystem.ReloadJudgeConfig();
 
             return configReady;
+        }
+
+        public LlmRelayConfigDraft CreateConfigDraft()
+        {
+            EnsureConfigPath();
+            return config != null ? config.ToDraft() : new LlmRelayConfigDraft();
+        }
+
+        public bool SaveConfig(LlmRelayConfigDraft draft, out string message)
+        {
+            message = string.Empty;
+            var nextConfig = LlmRelayConfig.FromDraft(draft);
+            nextConfig.Normalize();
+            if (!nextConfig.IsReady(out var reason))
+            {
+                message = $"Cannot save config: {reason}";
+                configStatus = message;
+                statusText = "Config incomplete.";
+                return false;
+            }
+
+            EnsureConfigPath();
+            try
+            {
+                var directory = Path.GetDirectoryName(configPath);
+                if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                File.WriteAllText(configPath, JsonUtility.ToJson(nextConfig, true), Encoding.UTF8);
+            }
+            catch (Exception exception)
+            {
+                message = $"Config save failed: {exception.Message}";
+                configStatus = message;
+                statusText = "Config save failed.";
+                return false;
+            }
+
+            config = nextConfig;
+            configLoaded = true;
+            configReady = true;
+            configStatus = "Saved and ready.";
+            statusText = "Ready.";
+            if (autonomousBehaviorScheduler != null)
+                autonomousBehaviorScheduler.SetUserInteractionTimeout(config.InteractionTimeoutSeconds);
+            if (memorySystem != null)
+                memorySystem.ReloadJudgeConfig();
+
+            message = $"Saved config: {configPath}";
+            return true;
+        }
+
+        public bool StartConfigTest(LlmRelayConfigDraft draft)
+        {
+            if (configTestPending || configTestCoroutine != null)
+            {
+                configTestStatus = "Config test is already running.";
+                return false;
+            }
+
+            var testConfig = LlmRelayConfig.FromDraft(draft);
+            testConfig.Normalize();
+            if (!testConfig.IsReady(out var reason))
+            {
+                configTestStatus = $"Cannot test config: {reason}";
+                return false;
+            }
+
+            configTestCoroutine = StartCoroutine(TestConfigRoutine(testConfig));
+            return true;
+        }
+
+        private void OnDisable()
+        {
+            if (requestPending || activeCoroutine != null || activeRequest != null)
+                StopPendingRequest();
+
+            StopConfigTest();
         }
 
         public bool Submit(string userText)
@@ -295,6 +397,31 @@ namespace VirtualPartner.Runtime
             }
         }
 
+        private void StopConfigTest()
+        {
+            if (configTestCoroutine != null)
+            {
+                StopCoroutine(configTestCoroutine);
+                configTestCoroutine = null;
+            }
+
+            if (activeConfigTestRequest != null)
+            {
+                activeConfigTestRequest.Abort();
+                activeConfigTestRequest.Dispose();
+                activeConfigTestRequest = null;
+            }
+
+            configTestPending = false;
+        }
+
+        private void CompleteConfigTest()
+        {
+            activeConfigTestRequest = null;
+            configTestPending = false;
+            configTestCoroutine = null;
+        }
+
         public bool CopyFinalPromptToClipboard()
         {
             var prompt = BuildPromptPreview();
@@ -332,6 +459,45 @@ namespace VirtualPartner.Runtime
             }
 
             yield return SendBufferedRequest(requestId, userText, historyContext);
+        }
+
+        private IEnumerator TestConfigRoutine(LlmRelayConfig testConfig)
+        {
+            configTestPending = true;
+            configTestStatus = "Testing API config...";
+
+            var requestJson = BuildConfigTestRequestJson(testConfig.model);
+            var requestBytes = Encoding.UTF8.GetBytes(requestJson);
+            using (var request = new UnityWebRequest(testConfig.GetChatCompletionsUrl(), "POST"))
+            {
+                activeConfigTestRequest = request;
+                request.timeout = ConfigTestTimeoutSeconds;
+                request.uploadHandler = new UploadHandlerRaw(requestBytes);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", "Bearer " + testConfig.apiKey);
+
+                yield return request.SendWebRequest();
+
+                var responseText = request.downloadHandler != null ? request.downloadHandler.text : string.Empty;
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    configTestStatus = $"Test failed: HTTP {request.responseCode} {request.error}. {BuildStatusPreview(responseText)}";
+                    CompleteConfigTest();
+                    yield break;
+                }
+
+                if (!TryExtractAssistantContent(responseText, out var content, out var failureReason))
+                {
+                    configTestStatus = $"Test failed: {failureReason}";
+                    CompleteConfigTest();
+                    yield break;
+                }
+
+                configTestStatus = $"Test succeeded: HTTP {request.responseCode}. Assistant: {BuildStatusPreview(content)}";
+            }
+
+            CompleteConfigTest();
         }
 
         private IEnumerator SendBufferedRequest(int requestId, string userText, string historyContext)
@@ -694,6 +860,15 @@ namespace VirtualPartner.Runtime
             return builder.ToString();
         }
 
+        private static string BuildConfigTestRequestJson(string model)
+        {
+            var builder = new StringBuilder(192);
+            builder.Append("{\"model\":\"")
+                .Append(JsonTextUtility.Escape(model))
+                .Append("\",\"messages\":[{\"role\":\"user\",\"content\":\"Reply with exactly OK.\"}]}");
+            return builder.ToString();
+        }
+
         private string BuildSystemPrompt()
         {
             return $"You control {GetTargetCharacterName()} in Unity. Return only one valid JSON StagePlan 2.0 object. Do not use Markdown, comments, or explanation.";
@@ -998,6 +1173,22 @@ namespace VirtualPartner.Runtime
                 : string.Empty;
         }
 
+        private void EnsureConfigPath()
+        {
+            if (string.IsNullOrWhiteSpace(configPath))
+                configPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..")), ConfigRelativePath);
+        }
+
+        private static string BuildStatusPreview(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+
+            text = text.Trim();
+            const int limit = 320;
+            return text.Length <= limit ? text : text.Substring(0, limit) + "...";
+        }
+
         private static string LoadPromptText(TextAsset promptAsset, string fileName)
         {
             if (promptAsset != null)
@@ -1035,6 +1226,37 @@ namespace VirtualPartner.Runtime
             public float InteractionTimeoutSeconds => interactionTimeoutSeconds > 0f
                 ? interactionTimeoutSeconds
                 : DefaultInteractionTimeout;
+
+            public static LlmRelayConfig FromDraft(LlmRelayConfigDraft draft)
+            {
+                if (draft == null)
+                    return new LlmRelayConfig();
+
+                return new LlmRelayConfig
+                {
+                    apiKey = draft.apiKey,
+                    model = draft.model,
+                    chatCompletionsUrl = draft.chatCompletionsUrl,
+                    baseUrl = draft.baseUrl,
+                    useJsonResponseFormat = draft.useJsonResponseFormat,
+                    supportsDeveloperRole = draft.supportsDeveloperRole,
+                    interactionTimeoutSeconds = draft.interactionTimeoutSeconds
+                };
+            }
+
+            public LlmRelayConfigDraft ToDraft()
+            {
+                return new LlmRelayConfigDraft
+                {
+                    apiKey = apiKey,
+                    model = model,
+                    chatCompletionsUrl = chatCompletionsUrl,
+                    baseUrl = baseUrl,
+                    useJsonResponseFormat = useJsonResponseFormat,
+                    supportsDeveloperRole = supportsDeveloperRole,
+                    interactionTimeoutSeconds = InteractionTimeoutSeconds
+                };
+            }
 
             public void Normalize()
             {

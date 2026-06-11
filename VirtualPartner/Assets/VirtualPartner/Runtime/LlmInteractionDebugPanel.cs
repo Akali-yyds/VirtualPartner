@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 
 namespace VirtualPartner.Runtime
@@ -24,6 +25,16 @@ namespace VirtualPartner.Runtime
         private string cachedRawResponsePreview;
         private string cachedStagePlanSource;
         private string cachedStagePlanPreview;
+        private bool configEditorInitialized;
+        private bool showApiKey;
+        private string editApiKey = string.Empty;
+        private string editModel = string.Empty;
+        private string editChatCompletionsUrl = string.Empty;
+        private string editBaseUrl = string.Empty;
+        private bool editUseJsonResponseFormat = true;
+        private bool editSupportsDeveloperRole;
+        private string editInteractionTimeoutSeconds = "10";
+        private string configEditStatus;
 
         public void SetStandaloneVisible(bool visible)
         {
@@ -78,6 +89,17 @@ namespace VirtualPartner.Runtime
             DrawResponse();
         }
 
+        public void DrawApiConfigEmbedded()
+        {
+            if (llmRelay == null)
+            {
+                GUILayout.Label("LlmRelay: Missing");
+                return;
+            }
+
+            DrawConfigEditor();
+        }
+
         private void DrawCompactStatus()
         {
             if (llmRelay == null)
@@ -122,8 +144,6 @@ namespace VirtualPartner.Runtime
             if (GUILayout.Button("Submit"))
                 llmRelay.Submit(userText);
             GUI.enabled = llmRelay != null;
-            if (GUILayout.Button("Reload Config"))
-                llmRelay.ReloadConfig();
             if (GUILayout.Button("Stop LLM StagePlan"))
                 llmRelay.StopLlmStagePlan();
             GUI.enabled = true;
@@ -136,9 +156,141 @@ namespace VirtualPartner.Runtime
                 promptCopyStatus = llmRelay.LastPromptStatus;
             }
             GUI.enabled = true;
+        }
 
-            if (llmRelay != null)
-                GUILayout.Label($"Config Path: {llmRelay.ConfigPath}");
+        private void DrawConfigEditor()
+        {
+            if (llmRelay == null)
+                return;
+
+            EnsureConfigEditorInitialized();
+
+            GUILayout.Label("API Config");
+            GUILayout.Label($"Status: {llmRelay.ConfigStatus}");
+            GUILayout.Label($"Config Path: {llmRelay.ConfigPath}");
+            DrawTextFieldRow("Model", ref editModel);
+            DrawTextFieldRow("Base URL", ref editBaseUrl);
+            DrawTextFieldRow("Chat URL", ref editChatCompletionsUrl);
+
+            GUILayout.Label("API Key");
+            GUILayout.BeginHorizontal();
+            editApiKey = showApiKey
+                ? GUILayout.TextField(editApiKey)
+                : GUILayout.PasswordField(editApiKey, '*');
+            showApiKey = GUILayout.Toggle(showApiKey, "Show", GUILayout.Width(64f));
+            GUILayout.EndHorizontal();
+
+            editUseJsonResponseFormat = GUILayout.Toggle(editUseJsonResponseFormat, "Use JSON response_format");
+            editSupportsDeveloperRole = GUILayout.Toggle(editSupportsDeveloperRole, "Use developer role");
+            DrawTextFieldRow("Interaction Timeout", ref editInteractionTimeoutSeconds);
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload File"))
+            {
+                llmRelay.ReloadConfig();
+                LoadCurrentConfigIntoEditor("Reloaded config file.");
+            }
+            if (GUILayout.Button("Load Current"))
+                LoadCurrentConfigIntoEditor("Loaded current config.");
+
+            var previousEnabled = GUI.enabled;
+            GUI.enabled = !llmRelay.ConfigTestPending;
+            if (GUILayout.Button(llmRelay.ConfigTestPending ? "Testing..." : "Test"))
+                StartConfigTestFromEditor();
+            GUI.enabled = previousEnabled;
+
+            if (GUILayout.Button("Save"))
+                SaveConfigFromEditor();
+            GUILayout.EndHorizontal();
+
+            if (!string.IsNullOrWhiteSpace(configEditStatus))
+                GUILayout.Label(configEditStatus);
+            if (!string.IsNullOrWhiteSpace(llmRelay.ConfigTestStatus))
+                GUILayout.Label($"Test: {llmRelay.ConfigTestStatus}");
+        }
+
+        private void EnsureConfigEditorInitialized()
+        {
+            if (configEditorInitialized)
+                return;
+
+            LoadCurrentConfigIntoEditor(string.Empty);
+        }
+
+        private void LoadCurrentConfigIntoEditor(string status)
+        {
+            if (llmRelay == null)
+                return;
+
+            var draft = llmRelay.CreateConfigDraft();
+            editApiKey = draft.apiKey ?? string.Empty;
+            editModel = draft.model ?? string.Empty;
+            editChatCompletionsUrl = draft.chatCompletionsUrl ?? string.Empty;
+            editBaseUrl = draft.baseUrl ?? string.Empty;
+            editUseJsonResponseFormat = draft.useJsonResponseFormat;
+            editSupportsDeveloperRole = draft.supportsDeveloperRole;
+            editInteractionTimeoutSeconds = draft.interactionTimeoutSeconds.ToString("0.###", CultureInfo.InvariantCulture);
+            configEditStatus = status ?? string.Empty;
+            configEditorInitialized = true;
+        }
+
+        private void StartConfigTestFromEditor()
+        {
+            if (!TryBuildConfigDraftFromEditor(out var draft, out var failureReason))
+            {
+                configEditStatus = failureReason;
+                return;
+            }
+
+            if (llmRelay.StartConfigTest(draft))
+                configEditStatus = "Config test started.";
+            else
+                configEditStatus = llmRelay.ConfigTestStatus;
+        }
+
+        private void SaveConfigFromEditor()
+        {
+            if (!TryBuildConfigDraftFromEditor(out var draft, out var failureReason))
+            {
+                configEditStatus = failureReason;
+                return;
+            }
+
+            if (llmRelay.SaveConfig(draft, out var message))
+                LoadCurrentConfigIntoEditor(message);
+            else
+                configEditStatus = message;
+        }
+
+        private bool TryBuildConfigDraftFromEditor(out LlmRelayConfigDraft draft, out string failureReason)
+        {
+            draft = null;
+            failureReason = string.Empty;
+
+            if (!float.TryParse(editInteractionTimeoutSeconds, NumberStyles.Float, CultureInfo.InvariantCulture, out var timeoutSeconds)
+                || timeoutSeconds <= 0f)
+            {
+                failureReason = "Interaction Timeout must be a positive number.";
+                return false;
+            }
+
+            draft = new LlmRelayConfigDraft
+            {
+                apiKey = editApiKey,
+                model = editModel,
+                chatCompletionsUrl = editChatCompletionsUrl,
+                baseUrl = editBaseUrl,
+                useJsonResponseFormat = editUseJsonResponseFormat,
+                supportsDeveloperRole = editSupportsDeveloperRole,
+                interactionTimeoutSeconds = timeoutSeconds
+            };
+            return true;
+        }
+
+        private static void DrawTextFieldRow(string label, ref string value)
+        {
+            GUILayout.Label(label);
+            value = GUILayout.TextField(value ?? string.Empty);
         }
 
         private void DrawResponse()

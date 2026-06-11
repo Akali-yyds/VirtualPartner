@@ -130,13 +130,187 @@ function Repair-HuggingFaceHubFileDownload {
     }
 }
 
-function Repair-And-Validate-GptRuntime {
+function Get-CondaDeclaredBinaryFiles {
     param(
-        [string]$ArchivePath,
         [string]$RuntimeRoot
     )
 
+    $MetaRoot = Join-Path $RuntimeRoot "conda-meta"
+    if (!(Test-Path $MetaRoot)) {
+        return @()
+    }
+
+    $Items = New-Object System.Collections.Generic.List[object]
+    Get-ChildItem -Path $MetaRoot -Filter "*.json" | ForEach-Object {
+        try {
+            $Package = Get-Content $_.FullName -Raw | ConvertFrom-Json
+            foreach ($RelativePath in @($Package.files)) {
+                if ([string]::IsNullOrWhiteSpace($RelativePath)) {
+                    continue
+                }
+
+                $NormalizedPath = $RelativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+                if ($NormalizedPath -notmatch "\.(dll|exe|pyd)$") {
+                    continue
+                }
+
+                $Items.Add([pscustomobject]@{
+                    Package = [string]$Package.name
+                    Version = [string]$Package.version
+                    RelativePath = $NormalizedPath
+                    FullPath = Join-Path $RuntimeRoot $NormalizedPath
+                }) | Out-Null
+            }
+        }
+        catch {
+            throw "Failed to inspect conda package metadata: $($_.FullName). $($_.Exception.Message)"
+        }
+    }
+
+    return $Items.ToArray()
+}
+
+function Repair-MissingCondaBinaryFiles {
+    param(
+        [string]$RuntimeName,
+        [string]$RuntimeRoot,
+        [string[]]$CandidateRuntimeRoots
+    )
+
+    $Missing = New-Object System.Collections.Generic.List[object]
+    foreach ($Item in Get-CondaDeclaredBinaryFiles -RuntimeRoot $RuntimeRoot) {
+        if (Test-Path $Item.FullPath) {
+            continue
+        }
+
+        $Source = $null
+        foreach ($CandidateRoot in @($CandidateRuntimeRoots)) {
+            if ([string]::IsNullOrWhiteSpace($CandidateRoot)) {
+                continue
+            }
+
+            $CandidatePath = Join-Path $CandidateRoot $Item.RelativePath
+            if (Test-Path $CandidatePath) {
+                $Source = $CandidatePath
+                break
+            }
+        }
+
+        if ($Source) {
+            $TargetDirectory = Split-Path -Parent $Item.FullPath
+            New-Item -ItemType Directory -Force -Path $TargetDirectory | Out-Null
+            Copy-Item -Force $Source $Item.FullPath
+            Write-Host "[V1] Repaired $RuntimeName runtime file:" $Item.RelativePath
+            continue
+        }
+
+        $Missing.Add($Item) | Out-Null
+    }
+
+    if ($Missing.Count -gt 0) {
+        $Preview = $Missing |
+            Select-Object -First 20 |
+            ForEach-Object { "$($_.Package)-$($_.Version): $($_.RelativePath)" }
+        throw "$RuntimeName runtime has missing conda package files:`n$($Preview -join "`n")"
+    }
+}
+
+function Assert-CondaRuntimeBinaryFiles {
+    param(
+        [string]$RuntimeName,
+        [string]$RuntimeRoot
+    )
+
+    $Missing = Get-CondaDeclaredBinaryFiles -RuntimeRoot $RuntimeRoot |
+        Where-Object { !(Test-Path $_.FullPath) }
+
+    if (@($Missing).Count -gt 0) {
+        $Preview = $Missing |
+            Select-Object -First 20 |
+            ForEach-Object { "$($_.Package)-$($_.Version): $($_.RelativePath)" }
+        throw "$RuntimeName runtime still has missing conda package files:`n$($Preview -join "`n")"
+    }
+
+    Write-Host "[V1] $RuntimeName conda runtime files validated."
+}
+
+function Invoke-CleanRuntimeCommand {
+    param(
+        [string]$RuntimeName,
+        [string]$RuntimeRoot,
+        [string]$FilePath,
+        [string[]]$Arguments
+    )
+
+    if (!(Test-Path $FilePath)) {
+        throw "$RuntimeName smoke test executable missing: $FilePath"
+    }
+
+    $PathParts = @(
+        $RuntimeRoot,
+        (Join-Path $RuntimeRoot "Scripts"),
+        (Join-Path $RuntimeRoot "Library\mingw-w64\bin"),
+        (Join-Path $RuntimeRoot "Library\usr\bin"),
+        (Join-Path $RuntimeRoot "Library\bin")
+    ) | Where-Object { Test-Path $_ }
+
+    $OldPath = $env:PATH
+    try {
+        $env:PATH = $PathParts -join [System.IO.Path]::PathSeparator
+        & $FilePath @Arguments | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "$RuntimeName smoke test failed with exit code $LASTEXITCODE`: $FilePath $($Arguments -join ' ')"
+        }
+    }
+    finally {
+        $env:PATH = $OldPath
+    }
+}
+
+function Repair-And-Validate-CondaRuntime {
+    param(
+        [string]$RuntimeName,
+        [string]$RuntimeRoot,
+        [string[]]$CandidateRuntimeRoots,
+        [switch]$ValidateFfmpeg
+    )
+
+    Repair-MissingCondaBinaryFiles `
+        -RuntimeName $RuntimeName `
+        -RuntimeRoot $RuntimeRoot `
+        -CandidateRuntimeRoots $CandidateRuntimeRoots
+    Assert-CondaRuntimeBinaryFiles -RuntimeName $RuntimeName -RuntimeRoot $RuntimeRoot
+
+    Invoke-CleanRuntimeCommand `
+        -RuntimeName $RuntimeName `
+        -RuntimeRoot $RuntimeRoot `
+        -FilePath (Join-Path $RuntimeRoot "python.exe") `
+        -Arguments @("-V")
+
+    if ($ValidateFfmpeg) {
+        Invoke-CleanRuntimeCommand `
+            -RuntimeName $RuntimeName `
+            -RuntimeRoot $RuntimeRoot `
+            -FilePath (Join-Path $RuntimeRoot "Library\bin\ffmpeg.exe") `
+            -Arguments @("-version")
+    }
+
+    Write-Host "[V1] $RuntimeName clean PATH smoke test passed."
+}
+
+function Repair-And-Validate-GptRuntime {
+    param(
+        [string]$ArchivePath,
+        [string]$RuntimeRoot,
+        [string[]]$CandidateRuntimeRoots
+    )
+
     Repair-HuggingFaceHubFileDownload -ArchivePath $ArchivePath -RuntimeRoot $RuntimeRoot
+    Repair-And-Validate-CondaRuntime `
+        -RuntimeName "GPT-SoVITS/TTS" `
+        -RuntimeRoot $RuntimeRoot `
+        -CandidateRuntimeRoots $CandidateRuntimeRoots `
+        -ValidateFfmpeg
 
     $Python = Join-Path $RuntimeRoot "python.exe"
     if (!(Test-Path $Python)) {
@@ -187,10 +361,19 @@ if (!$SkipRuntimeBuild) {
     $RuntimeOutputRoot = Join-Path $OutputRoot "Runtime"
     $GptRuntimeArchive = Join-Path $PayloadRoot "gpt_tts_runtime.zip"
     $AsrRuntimeArchive = Join-Path $PayloadRoot "asr_runtime.zip"
+    $GptRuntimeRoot = Join-Path $RuntimeOutputRoot "gpt_tts"
+    $AsrRuntimeRoot = Join-Path $RuntimeOutputRoot "asr"
 
-    Expand-RuntimeArchive -ArchivePath $GptRuntimeArchive -Destination (Join-Path $RuntimeOutputRoot "gpt_tts")
-    Expand-RuntimeArchive -ArchivePath $AsrRuntimeArchive -Destination (Join-Path $RuntimeOutputRoot "asr")
-    Repair-And-Validate-GptRuntime -ArchivePath $GptRuntimeArchive -RuntimeRoot (Join-Path $RuntimeOutputRoot "gpt_tts")
+    Expand-RuntimeArchive -ArchivePath $GptRuntimeArchive -Destination $GptRuntimeRoot
+    Expand-RuntimeArchive -ArchivePath $AsrRuntimeArchive -Destination $AsrRuntimeRoot
+    Repair-And-Validate-GptRuntime `
+        -ArchivePath $GptRuntimeArchive `
+        -RuntimeRoot $GptRuntimeRoot `
+        -CandidateRuntimeRoots @($AsrRuntimeRoot)
+    Repair-And-Validate-CondaRuntime `
+        -RuntimeName "ASR" `
+        -RuntimeRoot $AsrRuntimeRoot `
+        -CandidateRuntimeRoots @($GptRuntimeRoot)
 }
 
 Write-Host "[V1] Done:" $OutputRoot

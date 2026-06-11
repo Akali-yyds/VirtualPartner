@@ -10,6 +10,7 @@ namespace VirtualPartner.Runtime
         {
             Overview,
             Llm,
+            Api,
             StagePlan,
             Momotalk,
             Tts,
@@ -179,6 +180,7 @@ namespace VirtualPartner.Runtime
             GUILayout.BeginVertical(GUILayout.Width(130f));
             DrawSectionButton(DebugSection.Overview, "Overview");
             DrawSectionButton(DebugSection.Llm, "LLM");
+            DrawSectionButton(DebugSection.Api, "API");
             DrawSectionButton(DebugSection.StagePlan, "StagePlan");
             DrawSectionButton(DebugSection.Momotalk, "Momotalk");
             DrawSectionButton(DebugSection.Tts, "TTS");
@@ -211,6 +213,9 @@ namespace VirtualPartner.Runtime
             {
                 case DebugSection.Llm:
                     DrawEmbeddedLlm();
+                    break;
+                case DebugSection.Api:
+                    DrawApiConfig();
                     break;
                 case DebugSection.StagePlan:
                     DrawEmbeddedStagePlan();
@@ -257,6 +262,17 @@ namespace VirtualPartner.Runtime
             }
 
             llmPanel.DrawEmbedded();
+        }
+
+        private void DrawApiConfig()
+        {
+            if (llmPanel == null)
+            {
+                GUILayout.Label("API panel: Missing LLM debug panel");
+                return;
+            }
+
+            llmPanel.DrawApiConfigEmbedded();
         }
 
         private void DrawEmbeddedStagePlan()

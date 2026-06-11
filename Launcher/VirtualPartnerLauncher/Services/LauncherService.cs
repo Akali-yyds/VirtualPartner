@@ -431,8 +431,10 @@ public sealed class LauncherService : IDisposable
         {
             runtimeDir,
             Path.Combine(runtimeDir, "Scripts"),
+            Path.Combine(runtimeDir, "Library", "mingw-w64", "bin"),
+            Path.Combine(runtimeDir, "Library", "usr", "bin"),
             Path.Combine(runtimeDir, "Library", "bin")
-        };
+        }.Where(Directory.Exists);
         var currentPath = startInfo.Environment.TryGetValue("PATH", out var path) ? path : string.Empty;
         startInfo.Environment["PATH"] = string.Join(Path.PathSeparator, pathParts.Concat(new[] { currentPath }));
     }

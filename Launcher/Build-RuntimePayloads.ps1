@@ -60,6 +60,51 @@ function Remove-EnvIfExists {
     }
 }
 
+function Assert-CondaPackageBinaryFiles {
+    param(
+        [string]$Label,
+        [string]$EnvRoot
+    )
+
+    $MetaRoot = Join-Path $EnvRoot "conda-meta"
+    if (!(Test-Path $MetaRoot)) {
+        throw "$Label conda metadata missing: $MetaRoot"
+    }
+
+    $Missing = New-Object System.Collections.Generic.List[object]
+    Get-ChildItem -Path $MetaRoot -Filter "*.json" | ForEach-Object {
+        $Package = Get-Content $_.FullName -Raw | ConvertFrom-Json
+        foreach ($RelativePath in @($Package.files)) {
+            if ([string]::IsNullOrWhiteSpace($RelativePath)) {
+                continue
+            }
+
+            $NormalizedPath = $RelativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+            if ($NormalizedPath -notmatch "\.(dll|exe|pyd)$") {
+                continue
+            }
+
+            $FullPath = Join-Path $EnvRoot $NormalizedPath
+            if (!(Test-Path $FullPath)) {
+                $Missing.Add([pscustomobject]@{
+                    Package = [string]$Package.name
+                    Version = [string]$Package.version
+                    RelativePath = $NormalizedPath
+                }) | Out-Null
+            }
+        }
+    }
+
+    if ($Missing.Count -gt 0) {
+        $Preview = $Missing |
+            Select-Object -First 20 |
+            ForEach-Object { "$($_.Package)-$($_.Version): $($_.RelativePath)" }
+        throw "$Label runtime has missing conda package files. Rebuild or repair the environment before packing:`n$($Preview -join "`n")"
+    }
+
+    Write-Host "[Runtime] $Label conda package files validated."
+}
+
 New-Item -ItemType Directory -Force -Path $OutputRoot, $BuildCacheRoot, $TempRoot | Out-Null
 
 if (!(Test-Path $GptSoVitsSource)) {
@@ -114,6 +159,8 @@ Invoke-Step "Pack GPT-SoVITS/TTS runtime" {
         return
     }
 
+    Assert-CondaPackageBinaryFiles -Label "GPT-SoVITS/TTS" -EnvRoot $GptEnv
+
     $Out = Join-Path $OutputRoot "gpt_tts_runtime.zip"
     if (Test-Path $Out) {
         Remove-Item -Force $Out
@@ -130,6 +177,8 @@ Invoke-Step "Pack ASR runtime" {
         Write-Host "[Runtime] Skipping ASR pack."
         return
     }
+
+    Assert-CondaPackageBinaryFiles -Label "ASR" -EnvRoot $AsrEnv
 
     $Out = Join-Path $OutputRoot "asr_runtime.zip"
     if (Test-Path $Out) {

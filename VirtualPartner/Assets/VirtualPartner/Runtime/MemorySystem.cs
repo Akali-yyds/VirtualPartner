@@ -76,6 +76,11 @@ namespace VirtualPartner.Runtime
             judgeClient.ReloadConfig();
         }
 
+        public bool ReloadJudgeConfig()
+        {
+            return judgeClient.ReloadConfig();
+        }
+
         private void OnDisable()
         {
             if (requestRegistry != null && subscribedToRegistry)
