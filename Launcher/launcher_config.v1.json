@@ -5,6 +5,7 @@
   "requiredPaths": [
     "App\\VirtualPartner.exe",
     "App\\UserSettings\\VirtualPartnerLlmConfig.json",
+    "App\\VirtualPartner_Data\\VirtualPartner\\Prompts\\named-gestures.md",
     "Services\\GPT-SoVITS\\api_v2.py",
     "Services\\GPT-SoVITS\\GPT_SoVITS\\configs\\tts_infer.yaml",
     "Services\\TTS\\tts_service.py",

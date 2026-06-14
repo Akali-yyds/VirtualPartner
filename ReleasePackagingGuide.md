@@ -233,10 +233,35 @@ Services\GPT-SoVITS\app\GPT_SoVITS\configs\tts_infer.yaml
 则需要把 `app` 里的内容复制到 `GPT-SoVITS` 根目录：
 
 ```powershell
-robocopy `
-  "F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS\app" `
-  "F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS" `
-  /E
+# 必填：改成你本机 GPT-SoVITS 的源目录。
+# 这个目录可以直接包含 api_v2.py，也可以是 portable 包根目录，里面包含 app\api_v2.py。
+$gptSourceRoot = "F:\Project\TTS\GPT-SoVITS"
+$gptDestRoot = "F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS"
+
+if (!(Test-Path $gptSourceRoot)) {
+  throw "GPT-SoVITS source directory not found. Please edit `$gptSourceRoot: $gptSourceRoot"
+}
+
+if (Test-Path (Join-Path $gptSourceRoot "api_v2.py")) {
+  $gptCopyRoot = $gptSourceRoot
+} elseif (Test-Path (Join-Path $gptSourceRoot "app\api_v2.py")) {
+  $gptCopyRoot = Join-Path $gptSourceRoot "app"
+} else {
+  throw "GPT-SoVITS source is invalid. Expected api_v2.py or app\api_v2.py under: $gptSourceRoot"
+}
+
+New-Item -ItemType Directory -Force $gptDestRoot | Out-Null
+robocopy $gptCopyRoot $gptDestRoot /MIR /XD .git __pycache__ logs output outputs TEMP temp runtime venv .venv
+if ($LASTEXITCODE -gt 7) {
+  throw "robocopy failed: $gptCopyRoot -> $gptDestRoot"
+}
+
+if (!(Test-Path (Join-Path $gptDestRoot "api_v2.py"))) {
+  throw "GPT-SoVITS api_v2.py missing after copy."
+}
+if (!(Test-Path (Join-Path $gptDestRoot "GPT_SoVITS\configs\tts_infer.yaml"))) {
+  throw "GPT-SoVITS tts_infer.yaml missing after copy."
+}
 ```
 
 检查服务关键路径：
@@ -297,14 +322,51 @@ Test-Path "F:\Release\VirtualPartnerRelease\App\VirtualPartner_Data\VirtualPartn
 
 两项应为 `True`。
 
+Prompt 文件也会作为运行时 fallback 资源使用，尤其是 `named-gestures.md` 里的比心等精确姿势库。手动准备发布源目录时复制：
+
+```powershell
+robocopy `
+  "F:\Project\VirtualPartner-new\VirtualPartner\Assets\VirtualPartner\Prompts" `
+  "F:\Release\VirtualPartnerRelease\App\VirtualPartner_Data\VirtualPartner\Prompts" `
+  /MIR /XF *.meta
+```
+
+检查：
+
+```powershell
+Test-Path "F:\Release\VirtualPartnerRelease\App\VirtualPartner_Data\VirtualPartner\Prompts\named-gestures.md"
+```
+
+应为 `True`。
+
+注意：`Launcher\Build-V1Release.ps1` 也会自动把项目内的 `Assets\VirtualPartner\Prompts` 复制进最终 V1 包。这里手动复制主要用于检查发布源目录结构或直接运行 Unity Build 时的 fallback。
+
 ## 5. 生成 Python Runtime Payloads
 
-运行：
+如果 `F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS` 是源码版 GPT-SoVITS，并且包含 `requirements.txt`、`extra-req.txt`，运行：
 
 ```powershell
 cd F:\Project\VirtualPartner-new
 
 powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1
+```
+
+如果你使用的是 portable 版 GPT-SoVITS，也就是源目录类似：
+
+```text
+F:\Project\TTS\GPT-SoVITS\
+  app\
+  Runtime\
+```
+
+并且 `app` 里没有 `requirements.txt`，则运行：
+
+```powershell
+cd F:\Project\VirtualPartner-new
+
+powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1 `
+  -PackPortableGptRuntime `
+  -PortableGptRuntimeRoot "F:\Project\TTS\GPT-SoVITS\Runtime"
 ```
 
 成功后应生成：
@@ -322,14 +384,20 @@ Test-Path "F:\Release\VirtualPartnerRuntimePayloads\gpt_tts_runtime.zip"
 Test-Path "F:\Release\VirtualPartnerRuntimePayloads\asr_runtime.zip"
 ```
 
-如果 `conda install ffmpeg cmake` 遇到 `gdk-pixbuf` / `librsvg` / `UnicodeDecodeError('gbk', ...)` 之类错误，可以使用已有 GPTSoVits 环境打包：
+如果遇到 `gdk-pixbuf` / `librsvg` / `UnicodeDecodeError('gbk', ...)` 之类错误，先确认 `Launcher\Build-RuntimePayloads.ps1` 里已经使用 `ffmpeg=6.1.1`，然后删除失败的临时环境重跑：
 
 ```powershell
 cd F:\Project\VirtualPartner-new
 
 Remove-Item -Recurse -Force "F:\Release\VirtualPartnerBuildCache\envs\vp-gpt-tts-cpu" -ErrorAction SilentlyContinue
 
-powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1 `
+powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1
+```
+
+如果仍然失败，再使用已有 GPTSoVits 环境打包：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1
   -PackExistingGptEnv `
   -ExistingGptEnv "G:\Conda\envs\GPTSoVits"
 ```
@@ -599,21 +667,26 @@ robocopy `
 解决：
 
 ```powershell
-robocopy `
-  "F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS\app" `
-  "F:\Release\VirtualPartnerRelease\Services\GPT-SoVITS" `
-  /E
+# 回到第 3 步，执行 GPT-SoVITS 复制代码块。
+# 重点是把 $gptSourceRoot 改成你本机真实的 GPT-SoVITS 源目录。
 ```
 
 ### 4. `Build-RuntimePayloads.ps1` 的 conda install 失败
 
-如果出现 `gdk-pixbuf`、`librsvg`、`UnicodeDecodeError('gbk', ...)`，用已有 GPTSoVits 环境打包：
+如果出现 `gdk-pixbuf`、`librsvg`、`UnicodeDecodeError('gbk', ...)`，说明 conda 解析到了有问题的新版 `ffmpeg` 依赖链。
+当前 `Build-RuntimePayloads.ps1` 已固定 `ffmpeg=6.1.1` 并显式安装 `liblzma`。先删除失败的临时环境，再重跑：
 
 ```powershell
 cd F:\Project\VirtualPartner-new
 
 Remove-Item -Recurse -Force "F:\Release\VirtualPartnerBuildCache\envs\vp-gpt-tts-cpu" -ErrorAction SilentlyContinue
 
+powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1 `
+```
+
+如果仍然失败，再退回到已有 GPTSoVits 环境打包：
+
+```powershell
 powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1 `
   -PackExistingGptEnv `
   -ExistingGptEnv "G:\Conda\envs\GPTSoVits"
@@ -628,4 +701,3 @@ powershell -ExecutionPolicy Bypass -File .\Launcher\Build-RuntimePayloads.ps1 `
 ```text
 Launcher.exe
 ```
-

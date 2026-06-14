@@ -11,9 +11,11 @@ $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$RepoRoot = Split-Path -Parent $ScriptRoot
 $ProjectRoot = Join-Path $ScriptRoot "VirtualPartnerLauncher"
 $ConfigTemplate = Join-Path $ScriptRoot "launcher_config.v1.json"
 $PublishRoot = Join-Path $ScriptRoot "publish"
+$PromptSourceRoot = Join-Path $RepoRoot "VirtualPartner\Assets\VirtualPartner\Prompts"
 
 function Copy-DirectoryMirror {
     param(
@@ -27,6 +29,30 @@ function Copy-DirectoryMirror {
 
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     & robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -gt 7) {
+        throw "robocopy failed: $Source -> $Destination"
+    }
+}
+
+function Copy-DirectoryMirrorFiltered {
+    param(
+        [string]$Source,
+        [string]$Destination,
+        [string[]]$ExcludedFiles = @()
+    )
+
+    if (!(Test-Path $Source)) {
+        throw "Source directory missing: $Source"
+    }
+
+    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
+    $arguments = @($Source, $Destination, "/MIR", "/NFL", "/NDL", "/NJH", "/NJS", "/NP")
+    if ($ExcludedFiles.Length -gt 0) {
+        $arguments += "/XF"
+        $arguments += $ExcludedFiles
+    }
+
+    & robocopy @arguments | Out-Null
     if ($LASTEXITCODE -gt 7) {
         throw "robocopy failed: $Source -> $Destination"
     }
@@ -94,18 +120,19 @@ function Repair-HuggingFaceHubFileDownload {
     $EntryName = "Lib/site-packages/huggingface_hub/file_download.py"
     $TargetPath = Join-Path $RuntimeRoot "Lib\site-packages\huggingface_hub\file_download.py"
     if (!(Test-Path $TargetPath)) {
-        throw "Expected file missing after unpack: $TargetPath"
+        Write-Host "[V1] huggingface_hub/file_download.py not present; skipping restore."
+        return
     }
 
     Write-Host "[V1] Restoring clean huggingface_hub/file_download.py"
     $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
     try {
-        $entry = $archive.GetEntry($EntryName)
+        $entry = $archive.Entries |
+            Where-Object { ($_.FullName -replace '^\./', '') -eq $EntryName } |
+            Select-Object -First 1
         if ($null -eq $entry) {
-            $entry = $archive.GetEntry($EntryName.Replace('\', '/'))
-        }
-        if ($null -eq $entry) {
-            throw "Archive entry missing: $EntryName"
+            Write-Host "[V1] Archive entry missing; keeping unpacked huggingface_hub/file_download.py."
+            return
         }
 
         $directory = Split-Path -Parent $TargetPath
@@ -334,6 +361,10 @@ Reset-Directory $OutputRoot
 
 Copy-DirectoryMirror (Join-Path $SourceReleaseRoot "App") (Join-Path $OutputRoot "App")
 Copy-DirectoryMirror (Join-Path $SourceReleaseRoot "Services") (Join-Path $OutputRoot "Services")
+Copy-DirectoryMirrorFiltered `
+    $PromptSourceRoot `
+    (Join-Path $OutputRoot "App\VirtualPartner_Data\VirtualPartner\Prompts") `
+    @("*.meta")
 
 Write-Host "[V1] Publishing WPF launcher..."
 if (Test-Path $PublishRoot) {

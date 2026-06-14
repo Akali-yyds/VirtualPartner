@@ -340,6 +340,10 @@ namespace VirtualPartner.EditorTools
             radialAxis.Range = new Vector2(1f, 1f);
             radialAxis.Value = 1f;
             orbital.RadialAxis = radialAxis;
+
+            orbital.TrackerSettings.PositionDamping = Vector3.zero;
+            orbital.TrackerSettings.RotationDamping = Vector3.zero;
+            orbital.TrackerSettings.QuaternionDamping = 0f;
         }
 
         private static void CopyCameraSettings(Camera source, Camera target)

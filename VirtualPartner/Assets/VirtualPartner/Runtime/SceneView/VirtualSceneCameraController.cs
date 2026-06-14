@@ -12,6 +12,9 @@ namespace VirtualPartner.Runtime
         [SerializeField] private Transform focusTarget;
         [SerializeField] private Camera outputCamera;
 
+        [Header("Cinemachine")]
+        [SerializeField] private bool forceImmediateTrackerDamping = true;
+
         [Header("Orbit")]
         [SerializeField] private float orbitDegreesPerUnit = 0.25f;
         [SerializeField] private Vector2 verticalRange = new Vector2(-8f, 42f);
@@ -26,6 +29,7 @@ namespace VirtualPartner.Runtime
 
         [Header("Pan")]
         [SerializeField] private float panUnitsPerUnit = 0.01f;
+        [SerializeField] private bool useStablePanBasisDuringDrag = true;
         [SerializeField] private bool panBoundsEnabled;
         [SerializeField] private Bounds panBounds = new Bounds(Vector3.zero, new Vector3(10f, 4f, 10f));
 
@@ -36,6 +40,9 @@ namespace VirtualPartner.Runtime
         private float defaultHorizontal;
         private float defaultVertical;
         private float defaultRadius;
+        private bool dragPanBasisActive;
+        private Vector3 dragPanRight;
+        private Vector3 dragPanForward;
 
         public CinemachineCamera SceneCamera => sceneCamera;
         public Transform FocusTarget => focusTarget;
@@ -87,16 +94,37 @@ namespace VirtualPartner.Runtime
             orbitalFollow.Radius = Mathf.Clamp(orbitalFollow.Radius - delta * zoomUnitsPerUnit, minRadius, maxRadius);
         }
 
+        public void BeginPan()
+        {
+            if (!useStablePanBasisDuringDrag)
+            {
+                dragPanBasisActive = false;
+                return;
+            }
+
+            GetCurrentPanBasis(out dragPanRight, out dragPanForward);
+            dragPanBasisActive = true;
+        }
+
+        public void EndPan()
+        {
+            dragPanBasisActive = false;
+        }
+
         public void Pan(Vector2 delta)
         {
             if (focusTarget == null)
                 return;
 
-            var cameraTransform = outputCamera != null ? outputCamera.transform : transform;
-            var right = cameraTransform.right;
-            var forward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
-            if (forward.sqrMagnitude < 0.0001f)
-                forward = Vector3.forward;
+            Vector3 right;
+            Vector3 forward;
+            if (dragPanBasisActive)
+            {
+                right = dragPanRight;
+                forward = dragPanForward;
+            }
+            else
+                GetCurrentPanBasis(out right, out forward);
 
             var nextPosition = focusTarget.position + (-right * delta.x + -forward * delta.y) * panUnitsPerUnit;
             focusTarget.position = ClampFocusPosition(nextPosition);
@@ -137,6 +165,7 @@ namespace VirtualPartner.Runtime
 
         private void Awake()
         {
+            ApplyTrackerDamping();
             CaptureDefaults();
         }
 
@@ -160,6 +189,7 @@ namespace VirtualPartner.Runtime
                 Mathf.Max(0.01f, panBounds.size.x),
                 Mathf.Max(0.01f, panBounds.size.y),
                 Mathf.Max(0.01f, panBounds.size.z));
+            ApplyTrackerDamping();
             CaptureDefaults();
             ClampCurrentRadius();
         }
@@ -210,6 +240,34 @@ namespace VirtualPartner.Runtime
 
             orbitalFollow.Radius = Mathf.Clamp(orbitalFollow.Radius, minRadius, maxRadius);
             defaultRadius = Mathf.Clamp(defaultRadius, minRadius, maxRadius);
+        }
+
+        private void ApplyTrackerDamping()
+        {
+            if (!forceImmediateTrackerDamping || orbitalFollow == null)
+                return;
+
+            orbitalFollow.TrackerSettings.PositionDamping = Vector3.zero;
+            orbitalFollow.TrackerSettings.RotationDamping = Vector3.zero;
+            orbitalFollow.TrackerSettings.QuaternionDamping = 0f;
+        }
+
+        private void GetCurrentPanBasis(out Vector3 right, out Vector3 forward)
+        {
+            var cameraTransform = outputCamera != null ? outputCamera.transform : transform;
+            forward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
+            if (forward.sqrMagnitude < 0.0001f)
+                forward = Vector3.forward;
+            else
+                forward.Normalize();
+
+            right = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up);
+            if (right.sqrMagnitude < 0.0001f)
+                right = Vector3.Cross(Vector3.up, forward);
+            if (right.sqrMagnitude < 0.0001f)
+                right = Vector3.right;
+            else
+                right.Normalize();
         }
 
         private Vector3 ClampFocusPosition(Vector3 position)

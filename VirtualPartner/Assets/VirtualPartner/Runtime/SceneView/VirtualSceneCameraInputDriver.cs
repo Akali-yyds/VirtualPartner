@@ -56,7 +56,7 @@ namespace VirtualPartner.Runtime
         {
             inputEnabled = enabled;
             if (!enabled)
-                dragMode = DragMode.None;
+                SetDragMode(DragMode.None);
         }
 
         private void Update()
@@ -90,12 +90,12 @@ namespace VirtualPartner.Runtime
             var pointerPosition = mouse.position.ReadValue();
             if (BeginDragRequested(mouse, keyboard, out var requestedMode))
             {
-                dragMode = ShouldIgnorePointerStart() ? DragMode.None : requestedMode;
+                SetDragMode(ShouldIgnorePointerStart() ? DragMode.None : requestedMode);
                 lastPointerPosition = pointerPosition;
             }
 
             if (dragMode != DragMode.None && !IsDragButtonHeld(mouse, keyboard, dragMode))
-                dragMode = DragMode.None;
+                SetDragMode(DragMode.None);
 
             if (dragMode != DragMode.None)
             {
@@ -178,7 +178,7 @@ namespace VirtualPartner.Runtime
 
         private void BeginLegacyDrag(Vector2 pointerPosition, DragMode requestedMode)
         {
-            dragMode = ShouldIgnorePointerStart() ? DragMode.None : requestedMode;
+            SetDragMode(ShouldIgnorePointerStart() ? DragMode.None : requestedMode);
             lastPointerPosition = pointerPosition;
         }
 
@@ -205,6 +205,20 @@ namespace VirtualPartner.Runtime
                 cameraController.Orbit(delta * orbitSensitivity);
             else if (dragMode == DragMode.Pan)
                 cameraController.Pan(delta * panSensitivity);
+        }
+
+        private void SetDragMode(DragMode mode)
+        {
+            if (dragMode == mode)
+                return;
+
+            if (dragMode == DragMode.Pan)
+                cameraController?.EndPan();
+
+            dragMode = mode;
+
+            if (dragMode == DragMode.Pan)
+                cameraController?.BeginPan();
         }
 
         private bool ShouldIgnorePointerStart()

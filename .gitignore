@@ -27,6 +27,10 @@ VirtualPartner/LocalServices/ASR/**/*.wav
 VirtualPartner/LocalServices/ASR/**/*.onnx
 VirtualPartner/LocalServices/ASR/**/*.tar.bz2
 
+Launcher/publish/
+Launcher/VirtualPartnerLauncher/bin/
+Launcher/VirtualPartnerLauncher/obj/
+
 # Unity generated files
 *.csproj
 *.sln
