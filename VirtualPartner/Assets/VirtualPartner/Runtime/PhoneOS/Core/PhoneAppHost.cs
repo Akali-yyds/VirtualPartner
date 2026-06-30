@@ -100,6 +100,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             var closingObject = currentAppObject;
             var closingApp = currentApp;
 
+            currentAppObject = null;
             currentApp = null;
             currentAppDefinition = null;
             isClosingCurrentApp = true;
@@ -165,7 +166,6 @@ namespace VirtualPartner.Runtime.PhoneOS
                 closeDuration,
                 true);
 
-            currentAppObject = null;
             isClosingCurrentApp = false;
             transitionRoutine = null;
 
