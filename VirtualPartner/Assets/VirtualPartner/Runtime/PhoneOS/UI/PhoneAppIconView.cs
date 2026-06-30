@@ -16,22 +16,28 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         public PhoneAppDefinition Definition => definition;
 
-        public void ApplyStyle(PhoneOSStyle style)
+        public void ApplyStyle(PhoneOSStyle style, bool dockIcon = false)
         {
             if (style == null)
                 return;
 
+            var cellSize = dockIcon ? style.DockCellSize : style.AppGridCellSize;
+            var iconSize = dockIcon ? style.DockIconSize : style.AppIconSize;
+
             var layoutElement = GetComponent<LayoutElement>();
             if (layoutElement != null)
             {
-                layoutElement.preferredWidth = style.AppGridCellSize.x;
-                layoutElement.preferredHeight = style.AppGridCellSize.y;
+                layoutElement.preferredWidth = cellSize.x;
+                layoutElement.preferredHeight = cellSize.y;
             }
 
             if (iconImage != null)
-                iconImage.rectTransform.sizeDelta = style.AppIconSize;
+                iconImage.rectTransform.sizeDelta = iconSize;
             if (labelText != null)
-                labelText.color = style.PrimaryTextColor;
+            {
+                labelText.color = dockIcon ? style.DockIconLabelColor : style.PrimaryTextColor;
+                labelText.fontSize = Mathf.RoundToInt(style.AppIconLabelFontSize);
+            }
         }
 
         public void Bind(PhoneAppDefinition appDefinition, Action<PhoneAppDefinition> onClicked)

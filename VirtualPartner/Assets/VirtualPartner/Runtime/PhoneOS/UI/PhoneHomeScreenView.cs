@@ -22,10 +22,10 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (registry == null || appIconPrefab == null)
                 return;
 
-            ApplyStyleToGrid(appGridRoot);
-            ApplyStyleToGrid(dockRoot);
-            BuildIcons(registry.GetHomeScreenApps(), appGridRoot);
-            BuildIcons(registry.GetDockApps(), dockRoot);
+            ApplyStyleToGrid(appGridRoot, false);
+            ApplyStyleToGrid(dockRoot, true);
+            BuildIcons(registry.GetHomeScreenApps(), appGridRoot, false);
+            BuildIcons(registry.GetDockApps(), dockRoot, true);
         }
 
         private void Start()
@@ -34,7 +34,7 @@ namespace VirtualPartner.Runtime.PhoneOS
                 Rebuild();
         }
 
-        private void BuildIcons(List<PhoneAppDefinition> apps, Transform parent)
+        private void BuildIcons(List<PhoneAppDefinition> apps, Transform parent, bool dockIcons)
         {
             if (apps == null || parent == null)
                 return;
@@ -44,20 +44,20 @@ namespace VirtualPartner.Runtime.PhoneOS
                 var icon = Instantiate(appIconPrefab, parent);
                 icon.name = "AppIcon_" + apps[i].AppId;
                 icon.gameObject.SetActive(true);
-                icon.ApplyStyle(style);
+                icon.ApplyStyle(style, dockIcons);
                 icon.Bind(apps[i], HandleAppClicked);
                 generatedIcons.Add(icon);
             }
         }
 
-        private void ApplyStyleToGrid(Transform root)
+        private void ApplyStyleToGrid(Transform root, bool dockGrid)
         {
             if (style == null || root == null)
                 return;
 
             var grid = root.GetComponent<GridLayoutGroup>();
             if (grid != null)
-                grid.cellSize = style.AppGridCellSize;
+                grid.cellSize = dockGrid ? style.DockCellSize : style.AppGridCellSize;
         }
 
         private void ClearGeneratedIcons()
