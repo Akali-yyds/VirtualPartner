@@ -20,7 +20,7 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private Vector2 appIconSize = new Vector2(52f, 52f);
         [SerializeField] private Vector2 appGridCellSize = new Vector2(96f, 104f);
         [SerializeField] private Vector2 dockIconSize = new Vector2(52f, 52f);
-        [SerializeField] private Vector2 dockCellSize = new Vector2(96f, 84f);
+        [SerializeField] private Vector2 dockCellSize = new Vector2(96f, 104f);
         [SerializeField] private float appIconLabelFontSize = 12f;
         [SerializeField] private float statusBarFontSize = 10f;
         [SerializeField] private float widgetSmallFontSize = 12f;

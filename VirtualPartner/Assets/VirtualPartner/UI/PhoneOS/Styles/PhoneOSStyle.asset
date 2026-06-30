@@ -27,7 +27,7 @@ MonoBehaviour:
   appIconSize: {x: 52, y: 52}
   appGridCellSize: {x: 96, y: 104}
   dockIconSize: {x: 52, y: 52}
-  dockCellSize: {x: 96, y: 84}
+  dockCellSize: {x: 96, y: 104}
   appIconLabelFontSize: 12
   statusBarFontSize: 10
   widgetSmallFontSize: 12
