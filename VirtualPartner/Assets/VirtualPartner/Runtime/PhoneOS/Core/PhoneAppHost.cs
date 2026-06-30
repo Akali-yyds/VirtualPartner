@@ -11,11 +11,15 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private GameObject appLayer;
         [SerializeField] private RectTransform appWindowContainer;
         [SerializeField] private float openDuration = 0.18f;
+        [SerializeField] private float closeDuration = 0.14f;
+        [SerializeField] private float homeReturnDuration = 0.14f;
 
         private GameObject currentAppObject;
         private IPhoneApp currentApp;
         private PhoneAppDefinition currentAppDefinition;
         private Coroutine transitionRoutine;
+        private Coroutine homeTransitionRoutine;
+        private bool isClosingCurrentApp;
 
         public IPhoneApp CurrentApp => currentApp;
 
@@ -90,15 +94,15 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         public void CloseCurrentApp()
         {
-            if (currentAppObject == null)
+            if (currentAppObject == null || isClosingCurrentApp)
                 return;
 
             var closingObject = currentAppObject;
             var closingApp = currentApp;
 
-            currentAppObject = null;
             currentApp = null;
             currentAppDefinition = null;
+            isClosingCurrentApp = true;
             closingApp?.OnClose();
 
             if (transitionRoutine != null)
@@ -107,20 +111,18 @@ namespace VirtualPartner.Runtime.PhoneOS
                 transitionRoutine = null;
             }
 
-            if (closingObject != null)
-                Destroy(closingObject);
-
-            if (appWindowContainer != null)
-                appWindowContainer.gameObject.SetActive(false);
-
-            SetAppLayerVisible(false);
             SetHomeVisible(true);
+            PlayHomeReturnAnimation();
+            transitionRoutine = StartCoroutine(CloseCurrentAppAnimated(closingObject));
         }
 
         public bool HandleBackPressed()
         {
             if (currentAppObject == null)
                 return false;
+
+            if (isClosingCurrentApp)
+                return true;
 
             if (currentApp != null && currentApp.OnBackPressed())
                 return true;
@@ -134,7 +136,89 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (transitionRoutine != null)
                 StopCoroutine(transitionRoutine);
 
+            isClosingCurrentApp = false;
             transitionRoutine = StartCoroutine(AnimateWindow(target, 0f, 1f, 0.96f, 1f, openDuration, false));
+        }
+
+        private void PlayHomeReturnAnimation()
+        {
+            if (homeLayer == null)
+                return;
+
+            if (homeTransitionRoutine != null)
+            {
+                StopCoroutine(homeTransitionRoutine);
+                homeTransitionRoutine = null;
+            }
+
+            homeTransitionRoutine = StartCoroutine(AnimateHomeReturn());
+        }
+
+        private IEnumerator CloseCurrentAppAnimated(GameObject closingObject)
+        {
+            yield return AnimateWindow(
+                closingObject,
+                GetCanvasGroupAlpha(closingObject, 1f),
+                0f,
+                GetRectScale(closingObject, 1f),
+                0.96f,
+                closeDuration,
+                true);
+
+            currentAppObject = null;
+            isClosingCurrentApp = false;
+            transitionRoutine = null;
+
+            if (appWindowContainer != null)
+                appWindowContainer.gameObject.SetActive(false);
+
+            SetAppLayerVisible(false);
+            SetHomeVisible(true);
+        }
+
+        private IEnumerator AnimateHomeReturn()
+        {
+            var canvasGroup = homeLayer.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = homeLayer.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 0.85f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            var elapsed = 0f;
+            var duration = Mathf.Max(0.01f, homeReturnDuration);
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                var t = Mathf.Clamp01(elapsed / duration);
+                var eased = 1f - Mathf.Pow(1f - t, 3f);
+                canvasGroup.alpha = Mathf.Lerp(0.85f, 1f, eased);
+                yield return null;
+            }
+
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+            homeTransitionRoutine = null;
+        }
+
+        private static float GetCanvasGroupAlpha(GameObject target, float fallback)
+        {
+            if (target == null)
+                return fallback;
+
+            var canvasGroup = target.GetComponent<CanvasGroup>();
+            return canvasGroup != null ? canvasGroup.alpha : fallback;
+        }
+
+        private static float GetRectScale(GameObject target, float fallback)
+        {
+            if (target == null)
+                return fallback;
+
+            var rectTransform = target.GetComponent<RectTransform>();
+            return rectTransform != null ? rectTransform.localScale.x : fallback;
         }
 
         private IEnumerator AnimateWindow(GameObject target, float fromAlpha, float toAlpha, float fromScale, float toScale, float duration, bool destroyWhenDone)
@@ -147,6 +231,12 @@ namespace VirtualPartner.Runtime.PhoneOS
                 canvasGroup = target.AddComponent<CanvasGroup>();
 
             var rectTransform = target.GetComponent<RectTransform>();
+            canvasGroup.alpha = fromAlpha;
+            if (rectTransform != null)
+                rectTransform.localScale = Vector3.one * fromScale;
+
+            yield return null;
+
             var elapsed = 0f;
             duration = Mathf.Max(0.01f, duration);
 
@@ -180,12 +270,19 @@ namespace VirtualPartner.Runtime.PhoneOS
                 transitionRoutine = null;
             }
 
+            if (homeTransitionRoutine != null)
+            {
+                StopCoroutine(homeTransitionRoutine);
+                homeTransitionRoutine = null;
+            }
+
             if (currentApp != null)
                 currentApp.OnClose();
 
             currentAppObject = null;
             currentApp = null;
             currentAppDefinition = null;
+            isClosingCurrentApp = false;
             ClearAppWindowContainer();
             RestoreHomeIfNoAppWindows();
         }
@@ -222,8 +319,20 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         private void SetHomeVisible(bool visible)
         {
-            if (homeLayer != null)
-                homeLayer.SetActive(visible);
+            if (homeLayer == null)
+                return;
+
+            homeLayer.SetActive(visible);
+            if (!visible)
+                return;
+
+            var canvasGroup = homeLayer.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                return;
+
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
         }
 
         private void SetAppLayerVisible(bool visible)
