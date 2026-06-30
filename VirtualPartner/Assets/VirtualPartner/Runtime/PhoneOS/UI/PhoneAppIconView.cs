@@ -16,6 +16,24 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         public PhoneAppDefinition Definition => definition;
 
+        public void ApplyStyle(PhoneOSStyle style)
+        {
+            if (style == null)
+                return;
+
+            var layoutElement = GetComponent<LayoutElement>();
+            if (layoutElement != null)
+            {
+                layoutElement.preferredWidth = style.AppGridCellSize.x;
+                layoutElement.preferredHeight = style.AppGridCellSize.y;
+            }
+
+            if (iconImage != null)
+                iconImage.rectTransform.sizeDelta = style.AppIconSize;
+            if (labelText != null)
+                labelText.color = style.PrimaryTextColor;
+        }
+
         public void Bind(PhoneAppDefinition appDefinition, Action<PhoneAppDefinition> onClicked)
         {
             definition = appDefinition;

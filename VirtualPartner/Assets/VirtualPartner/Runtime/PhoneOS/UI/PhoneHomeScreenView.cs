@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace VirtualPartner.Runtime.PhoneOS
 {
     [DisallowMultipleComponent]
     public sealed class PhoneHomeScreenView : MonoBehaviour
     {
+        [SerializeField] private PhoneOSStyle style;
         [SerializeField] private PhoneAppRegistry registry;
         [SerializeField] private PhoneAppIconView appIconPrefab;
         [SerializeField] private Transform appGridRoot;
@@ -20,6 +22,8 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (registry == null || appIconPrefab == null)
                 return;
 
+            ApplyStyleToGrid(appGridRoot);
+            ApplyStyleToGrid(dockRoot);
             BuildIcons(registry.GetHomeScreenApps(), appGridRoot);
             BuildIcons(registry.GetDockApps(), dockRoot);
         }
@@ -40,9 +44,20 @@ namespace VirtualPartner.Runtime.PhoneOS
                 var icon = Instantiate(appIconPrefab, parent);
                 icon.name = "AppIcon_" + apps[i].AppId;
                 icon.gameObject.SetActive(true);
+                icon.ApplyStyle(style);
                 icon.Bind(apps[i], HandleAppClicked);
                 generatedIcons.Add(icon);
             }
+        }
+
+        private void ApplyStyleToGrid(Transform root)
+        {
+            if (style == null || root == null)
+                return;
+
+            var grid = root.GetComponent<GridLayoutGroup>();
+            if (grid != null)
+                grid.cellSize = style.AppGridCellSize;
         }
 
         private void ClearGeneratedIcons()

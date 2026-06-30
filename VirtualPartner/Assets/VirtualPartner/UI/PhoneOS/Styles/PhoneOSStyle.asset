@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41dfe587687a39640ad4b03f745bd224, type: 3}
+  m_Name: PhoneOSStyle
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneOSStyle
+  phoneReferenceSize: {x: 440, y: 960}
+  wallpaperSprite: {fileID: 21300000, guid: f97628b95d381c54cbdeb4de51cf2840, type: 3}
+  roundedPanelSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  primaryTextColor: {r: 0.14117648, g: 0.15294118, b: 0.1882353, a: 1}
+  secondaryTextColor: {r: 0.4117647, g: 0.42745098, b: 0.47058824, a: 1}
+  panelColor: {r: 1, g: 1, b: 1, a: 0.9}
+  appIconSize: {x: 52, y: 52}
+  appGridCellSize: {x: 96, y: 104}
