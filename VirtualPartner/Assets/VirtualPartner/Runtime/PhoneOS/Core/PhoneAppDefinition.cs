@@ -8,6 +8,8 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private string appId;
         [SerializeField] private string displayName;
         [SerializeField] private Sprite icon;
+        [SerializeField] private GameObject appPrefab;
+        [SerializeField] private bool allowBackground;
         [SerializeField] private bool showOnHomeScreen = true;
         [SerializeField] private bool showInDock;
         [SerializeField] private int order;
@@ -15,6 +17,8 @@ namespace VirtualPartner.Runtime.PhoneOS
         public string AppId => appId;
         public string DisplayName => displayName;
         public Sprite Icon => icon;
+        public GameObject AppPrefab => appPrefab;
+        public bool AllowBackground => allowBackground;
         public bool ShowOnHomeScreen => showOnHomeScreen;
         public bool ShowInDock => showInDock;
         public int Order => order;

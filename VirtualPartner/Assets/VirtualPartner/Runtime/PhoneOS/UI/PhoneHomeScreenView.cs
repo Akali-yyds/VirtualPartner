@@ -9,6 +9,7 @@ namespace VirtualPartner.Runtime.PhoneOS
     {
         [SerializeField] private PhoneOSStyle style;
         [SerializeField] private PhoneAppRegistry registry;
+        [SerializeField] private PhoneAppHost appHost;
         [SerializeField] private PhoneAppIconView appIconPrefab;
         [SerializeField] private Transform appGridRoot;
         [SerializeField] private Transform dockRoot;
@@ -80,6 +81,9 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void HandleAppClicked(PhoneAppDefinition app)
         {
             if (app == null)
+                return;
+
+            if (appHost != null && appHost.OpenApp(app.AppId))
                 return;
 
             Debug.Log($"[PhoneOS] App clicked: {app.AppId}", this);

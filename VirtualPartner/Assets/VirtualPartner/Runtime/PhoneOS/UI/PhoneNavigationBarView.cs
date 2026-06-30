@@ -7,6 +7,7 @@ namespace VirtualPartner.Runtime.PhoneOS
     public sealed class PhoneNavigationBarView : MonoBehaviour
     {
         [SerializeField] private PhoneOSStyle style;
+        [SerializeField] private PhoneOSController phoneOSController;
         [SerializeField] private Button backButton;
         [SerializeField] private Button homeButton;
         [SerializeField] private Button recentButton;
@@ -17,9 +18,9 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void Awake()
         {
             ApplyStyle();
-            BindButton(backButton, "Back");
-            BindButton(homeButton, "Home");
-            BindButton(recentButton, "Recent");
+            BindButton(backButton, HandleBackClicked);
+            BindButton(homeButton, HandleHomeClicked);
+            BindButton(recentButton, HandleRecentClicked);
         }
 
         private void OnValidate()
@@ -48,13 +49,46 @@ namespace VirtualPartner.Runtime.PhoneOS
             icon.raycastTarget = false;
         }
 
-        private void BindButton(Button button, string actionName)
+        private void BindButton(Button button, UnityEngine.Events.UnityAction action)
         {
             if (button == null)
                 return;
 
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => Debug.Log($"[PhoneOS] Navigation clicked: {actionName}", this));
+            button.onClick.AddListener(action);
+        }
+
+        private void HandleBackClicked()
+        {
+            if (phoneOSController != null)
+            {
+                phoneOSController.HandleBackPressed();
+                return;
+            }
+
+            Debug.Log("[PhoneOS] Navigation clicked: Back", this);
+        }
+
+        private void HandleHomeClicked()
+        {
+            if (phoneOSController != null)
+            {
+                phoneOSController.HandleHomePressed();
+                return;
+            }
+
+            Debug.Log("[PhoneOS] Navigation clicked: Home", this);
+        }
+
+        private void HandleRecentClicked()
+        {
+            if (phoneOSController != null)
+            {
+                phoneOSController.HandleRecentPressed();
+                return;
+            }
+
+            Debug.Log("[PhoneOS] Navigation clicked: Recent", this);
         }
     }
 }

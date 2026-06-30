@@ -200,6 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneHomeScreenView
   style: {fileID: 11400000, guid: df3c89166a97eb344a4cb8059d295269, type: 2}
   registry: {fileID: 11400000, guid: d58d100720995ed4fa251bd425df1bd9, type: 2}
+  appHost: {fileID: 5260048775011606529}
   appIconPrefab: {fileID: 885380912124808310, guid: 7a0c4cb6edb69b844a3d2d4d3b8112b2, type: 3}
   appGridRoot: {fileID: 1338463067657894711}
   dockRoot: {fileID: 719065206814784643}
@@ -1025,6 +1026,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneNavigationBarView
   style: {fileID: 11400000, guid: df3c89166a97eb344a4cb8059d295269, type: 2}
+  phoneOSController: {fileID: 6787883602646679785}
   backButton: {fileID: 2263637424835860404}
   homeButton: {fileID: 4572098987327552148}
   recentButton: {fileID: 1215433146435253097}
@@ -1373,6 +1375,7 @@ RectTransform:
   m_Children:
   - {fileID: 2055902055567971973}
   - {fileID: 397521728494486539}
+  - {fileID: 316854797308582575}
   - {fileID: 3771548184835550256}
   m_Father: {fileID: 2027119277500860043}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2582,6 +2585,8 @@ GameObject:
   - component: {fileID: 7476067729530114981}
   - component: {fileID: 7342410288906683432}
   - component: {fileID: 7804229357944810775}
+  - component: {fileID: 5260048775011606529}
+  - component: {fileID: 6787883602646679785}
   m_Layer: 0
   m_Name: PhoneRoot
   m_TagString: Untagged
@@ -2674,6 +2679,35 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &5260048775011606529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7968481774155031323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2b839a0af742cdbb7019943b7603ab, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneAppHost
+  registry: {fileID: 11400000, guid: d58d100720995ed4fa251bd425df1bd9, type: 2}
+  appWindowContainer: {fileID: 316854797308582575}
+  openDuration: 0.18
+  closeDuration: 0.14
+--- !u!114 &6787883602646679785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7968481774155031323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd80eb71def9480f95872ab9e420caf6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneOSController
+  appHost: {fileID: 5260048775011606529}
 --- !u!1 &8074881154422299264
 GameObject:
   m_ObjectHideFlags: 0
@@ -2795,6 +2829,41 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &8298935648812979148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 316854797308582575}
+  m_Layer: 0
+  m_Name: AppWindowContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &316854797308582575
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8298935648812979148}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4851868227686070589}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8389497318219778062
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,23 @@ namespace VirtualPartner.Runtime.PhoneOS
             return FilterAndSort(app => app.ShowInDock);
         }
 
+        public PhoneAppDefinition FindApp(string appId)
+        {
+            if (string.IsNullOrWhiteSpace(appId))
+                return null;
+
+            for (var i = 0; i < apps.Count; i++)
+            {
+                var app = apps[i];
+                if (app == null)
+                    continue;
+                if (string.Equals(app.AppId, appId, System.StringComparison.Ordinal))
+                    return app;
+            }
+
+            return null;
+        }
+
         private List<PhoneAppDefinition> FilterAndSort(System.Func<PhoneAppDefinition, bool> predicate)
         {
             var results = new List<PhoneAppDefinition>();
