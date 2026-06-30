@@ -7,9 +7,10 @@ namespace VirtualPartner.Runtime.PhoneOS
     public sealed class PhoneAppHost : MonoBehaviour
     {
         [SerializeField] private PhoneAppRegistry registry;
+        [SerializeField] private GameObject homeLayer;
+        [SerializeField] private GameObject appLayer;
         [SerializeField] private RectTransform appWindowContainer;
         [SerializeField] private float openDuration = 0.18f;
-        [SerializeField] private float closeDuration = 0.14f;
 
         private GameObject currentAppObject;
         private IPhoneApp currentApp;
@@ -24,8 +25,8 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         private void Awake()
         {
-            if (appWindowContainer != null && appWindowContainer.childCount == 0)
-                appWindowContainer.gameObject.SetActive(false);
+            SetHomeVisible(true);
+            SetAppLayerVisible(false);
         }
 
         public bool OpenApp(string appId, object args = null)
@@ -57,6 +58,8 @@ namespace VirtualPartner.Runtime.PhoneOS
 
             CloseCurrentAppImmediate();
 
+            SetHomeVisible(false);
+            SetAppLayerVisible(true);
             appWindowContainer.gameObject.SetActive(true);
             currentAppDefinition = definition;
             currentAppObject = Instantiate(definition.AppPrefab, appWindowContainer);
@@ -99,9 +102,19 @@ namespace VirtualPartner.Runtime.PhoneOS
             closingApp?.OnClose();
 
             if (transitionRoutine != null)
+            {
                 StopCoroutine(transitionRoutine);
+                transitionRoutine = null;
+            }
 
-            transitionRoutine = StartCoroutine(CloseRoutine(closingObject));
+            if (closingObject != null)
+                Destroy(closingObject);
+
+            if (appWindowContainer != null)
+                appWindowContainer.gameObject.SetActive(false);
+
+            SetAppLayerVisible(false);
+            SetHomeVisible(true);
         }
 
         public bool HandleBackPressed()
@@ -122,13 +135,6 @@ namespace VirtualPartner.Runtime.PhoneOS
                 StopCoroutine(transitionRoutine);
 
             transitionRoutine = StartCoroutine(AnimateWindow(target, 0f, 1f, 0.96f, 1f, openDuration, false));
-        }
-
-        private IEnumerator CloseRoutine(GameObject target)
-        {
-            yield return AnimateWindow(target, 1f, 0f, 1f, 0.96f, closeDuration, true);
-            if (appWindowContainer != null && appWindowContainer.childCount == 0)
-                appWindowContainer.gameObject.SetActive(false);
         }
 
         private IEnumerator AnimateWindow(GameObject target, float fromAlpha, float toAlpha, float fromScale, float toScale, float duration, bool destroyWhenDone)
@@ -181,6 +187,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             currentApp = null;
             currentAppDefinition = null;
             ClearAppWindowContainer();
+            RestoreHomeIfNoAppWindows();
         }
 
         private void ClearAppWindowContainer()
@@ -199,6 +206,30 @@ namespace VirtualPartner.Runtime.PhoneOS
             }
 
             appWindowContainer.gameObject.SetActive(false);
+        }
+
+        private void RestoreHomeIfNoAppWindows()
+        {
+            if (appWindowContainer != null && appWindowContainer.childCount > 0)
+                return;
+
+            if (appWindowContainer != null)
+                appWindowContainer.gameObject.SetActive(false);
+
+            SetAppLayerVisible(false);
+            SetHomeVisible(true);
+        }
+
+        private void SetHomeVisible(bool visible)
+        {
+            if (homeLayer != null)
+                homeLayer.SetActive(visible);
+        }
+
+        private void SetAppLayerVisible(bool visible)
+        {
+            if (appLayer != null)
+                appLayer.SetActive(visible);
         }
 
         private static IPhoneApp FindPhoneApp(GameObject root)

@@ -49,9 +49,9 @@ namespace VirtualPartner.Runtime.PhoneOS
 
             if (backgroundImage != null)
             {
-                backgroundImage.sprite = style.RoundedPanelSprite;
-                backgroundImage.color = style.PanelColor;
-                backgroundImage.type = Image.Type.Sliced;
+                backgroundImage.sprite = null;
+                backgroundImage.color = Color.white;
+                backgroundImage.type = Image.Type.Simple;
                 backgroundImage.raycastTarget = true;
             }
 
