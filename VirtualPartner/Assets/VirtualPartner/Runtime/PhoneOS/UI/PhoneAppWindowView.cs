@@ -52,7 +52,7 @@ namespace VirtualPartner.Runtime.PhoneOS
                 backgroundImage.sprite = null;
                 backgroundImage.color = Color.white;
                 backgroundImage.type = Image.Type.Simple;
-                backgroundImage.raycastTarget = true;
+                backgroundImage.raycastTarget = false;
             }
 
             if (titleText != null)

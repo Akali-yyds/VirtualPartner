@@ -15,6 +15,11 @@ MonoBehaviour:
   phoneReferenceSize: {x: 440, y: 960}
   wallpaperSprite: {fileID: 21300000, guid: f97628b95d381c54cbdeb4de51cf2840, type: 3}
   roundedPanelSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  phoneFrameSprite: {fileID: 21300000, guid: 5365692063cbf4997feed32e802d93ba, type: 3}
+  phoneShadowSprite: {fileID: 21300000, guid: ca40161fae5cf6d6675afdb3bef4c478, type: 3}
+  screenViewportInsets: {x: 24, y: 64, z: 24, w: 54}
+  phoneFrameTint: {r: 1, g: 1, b: 1, a: 1}
+  phoneShadowTint: {r: 1, g: 1, b: 1, a: 1}
   navigationBackIcon: {fileID: 21300000, guid: d39f9d60e70b79546c8a3d86408df002, type: 3}
   navigationHomeIcon: {fileID: 21300000, guid: bcc164fa4b259c1d33bac39818f4aa35, type: 3}
   navigationRecentIcon: {fileID: 21300000, guid: 6c2db7fe0d857bac6387d5beac1b6423, type: 3}

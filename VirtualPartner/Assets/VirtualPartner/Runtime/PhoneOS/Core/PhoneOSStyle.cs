@@ -8,6 +8,11 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private Vector2 phoneReferenceSize = new Vector2(440f, 960f);
         [SerializeField] private Sprite wallpaperSprite;
         [SerializeField] private Sprite roundedPanelSprite;
+        [SerializeField] private Sprite phoneFrameSprite;
+        [SerializeField] private Sprite phoneShadowSprite;
+        [SerializeField] private Vector4 screenViewportInsets = new Vector4(24f, 64f, 24f, 54f);
+        [SerializeField] private Color phoneFrameTint = Color.white;
+        [SerializeField] private Color phoneShadowTint = Color.white;
         [SerializeField] private Sprite navigationBackIcon;
         [SerializeField] private Sprite navigationHomeIcon;
         [SerializeField] private Sprite navigationRecentIcon;
@@ -30,6 +35,11 @@ namespace VirtualPartner.Runtime.PhoneOS
         public Vector2 PhoneReferenceSize => phoneReferenceSize;
         public Sprite WallpaperSprite => wallpaperSprite;
         public Sprite RoundedPanelSprite => roundedPanelSprite;
+        public Sprite PhoneFrameSprite => phoneFrameSprite;
+        public Sprite PhoneShadowSprite => phoneShadowSprite;
+        public Vector4 ScreenViewportInsets => screenViewportInsets;
+        public Color PhoneFrameTint => phoneFrameTint;
+        public Color PhoneShadowTint => phoneShadowTint;
         public Sprite NavigationBackIcon => navigationBackIcon;
         public Sprite NavigationHomeIcon => navigationHomeIcon;
         public Sprite NavigationRecentIcon => navigationRecentIcon;

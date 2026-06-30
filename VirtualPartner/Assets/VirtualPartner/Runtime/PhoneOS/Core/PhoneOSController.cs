@@ -10,7 +10,10 @@ namespace VirtualPartner.Runtime.PhoneOS
         public void HandleBackPressed()
         {
             if (appHost != null && appHost.HandleBackPressed())
+            {
+                Debug.Log("[PhoneOS] Navigation clicked: Back", this);
                 return;
+            }
 
             Debug.Log("[PhoneOS] Navigation clicked: Back", this);
         }
@@ -20,6 +23,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (appHost != null && appHost.HasCurrentApp)
             {
                 appHost.CloseCurrentApp();
+                Debug.Log("[PhoneOS] Navigation clicked: Home", this);
                 return;
             }
 
