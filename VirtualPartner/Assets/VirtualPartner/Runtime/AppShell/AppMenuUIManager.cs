@@ -267,7 +267,7 @@ namespace VirtualPartner.Runtime
             if (font != null)
                 return font;
 
-            return Resources.GetBuiltinResource<Font>("Arial.ttf");
+            return null;
         }
 
         private static void SetSelected(Button button)
