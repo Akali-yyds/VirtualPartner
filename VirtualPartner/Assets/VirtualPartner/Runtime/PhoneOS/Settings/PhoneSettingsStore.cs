@@ -20,8 +20,9 @@ namespace VirtualPartner.Runtime.PhoneOS
             {
                 data = JsonUtility.FromJson<PhoneSettingsData>(json) ?? new PhoneSettingsData();
             }
-            catch
+            catch (System.Exception exception)
             {
+                Debug.LogWarning($"[PhoneOS] Failed to load saved settings. Using defaults. Reason: {exception.Message}");
                 data = new PhoneSettingsData();
             }
 

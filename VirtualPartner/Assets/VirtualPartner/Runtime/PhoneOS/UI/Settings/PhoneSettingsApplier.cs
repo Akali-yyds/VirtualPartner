@@ -1,33 +1,17 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace VirtualPartner.Runtime.PhoneOS
 {
-    [Serializable]
-    public sealed class PhoneWallpaperOption
-    {
-        [SerializeField] private string id;
-        [SerializeField] private string displayName;
-        [SerializeField] private Sprite sprite;
-
-        public string Id => string.IsNullOrWhiteSpace(id) ? PhoneSettingsDefaults.WallpaperId : id;
-        public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? Id : displayName;
-        public Sprite Sprite => sprite;
-    }
-
     [DisallowMultipleComponent]
     public sealed class PhoneSettingsApplier : MonoBehaviour
     {
         [SerializeField] private PhoneSettingsService settingsService;
+        [SerializeField] private PhoneWallpaperCatalog wallpaperCatalog;
         [SerializeField] private Image wallpaperImage;
         [SerializeField] private GameObject dockRoot;
         [SerializeField] private PhoneStatusBarView statusBarView;
         [SerializeField] private PhoneClockWidgetView clockWidgetView;
-        [SerializeField] private PhoneWallpaperOption[] wallpaperOptions;
-
-        public IReadOnlyList<PhoneWallpaperOption> WallpaperOptions => wallpaperOptions ?? Array.Empty<PhoneWallpaperOption>();
 
         private void Awake()
         {
@@ -67,18 +51,7 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         public PhoneWallpaperOption FindWallpaperOption(string wallpaperId)
         {
-            if (wallpaperOptions == null || wallpaperOptions.Length == 0)
-                return null;
-
-            var normalized = string.IsNullOrWhiteSpace(wallpaperId) ? PhoneSettingsDefaults.WallpaperId : wallpaperId.Trim();
-            for (var i = 0; i < wallpaperOptions.Length; i++)
-            {
-                var option = wallpaperOptions[i];
-                if (option != null && string.Equals(option.Id, normalized, StringComparison.Ordinal))
-                    return option;
-            }
-
-            return wallpaperOptions[0];
+            return wallpaperCatalog != null ? wallpaperCatalog.Find(wallpaperId) : null;
         }
 
         private void ApplyWallpaper(string wallpaperId)
@@ -88,7 +61,10 @@ namespace VirtualPartner.Runtime.PhoneOS
 
             var option = FindWallpaperOption(wallpaperId);
             if (option == null || option.Sprite == null)
+            {
+                Debug.LogWarning($"[PhoneOS] Cannot apply wallpaper '{wallpaperId}': catalog entry or sprite is missing.", this);
                 return;
+            }
 
             wallpaperImage.sprite = option.Sprite;
             wallpaperImage.type = Image.Type.Simple;

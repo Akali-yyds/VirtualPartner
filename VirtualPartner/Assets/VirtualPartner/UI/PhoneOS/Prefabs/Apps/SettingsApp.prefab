@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -238,8 +238,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.SettingsAppView
   appId: settings
   style: {fileID: 11400000, guid: df3c89166a97eb344a4cb8059d295269, type: 2}
+  wallpaperCatalog: {fileID: 11400000, guid: 4f647832ac3779443b2dc595af3cf294, type: 2}
   windowView: {fileID: 6776838506515924649}
   contentRoot: {fileID: 5930057953763664276}
+  sectionPrefab: {fileID: 7993728286533667799, guid: 50db034d5b53d2643af0c1f6d8ec11c0, type: 3}
+  optionButtonPrefab: {fileID: 233472690210107545, guid: 405d736bbe4850e40baa45718b0520e6, type: 3}
 --- !u!1 &5818042945880820710
 GameObject:
   m_ObjectHideFlags: 0

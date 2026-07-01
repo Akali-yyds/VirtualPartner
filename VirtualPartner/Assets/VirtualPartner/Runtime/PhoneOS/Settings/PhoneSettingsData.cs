@@ -8,8 +8,6 @@ namespace VirtualPartner.Runtime.PhoneOS
         public string wallpaperId = PhoneSettingsDefaults.WallpaperId;
         public bool use24HourTime = PhoneSettingsDefaults.Use24HourTime;
         public bool showDock = PhoneSettingsDefaults.ShowDock;
-        public bool showDebugAppOnHome = PhoneSettingsDefaults.ShowDebugAppOnHome;
-        public bool showWidgets = PhoneSettingsDefaults.ShowWidgets;
 
         public PhoneSettingsData Clone()
         {
@@ -18,8 +16,6 @@ namespace VirtualPartner.Runtime.PhoneOS
                 wallpaperId = wallpaperId,
                 use24HourTime = use24HourTime,
                 showDock = showDock,
-                showDebugAppOnHome = showDebugAppOnHome,
-                showWidgets = showWidgets,
             };
         }
 
@@ -35,7 +31,5 @@ namespace VirtualPartner.Runtime.PhoneOS
         public const string WallpaperId = "pink";
         public const bool Use24HourTime = true;
         public const bool ShowDock = true;
-        public const bool ShowDebugAppOnHome = true;
-        public const bool ShowWidgets = true;
     }
 }

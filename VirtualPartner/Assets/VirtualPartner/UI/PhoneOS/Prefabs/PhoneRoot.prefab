@@ -3220,12 +3220,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12ea29a9cae54fdba4efdf637617ad02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneSettingsService
+  wallpaperCatalog: {fileID: 11400000, guid: 4f647832ac3779443b2dc595af3cf294, type: 2}
   current:
     wallpaperId: pink
     use24HourTime: 1
     showDock: 1
-    showDebugAppOnHome: 1
-    showWidgets: 1
 --- !u!114 &7185917369126042842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3239,20 +3238,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneSettingsApplier
   settingsService: {fileID: 8831287352259182161}
+  wallpaperCatalog: {fileID: 11400000, guid: 4f647832ac3779443b2dc595af3cf294, type: 2}
   wallpaperImage: {fileID: 6830495090370140245}
   dockRoot: {fileID: 6496034286055597940}
   statusBarView: {fileID: 4969814566290330231}
   clockWidgetView: {fileID: 6678201697254430122}
-  wallpaperOptions:
-  - id: pink
-    displayName: Pink
-    sprite: {fileID: 21300000, guid: f97628b95d381c54cbdeb4de51cf2840, type: 3}
-  - id: lavender
-    displayName: Lavender
-    sprite: {fileID: 21300000, guid: b4a12d6a017a4bf1b44cb244b781cc01, type: 3}
-  - id: sunrise
-    displayName: Sunrise
-    sprite: {fileID: 21300000, guid: fcdce6148fb44c3caa8171e3a7fded36, type: 3}
 --- !u!1 &7971591937407471392
 GameObject:
   m_ObjectHideFlags: 0

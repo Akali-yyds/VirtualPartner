@@ -1,8 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 namespace VirtualPartner.Runtime.PhoneOS
 {
@@ -19,16 +16,6 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private Image recentIcon;
         [SerializeField] private Vector2 buttonHitSize = new Vector2(56f, 36f);
 
-        private enum NavigationAction
-        {
-            None,
-            Recent,
-            Home,
-            Back,
-        }
-
-        private bool suppressNextButtonClick;
-
         private void Awake()
         {
             Initialize(false);
@@ -42,19 +29,6 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void Start()
         {
             ConfigureButtonHitTargets(true);
-        }
-
-        private void Update()
-        {
-            if (!TryGetPointerPressed(out var screenPoint))
-                return;
-
-            var action = ResolveNavigationAction(screenPoint);
-            if (action == NavigationAction.None)
-                return;
-
-            suppressNextButtonClick = true;
-            DispatchNavigationAction(action);
         }
 
         private void OnValidate()
@@ -121,7 +95,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (image == null)
                 return;
 
-            EnsureButtonHitRect(button);
+            WarnIfButtonHitRectTooSmall(button);
             image.raycastTarget = true;
             var color = image.color;
             color.a = 0f;
@@ -131,7 +105,7 @@ namespace VirtualPartner.Runtime.PhoneOS
                 button.targetGraphic = image;
         }
 
-        private void EnsureButtonHitRect(Button button)
+        private void WarnIfButtonHitRectTooSmall(Button button)
         {
             var rectTransform = button.transform as RectTransform;
             if (rectTransform == null)
@@ -141,8 +115,9 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (rectTransform.rect.width >= minSize.x && rectTransform.rect.height >= minSize.y)
                 return;
 
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, minSize.x);
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, minSize.y);
+            Debug.LogWarning(
+                $"[PhoneOS] Navigation button '{button.name}' hit rect is smaller than {minSize.x:0}x{minSize.y:0}. Adjust the prefab RectTransform instead of runtime resizing.",
+                button);
         }
 
         private void KeepNavigationOnTop()
@@ -150,138 +125,19 @@ namespace VirtualPartner.Runtime.PhoneOS
             transform.SetAsLastSibling();
         }
 
-        private bool TryGetPointerPressed(out Vector2 screenPoint)
-        {
-#if ENABLE_INPUT_SYSTEM
-            var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
-            {
-                screenPoint = mouse.position.ReadValue();
-                return true;
-            }
-
-            var touchscreen = Touchscreen.current;
-            if (touchscreen != null && touchscreen.primaryTouch.press.wasPressedThisFrame)
-            {
-                screenPoint = touchscreen.primaryTouch.position.ReadValue();
-                return true;
-            }
-#endif
-
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetMouseButtonDown(0))
-            {
-                screenPoint = Input.mousePosition;
-                return true;
-            }
-#endif
-
-            screenPoint = Vector2.zero;
-            return false;
-        }
-
-        private NavigationAction ResolveNavigationAction(Vector2 screenPoint)
-        {
-            if (ContainsScreenPoint(recentButton, screenPoint))
-                return NavigationAction.Recent;
-            if (ContainsScreenPoint(homeButton, screenPoint))
-                return NavigationAction.Home;
-            if (ContainsScreenPoint(backButton, screenPoint))
-                return NavigationAction.Back;
-
-            return ResolveNavigationActionFromBar(screenPoint);
-        }
-
-        private bool ContainsScreenPoint(Button button, Vector2 screenPoint)
-        {
-            if (button == null || !button.isActiveAndEnabled || !button.interactable)
-                return false;
-
-            var rectTransform = button.transform as RectTransform;
-            if (rectTransform == null)
-                return false;
-
-            return RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPoint, ResolveEventCamera(rectTransform));
-        }
-
-        private NavigationAction ResolveNavigationActionFromBar(Vector2 screenPoint)
-        {
-            var rectTransform = transform as RectTransform;
-            if (rectTransform == null)
-                return NavigationAction.None;
-
-            var eventCamera = ResolveEventCamera(rectTransform);
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPoint, eventCamera, out var localPoint))
-                return NavigationAction.None;
-
-            if (!rectTransform.rect.Contains(localPoint))
-                return NavigationAction.None;
-
-            var normalizedX = Mathf.InverseLerp(rectTransform.rect.xMin, rectTransform.rect.xMax, localPoint.x);
-            if (normalizedX < 1f / 3f)
-                return NavigationAction.Recent;
-            if (normalizedX < 2f / 3f)
-                return NavigationAction.Home;
-
-            return NavigationAction.Back;
-        }
-
-        private static Camera ResolveEventCamera(RectTransform rectTransform)
-        {
-            var canvas = rectTransform.GetComponentInParent<Canvas>();
-            if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-                return null;
-
-            return canvas.worldCamera;
-        }
-
-        private void DispatchNavigationAction(NavigationAction action)
-        {
-            switch (action)
-            {
-                case NavigationAction.Recent:
-                    DispatchRecent();
-                    break;
-                case NavigationAction.Home:
-                    DispatchHome();
-                    break;
-                case NavigationAction.Back:
-                    DispatchBack();
-                    break;
-            }
-        }
-
         private void HandleBackClicked()
         {
-            if (ConsumeSuppressedButtonClick())
-                return;
-
             DispatchBack();
         }
 
         private void HandleHomeClicked()
         {
-            if (ConsumeSuppressedButtonClick())
-                return;
-
             DispatchHome();
         }
 
         private void HandleRecentClicked()
         {
-            if (ConsumeSuppressedButtonClick())
-                return;
-
             DispatchRecent();
-        }
-
-        private bool ConsumeSuppressedButtonClick()
-        {
-            if (!suppressNextButtonClick)
-                return false;
-
-            suppressNextButtonClick = false;
-            return true;
         }
 
         private void DispatchBack()
