@@ -4,9 +4,9 @@ Last updated: 2026-07-01
 
 ## Current Stage
 
-VirtualPhoneOS has entered Stage 4 - Minimal MomotalkApp Migration.
+VirtualPhoneOS has completed Stage 4 - Minimal MomotalkApp Migration.
 
-The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, and now starts replacing the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell.
+The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, and replaces the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell.
 
 ## Completed
 
@@ -54,23 +54,22 @@ Stage 3 Minimal SettingsApp is complete.
 - Back and Home return from SettingsApp to Home through the existing `PhoneAppHost` flow.
 - `PhoneWallpaperCatalog.asset` owns the built-in wallpaper options.
 - `SettingsSection.prefab` and `SettingsOptionButton.prefab` own reusable Settings UI row templates.
-- Momotalk, Camera, and Debug remain placeholder app windows.
-
-## In Progress
+- At Stage 3 completion, Momotalk, Camera, and Debug remained placeholder app windows.
 
 ### Stage 4 - Minimal MomotalkApp Migration
 
-Stage 4 has started.
+Stage 4 Minimal MomotalkApp Migration is complete.
 
-- Momotalk now opens a PhoneOS-native `MomotalkApp.prefab` instead of `EmptyApp_Momotalk.prefab`.
+- Momotalk has switched from `EmptyApp_Momotalk.prefab` to `MomotalkApp.prefab`.
 - `MomotalkApp.prefab` contains a minimal ContactList page and Chat page.
-- The ContactList page shows one mock contact: Toki.
-- The Chat page shows a Toki title, mock messages, an input placeholder, and a Send button placeholder.
+- ContactList shows one mock contact: Toki.
+- Clicking Toki enters the Chat page.
+- Chat shows a Toki title, mock messages, an input placeholder, and a Send button placeholder.
 - Send only logs a Stage 4 preview message and does not call any real chat system.
-- App-internal Back returns from Chat to ContactList.
-- Back from ContactList falls through to `PhoneAppHost`, closing Momotalk and returning Home.
+- Back behavior is `Chat -> ContactList -> Home`.
+- Home returns from any Momotalk page to PhoneOS Home through the existing `PhoneAppHost` flow.
 
-Stage 4 deliberately does not connect real Momotalk chat, LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business logic. Camera and Debug remain EmptyApp placeholders.
+Stage 4 deliberately does not connect real Momotalk chat, LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business logic. Camera and Debug remain EmptyApp placeholders. SettingsApp remains the completed Stage 3 minimal SettingsApp.
 
 ## Frozen Shell Contract
 
@@ -166,7 +165,7 @@ Stage 3 completed the following scope:
 
 ## Stage 4 Scope
 
-Stage 4 starts the minimal MomotalkApp migration into PhoneOS.
+Stage 4 completed the minimal MomotalkApp migration into PhoneOS.
 
 Stage 4 scope is limited to:
 
@@ -180,7 +179,7 @@ Real chat, LLM, TTS, ASR, StagePlan, Memory, Camera, Debug, QuickSettings, Recen
 
 ## Stage 5 Next
 
-Stage 5 will continue improving Momotalk static UI and page structure. Stage 5 should still not connect real models or the real chat pipeline unless a later stage explicitly changes that scope.
+Stage 5 will continue improving and completing Momotalk static UI and page structure. Stage 5 should still not connect real models or the real chat pipeline unless a later stage explicitly changes that scope.
 
 ## Validation Checklist
 
