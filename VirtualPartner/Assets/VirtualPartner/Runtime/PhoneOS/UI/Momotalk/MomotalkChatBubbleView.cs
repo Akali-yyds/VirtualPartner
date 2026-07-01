@@ -9,9 +9,12 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private MomotalkTheme theme;
         [SerializeField] private HorizontalLayoutGroup rowLayout;
         [SerializeField] private Image bubbleBackground;
+        [SerializeField] private LayoutElement bubbleLayoutElement;
         [SerializeField] private Text senderText;
         [SerializeField] private Text messageText;
         [SerializeField] private Text timeText;
+        [SerializeField] private float minBubbleWidth = 76f;
+        [SerializeField] private float maxBubbleWidth = 292f;
 
         public void Bind(MomotalkMessageData data, MomotalkTheme overrideTheme)
         {
@@ -29,8 +32,8 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (bubbleBackground != null)
             {
                 bubbleBackground.sprite = ResolveBubbleSprite(isUser);
-                bubbleBackground.type = bubbleBackground.sprite != null ? Image.Type.Simple : Image.Type.Simple;
-                bubbleBackground.color = bubbleBackground.sprite != null ? Color.white : ResolveBubbleColor(isUser);
+                bubbleBackground.type = bubbleBackground.sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+                bubbleBackground.color = ResolveBubbleColor(isUser);
                 bubbleBackground.raycastTarget = false;
             }
 
@@ -45,9 +48,11 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (timeText != null)
                 timeText.text = message.TimeText ?? string.Empty;
 
-            ApplyText(senderText, theme != null ? theme.PrimaryTextColor : (Color)new Color32(0x2B, 0x33, 0x42, 0xFF), 11, false);
-            ApplyText(messageText, Color.white, 13, true);
-            ApplyText(timeText, new Color(1f, 1f, 1f, 0.82f), 10, false);
+            ApplyText(senderText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x7A, 0x7F, 0x87, 0xFF), 11, false);
+            ApplyText(messageText, theme != null ? theme.PrimaryTextColor : (Color)new Color32(0x24, 0x28, 0x2C, 0xFF), 13, true);
+            ApplyText(timeText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x7A, 0x7F, 0x87, 0xFF), 10, false);
+
+            ApplyBubbleWidth();
 
             gameObject.SetActive(true);
             LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
@@ -67,6 +72,8 @@ namespace VirtualPartner.Runtime.PhoneOS
         {
             if (rowLayout == null)
                 rowLayout = GetComponent<HorizontalLayoutGroup>();
+            if (bubbleLayoutElement == null && bubbleBackground != null)
+                bubbleLayoutElement = bubbleBackground.GetComponent<LayoutElement>();
         }
 
         private Sprite ResolveBubbleSprite(bool isUser)
@@ -83,6 +90,15 @@ namespace VirtualPartner.Runtime.PhoneOS
                 return isUser ? new Color32(0x5A, 0x98, 0xD4, 0xFF) : new Color32(0x56, 0x66, 0x7C, 0xFF);
 
             return isUser ? theme.RightBubbleColor : theme.LeftBubbleColor;
+        }
+
+        private void ApplyBubbleWidth()
+        {
+            if (bubbleLayoutElement == null || messageText == null)
+                return;
+
+            var preferred = messageText.preferredWidth + 28f;
+            bubbleLayoutElement.preferredWidth = Mathf.Clamp(preferred, minBubbleWidth, maxBubbleWidth);
         }
 
         private static void ApplyText(Text text, Color color, int fontSize, bool wrap)

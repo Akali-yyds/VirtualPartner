@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34792cc736b792045b7ec7a2b3006b88, type: 3}
   m_Name: MomotalkTheme
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.MomotalkTheme
-  topBarBackground: {fileID: 21300000, guid: 851cc92a6eff15fe5323f2a2afff2be8, type: 3}
-  contactListBackground: {fileID: 21300000, guid: bdea680414846d52729eb1bfbbce6ca8, type: 3}
-  contactItemBackground: {fileID: 21300000, guid: 4e6ad5332f08d438f908d2ae77f40e44, type: 3}
-  leftBubbleSprite: {fileID: 21300000, guid: e79bbb190e267536254c8aa8b550d376, type: 3}
-  rightBubbleSprite: {fileID: 21300000, guid: 4a7b4f516864c7bea9ec79a86eb6e8bd, type: 3}
-  inputBarBackground: {fileID: 21300000, guid: 723b96281570dca5d7faf8c2203346c5, type: 3}
-  unreadBadgeSprite: {fileID: 21300000, guid: f46d6fe65c0197ebf0decc4bb7ac4e50, type: 3}
-  statusBadgeSprite: {fileID: 21300000, guid: 1b37dc35b5620b7e4df8de46cf30a38e, type: 3}
+  topBarBackground: {fileID: 0}
+  contactListBackground: {fileID: 0}
+  contactItemBackground: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  leftBubbleSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  rightBubbleSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  inputBarBackground: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  unreadBadgeSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  statusBadgeSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   peachMarkSprite: {fileID: 21300000, guid: 1d1c748e88defc9dbe709a0243438d7c, type: 3}
-  topBarColor: {r: 0.96862745, g: 0.53333336, b: 0.6509804, a: 1}
-  contactBackgroundColor: {r: 0.9843137, g: 0.96862745, b: 0.9764706, a: 1}
-  contactItemColor: {r: 0.8980392, g: 0.91764706, b: 0.9372549, a: 1}
-  leftBubbleColor: {r: 0.3372549, g: 0.4, b: 0.4862745, a: 1}
-  rightBubbleColor: {r: 0.3529412, g: 0.59607846, b: 0.83137256, a: 1}
-  inputBarColor: {r: 0.9411765, g: 0.94509804, b: 0.9529412, a: 1}
-  primaryTextColor: {r: 0.16862746, g: 0.2, b: 0.25882354, a: 1}
-  secondaryTextColor: {r: 0.54901963, g: 0.58431375, b: 0.6392157, a: 1}
-  unreadBadgeColor: {r: 0.96862745, g: 0.53333336, b: 0.6509804, a: 1}
+  topBarColor: {r: 0.96862745, g: 0.56078434, b: 0.7019608, a: 1}
+  contactBackgroundColor: {r: 1, g: 0.96862745, b: 0.98039216, a: 1}
+  contactItemColor: {r: 1, g: 1, b: 1, a: 1}
+  leftBubbleColor: {r: 1, g: 1, b: 1, a: 1}
+  rightBubbleColor: {r: 1, g: 0.83137256, b: 0.8862745, a: 1}
+  inputBarColor: {r: 1, g: 0.96862745, b: 0.98039216, a: 1}
+  primaryTextColor: {r: 0.14117648, g: 0.15686275, b: 0.17254902, a: 1}
+  secondaryTextColor: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  unreadBadgeColor: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}

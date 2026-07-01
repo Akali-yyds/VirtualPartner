@@ -4,9 +4,9 @@ Last updated: 2026-07-01
 
 ## Current Stage
 
-VirtualPhoneOS has entered Stage 5 - Momotalk Static UI Completion.
+VirtualPhoneOS has entered Stage 5.1 - Momotalk WhatsApp-layout Realignment.
 
-The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, replaces the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell, and is now completing Momotalk's static UI structure.
+The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, replaces the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell, and is now realigning Momotalk's static UI structure around a recognizable mobile chat app layout.
 
 ## Completed
 
@@ -73,18 +73,20 @@ Stage 4 deliberately does not connect real Momotalk chat, LLM, TTS, ASR, StagePl
 
 ## In Progress
 
-### Stage 5 - Momotalk Static UI Completion
+### Stage 5.1 - Momotalk WhatsApp-layout Realignment
 
-Stage 5 is in progress.
+Stage 5.1 is in progress.
 
-- Stage 5 references the contact list and chat detail page structure of the androidInReact WhatsApp Application.
-- The final UI remains Momotalk-style, using the old Momotalk pink/peach visual language instead of WhatsApp green, name, or logo.
-- ContactList is being completed as a static chat app contact list with a Momotalk AppBar, static tab area, Toki contact card, avatar placeholder, recent message preview, time, and unread indicator.
-- Chat is being completed as a static chat detail page with a Momotalk top chat bar, Toki avatar/status, ScrollRect message list, left/right chat bubbles, long-message wrapping, and a fixed bottom input bar.
-- Stage 5 uses only static mock messages and does not connect a database, Memory, or the old Momotalk message system.
+- The previous Stage 5 visual direction has been corrected because the contact list felt too much like an old Momotalk card layout rather than a mobile chat app.
+- Stage 5.1 explicitly references the page structure and information hierarchy of the androidInReact WhatsApp Application.
+- The final UI remains Momotalk-style, using Momotalk pink/peach colors instead of WhatsApp green, name, logo, or branding.
+- ContactList is being realigned as a static chat app contact list with a Momotalk AppBar, static CHATS/STATUS/CALLS TabBar, full-width Toki contact row, avatar placeholder, recent message preview, time, and unread indicator.
+- Chat is being realigned as a static chat detail page with a Momotalk top chat bar, Toki avatar/status, ScrollRect message list, Today date chip, left/right chat bubbles, long-message wrapping, and a fixed bottom input bar.
+- Stage 5.1 uses only static UI, mock data, scroll lists, chat bubbles, and input placeholders.
+- Stage 5.1 does not copy androidInReact React, Redux, or SCSS source and does not use WebView.
 - Send remains a placeholder action that logs only.
 
-Stage 6 is the earliest stage that may consider a real text chat pipeline. LLM, LlmRelay, TTS, ASR, StagePlan, Memory, and old Momotalk business logic remain explicitly out of scope during Stage 5.
+Stage 6 is the earliest stage that may consider a real text chat pipeline. LLM, LlmRelay, TTS, ASR, StagePlan, Memory, and old Momotalk business logic remain explicitly out of scope during Stage 5.1.
 
 ## Frozen Shell Contract
 
@@ -152,7 +154,7 @@ Do not replace system-level resources by hard-coding sprites into runtime script
 
 ## Explicit Non-Goals
 
-Stage 5 Momotalk Static UI Completion does not include:
+Stage 5.1 Momotalk WhatsApp-layout Realignment does not include:
 
 - real Momotalk chat migration
 - real Camera migration
@@ -213,22 +215,42 @@ Stage 5 scope is limited to:
 
 Stage 5 does not connect real models or the real chat pipeline.
 
+## Stage 5.1 Scope
+
+Stage 5.1 corrects the Stage 5 Momotalk static UI direction.
+
+Stage 5.1 scope is limited to:
+
+- androidInReact WhatsApp Application page-structure reference only
+- Momotalk pink/peach AppBar and TabBar
+- full-width Toki contact list row
+- static unread badge, time, avatar, and preview text
+- Momotalk-style chat top bar
+- ScrollRect mock message list with a Today chip
+- left-side Toki bubbles and right-side user bubbles
+- fixed bottom input bar
+- Send placeholder log only
+
+Stage 5.1 does not use the WhatsApp name, logo, green theme, WebView, or copied React/SCSS source.
+
 ## Stage 6 Next
 
 Stage 6 will be the first stage that may consider the real text chat pipeline. Stage 6 should be planned separately before connecting any LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business code.
 
 ## Validation Checklist
 
-Stage 5 Momotalk Static UI Completion acceptance:
+Stage 5.1 Momotalk WhatsApp-layout Realignment acceptance:
 
 - Play Mode shows PhoneOS Home normally.
 - Momotalk icon opens the real minimal MomotalkApp window.
-- ContactList shows a chat app contact list structure.
-- ContactList top area shows a Momotalk title and Momotalk pink/peach AppBar.
-- ContactList Toki card includes an avatar placeholder, name, message preview, time, and unread indicator.
+- ContactList visually follows a mobile chat app contact list structure while using Momotalk pink/peach styling.
+- ContactList top area shows a Momotalk title, AppBar, and static CHATS/STATUS/CALLS TabBar.
+- ContactList Toki row spans the list width and includes an avatar placeholder, name, message preview, time, and unread indicator.
 - Clicking Toki opens Chat.
+- Chat visually follows a mobile chat detail page while using Momotalk pink/peach styling.
 - Chat shows a Momotalk-style top chat bar.
 - Chat shows a ScrollRect mock message list.
+- Chat shows a Today date chip.
 - The message list includes left-side Toki bubbles and right-side user bubbles.
 - Long text wraps without breaking the UI.
 - The input area is fixed at the bottom and does not cover the message list or PhoneOS NavigationBar.

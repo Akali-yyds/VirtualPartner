@@ -17,15 +17,15 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private Sprite peachMarkSprite;
 
         [Header("Colors")]
-        [SerializeField] private Color topBarColor = new Color32(0xF7, 0x88, 0xA6, 0xFF);
-        [SerializeField] private Color contactBackgroundColor = new Color32(0xFA, 0xFB, 0xFD, 0xFF);
-        [SerializeField] private Color contactItemColor = new Color32(0xE5, 0xEA, 0xEF, 0xFF);
-        [SerializeField] private Color leftBubbleColor = new Color32(0x56, 0x66, 0x7C, 0xFF);
-        [SerializeField] private Color rightBubbleColor = new Color32(0x5A, 0x98, 0xD4, 0xFF);
-        [SerializeField] private Color inputBarColor = new Color32(0xF0, 0xF1, 0xF3, 0xFF);
-        [SerializeField] private Color primaryTextColor = new Color32(0x2B, 0x33, 0x42, 0xFF);
-        [SerializeField] private Color secondaryTextColor = new Color32(0x8C, 0x95, 0xA3, 0xFF);
-        [SerializeField] private Color unreadBadgeColor = new Color32(0xF7, 0x88, 0xA6, 0xFF);
+        [SerializeField] private Color topBarColor = new Color32(0xF7, 0x8F, 0xB3, 0xFF);
+        [SerializeField] private Color contactBackgroundColor = new Color32(0xFF, 0xF7, 0xFA, 0xFF);
+        [SerializeField] private Color contactItemColor = Color.white;
+        [SerializeField] private Color leftBubbleColor = Color.white;
+        [SerializeField] private Color rightBubbleColor = new Color32(0xFF, 0xD4, 0xE2, 0xFF);
+        [SerializeField] private Color inputBarColor = new Color32(0xFF, 0xF7, 0xFA, 0xFF);
+        [SerializeField] private Color primaryTextColor = new Color32(0x24, 0x28, 0x2C, 0xFF);
+        [SerializeField] private Color secondaryTextColor = new Color32(0x7A, 0x7F, 0x87, 0xFF);
+        [SerializeField] private Color unreadBadgeColor = new Color32(0xFF, 0x6F, 0x9F, 0xFF);
 
         public Sprite TopBarBackground => topBarBackground;
         public Sprite ContactListBackground => contactListBackground;

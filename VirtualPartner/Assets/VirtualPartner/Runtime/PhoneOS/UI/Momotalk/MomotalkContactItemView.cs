@@ -89,27 +89,30 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (backgroundImage != null)
             {
                 backgroundImage.sprite = theme != null ? theme.ContactItemBackground : null;
-                backgroundImage.type = backgroundImage.sprite != null ? Image.Type.Simple : Image.Type.Simple;
-                backgroundImage.color = theme != null ? Color.white : new Color32(0xE5, 0xEA, 0xEF, 0xFF);
+                backgroundImage.type = backgroundImage.sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+                backgroundImage.color = theme != null ? theme.ContactItemColor : Color.white;
                 backgroundImage.raycastTarget = true;
             }
 
+            if (button != null && backgroundImage != null)
+                button.targetGraphic = backgroundImage;
+
             if (avatarImage != null)
             {
-                avatarImage.color = new Color32(0xD8, 0xF3, 0xFA, 0xFF);
+                avatarImage.color = new Color32(0xFF, 0xD4, 0xE2, 0xFF);
                 avatarImage.raycastTarget = false;
             }
 
-            ApplyText(nameText, theme != null ? theme.PrimaryTextColor : (Color)new Color32(0x2B, 0x33, 0x42, 0xFF), 16, false);
-            ApplyText(previewText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x8C, 0x95, 0xA3, 0xFF), 12, true);
-            ApplyText(timeText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x8C, 0x95, 0xA3, 0xFF), 11, false);
-            ApplyText(avatarText, Color.white, 18, false);
+            ApplyText(nameText, theme != null ? theme.PrimaryTextColor : (Color)new Color32(0x24, 0x28, 0x2C, 0xFF), 16, false);
+            ApplyText(previewText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x7A, 0x7F, 0x87, 0xFF), 12, true);
+            ApplyText(timeText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x7A, 0x7F, 0x87, 0xFF), 11, false);
+            ApplyText(avatarText, theme != null ? theme.UnreadBadgeColor : (Color)new Color32(0xFF, 0x6F, 0x9F, 0xFF), 18, false);
             ApplyText(unreadText, Color.white, 11, false);
 
             if (unreadBackground != null)
             {
                 unreadBackground.sprite = theme != null ? theme.UnreadBadgeSprite : null;
-                unreadBackground.type = unreadBackground.sprite != null ? Image.Type.Simple : Image.Type.Simple;
+                unreadBackground.type = unreadBackground.sprite != null ? Image.Type.Sliced : Image.Type.Simple;
                 unreadBackground.color = theme != null ? theme.UnreadBadgeColor : new Color32(0xF7, 0x88, 0xA6, 0xFF);
                 unreadBackground.raycastTarget = false;
             }

@@ -14,11 +14,14 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         [SerializeField] private MomotalkTheme theme;
         [SerializeField] private Image pageBackground;
-        [SerializeField] private Image topBarBackground;
+        [SerializeField] private Image appBarBackground;
+        [SerializeField] private Image tabBarBackground;
         [SerializeField] private Image peachMarkImage;
         [SerializeField] private Text titleText;
-        [SerializeField] private Text activeTabText;
-        [SerializeField] private Text secondaryTabText;
+        [SerializeField] private Text messagesTabText;
+        [SerializeField] private Text statusTabText;
+        [SerializeField] private Text callsTabText;
+        [SerializeField] private Image activeTabUnderline;
         [SerializeField] private MomotalkContactItemView tokiItem;
 
         private Action<string, string> contactSelected;
@@ -57,18 +60,17 @@ namespace VirtualPartner.Runtime.PhoneOS
             {
                 pageBackground.sprite = theme != null ? theme.ContactListBackground : null;
                 pageBackground.type = pageBackground.sprite != null ? Image.Type.Simple : Image.Type.Simple;
-                pageBackground.color = theme != null ? Color.white : new Color32(0xFA, 0xFB, 0xFD, 0xFF);
+                pageBackground.color = theme != null ? theme.ContactBackgroundColor : new Color32(0xFF, 0xF7, 0xFA, 0xFF);
                 pageBackground.raycastTarget = false;
             }
 
-            if (topBarBackground != null)
+            ApplyBarImage(appBarBackground);
+            ApplyBarImage(tabBarBackground);
+
+            if (activeTabUnderline != null)
             {
-                topBarBackground.sprite = theme != null ? theme.TopBarBackground : null;
-                topBarBackground.type = topBarBackground.sprite != null ? Image.Type.Simple : Image.Type.Simple;
-                topBarBackground.color = topBarBackground.sprite != null
-                    ? Color.white
-                    : (theme != null ? theme.TopBarColor : (Color)new Color32(0xF7, 0x88, 0xA6, 0xFF));
-                topBarBackground.raycastTarget = false;
+                activeTabUnderline.color = Color.white;
+                activeTabUnderline.raycastTarget = false;
             }
 
             if (peachMarkImage != null)
@@ -79,8 +81,20 @@ namespace VirtualPartner.Runtime.PhoneOS
             }
 
             ApplyText(titleText, Color.white, 19, false);
-            ApplyText(activeTabText, Color.white, 13, false);
-            ApplyText(secondaryTabText, new Color(1f, 1f, 1f, 0.64f), 13, false);
+            ApplyText(messagesTabText, Color.white, 13, false);
+            ApplyText(statusTabText, new Color(1f, 1f, 1f, 0.68f), 13, false);
+            ApplyText(callsTabText, new Color(1f, 1f, 1f, 0.68f), 13, false);
+        }
+
+        private void ApplyBarImage(Image image)
+        {
+            if (image == null)
+                return;
+
+            image.sprite = theme != null ? theme.TopBarBackground : null;
+            image.type = image.sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+            image.color = theme != null ? theme.TopBarColor : new Color32(0xF7, 0x8F, 0xB3, 0xFF);
+            image.raycastTarget = false;
         }
 
         private static void ApplyText(Text text, Color color, int fontSize, bool wrap)

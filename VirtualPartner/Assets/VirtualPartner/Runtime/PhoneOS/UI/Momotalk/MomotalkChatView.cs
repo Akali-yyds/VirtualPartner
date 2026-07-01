@@ -10,11 +10,13 @@ namespace VirtualPartner.Runtime.PhoneOS
         [SerializeField] private Image pageBackground;
         [SerializeField] private Image topBarBackground;
         [SerializeField] private Image avatarImage;
+        [SerializeField] private Text avatarText;
         [SerializeField] private Text titleText;
         [SerializeField] private Text statusText;
         [SerializeField] private Button backButton;
         [SerializeField] private ScrollRect messageScrollRect;
         [SerializeField] private RectTransform messageContent;
+        [SerializeField] private GameObject dateChipTemplate;
         [SerializeField] private MomotalkChatBubbleView bubblePrefab;
         [SerializeField] private Image inputBarBackground;
         [SerializeField] private InputField inputField;
@@ -65,7 +67,7 @@ namespace VirtualPartner.Runtime.PhoneOS
 
         private void HandleSendClicked()
         {
-            Debug.Log("[PhoneOS] Momotalk preview Send clicked. Real chat is not connected in Stage 5.", this);
+            Debug.Log("Real chat is not connected in Stage 5.", this);
         }
 
         private void HandleBackClicked()
@@ -81,6 +83,12 @@ namespace VirtualPartner.Runtime.PhoneOS
                 sendButton = GetComponentInChildren<Button>(true);
             if (messageScrollRect != null && messageContent == null)
                 messageContent = messageScrollRect.content;
+            if (dateChipTemplate == null && messageContent != null)
+            {
+                var dateChip = messageContent.Find("DateChipTemplate");
+                if (dateChip != null)
+                    dateChipTemplate = dateChip.gameObject;
+            }
         }
 
         private void RefreshContent()
@@ -89,6 +97,8 @@ namespace VirtualPartner.Runtime.PhoneOS
                 titleText.text = contactName;
             if (statusText != null)
                 statusText.text = "Available";
+            if (avatarText != null)
+                avatarText.text = contactName.Substring(0, 1).ToUpperInvariant();
 
             if (inputPlaceholderText != null)
                 inputPlaceholderText.text = "Type a message...";
@@ -109,10 +119,8 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (topBarBackground != null)
             {
                 topBarBackground.sprite = theme != null ? theme.TopBarBackground : null;
-                topBarBackground.type = topBarBackground.sprite != null ? Image.Type.Simple : Image.Type.Simple;
-                topBarBackground.color = topBarBackground.sprite != null
-                    ? Color.white
-                    : (theme != null ? theme.TopBarColor : (Color)new Color32(0xF7, 0x88, 0xA6, 0xFF));
+                topBarBackground.type = topBarBackground.sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+                topBarBackground.color = theme != null ? theme.TopBarColor : new Color32(0xF7, 0x8F, 0xB3, 0xFF);
                 topBarBackground.raycastTarget = false;
             }
 
@@ -134,7 +142,8 @@ namespace VirtualPartner.Runtime.PhoneOS
 
             ApplyTextStyle(titleText, Color.white, 16);
             ApplyTextStyle(statusText, new Color(1f, 1f, 1f, 0.76f), 11);
-            ApplyTextStyle(inputPlaceholderText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x8C, 0x95, 0xA3, 0xFF), 12);
+            ApplyTextStyle(avatarText, theme != null ? theme.UnreadBadgeColor : (Color)new Color32(0xFF, 0x6F, 0x9F, 0xFF), 18);
+            ApplyTextStyle(inputPlaceholderText, theme != null ? theme.SecondaryTextColor : (Color)new Color32(0x7A, 0x7F, 0x87, 0xFF), 12);
             ApplyTextStyle(sendButtonText, Color.white, 13);
         }
 
@@ -161,13 +170,22 @@ namespace VirtualPartner.Runtime.PhoneOS
             for (var i = messageContent.childCount - 1; i >= 0; i--)
             {
                 var child = messageContent.GetChild(i);
-                if (child == bubblePrefab.transform)
+                if (child == bubblePrefab.transform || (dateChipTemplate != null && child == dateChipTemplate.transform))
                     continue;
 
                 DestroyContentChild(child.gameObject);
             }
 
             bubblePrefab.gameObject.SetActive(false);
+            if (dateChipTemplate != null)
+            {
+                dateChipTemplate.SetActive(false);
+                var dateChip = Instantiate(dateChipTemplate, messageContent);
+                dateChip.name = "DateChip_Today";
+                ApplyDateChip(dateChip);
+                dateChip.SetActive(true);
+            }
+
             var messages = MomotalkMessageData.CreateStage5Preview(contactName);
             for (var i = 0; i < messages.Count; i++)
             {
@@ -180,6 +198,20 @@ namespace VirtualPartner.Runtime.PhoneOS
             LayoutRebuilder.ForceRebuildLayoutImmediate(messageContent);
             if (messageScrollRect != null)
                 messageScrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        private static void ApplyDateChip(GameObject dateChip)
+        {
+            if (dateChip == null)
+                return;
+
+            var graphics = dateChip.GetComponentsInChildren<Graphic>(true);
+            for (var i = 0; i < graphics.Length; i++)
+                graphics[i].raycastTarget = false;
+
+            var text = dateChip.GetComponentInChildren<Text>(true);
+            if (text != null)
+                text.text = "Today";
         }
 
         private static void DestroyContentChild(GameObject child)
