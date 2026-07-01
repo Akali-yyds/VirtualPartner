@@ -88,7 +88,10 @@ namespace VirtualPartner.Runtime.PhoneOS
             if (contactListView != null)
                 contactListView.Bind(OpenChat);
             if (chatView != null)
+            {
+                chatView.Bind(ShowContactList);
                 chatView.SetContact("Toki");
+            }
         }
 
         private void ShowContactList()

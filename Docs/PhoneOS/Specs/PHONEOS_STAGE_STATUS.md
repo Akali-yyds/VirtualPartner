@@ -4,9 +4,9 @@ Last updated: 2026-07-01
 
 ## Current Stage
 
-VirtualPhoneOS has completed Stage 4 - Minimal MomotalkApp Migration.
+VirtualPhoneOS has entered Stage 5 - Momotalk Static UI Completion.
 
-The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, and replaces the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell.
+The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, replaces the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell, and is now completing Momotalk's static UI structure.
 
 ## Completed
 
@@ -70,6 +70,21 @@ Stage 4 Minimal MomotalkApp Migration is complete.
 - Home returns from any Momotalk page to PhoneOS Home through the existing `PhoneAppHost` flow.
 
 Stage 4 deliberately does not connect real Momotalk chat, LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business logic. Camera and Debug remain EmptyApp placeholders. SettingsApp remains the completed Stage 3 minimal SettingsApp.
+
+## In Progress
+
+### Stage 5 - Momotalk Static UI Completion
+
+Stage 5 is in progress.
+
+- Stage 5 references the contact list and chat detail page structure of the androidInReact WhatsApp Application.
+- The final UI remains Momotalk-style, using the old Momotalk pink/peach visual language instead of WhatsApp green, name, or logo.
+- ContactList is being completed as a static chat app contact list with a Momotalk AppBar, static tab area, Toki contact card, avatar placeholder, recent message preview, time, and unread indicator.
+- Chat is being completed as a static chat detail page with a Momotalk top chat bar, Toki avatar/status, ScrollRect message list, left/right chat bubbles, long-message wrapping, and a fixed bottom input bar.
+- Stage 5 uses only static mock messages and does not connect a database, Memory, or the old Momotalk message system.
+- Send remains a placeholder action that logs only.
+
+Stage 6 is the earliest stage that may consider a real text chat pipeline. LLM, LlmRelay, TTS, ASR, StagePlan, Memory, and old Momotalk business logic remain explicitly out of scope during Stage 5.
 
 ## Frozen Shell Contract
 
@@ -137,21 +152,25 @@ Do not replace system-level resources by hard-coding sprites into runtime script
 
 ## Explicit Non-Goals
 
-Stage 4 Minimal MomotalkApp Migration does not include:
+Stage 5 Momotalk Static UI Completion does not include:
 
 - real Momotalk chat migration
 - real Camera migration
 - real Debug migration
+- multi-character support
 - LLM integration
+- LlmRelay integration
 - TTS integration
 - ASR integration
 - StagePlan integration
 - Memory integration
+- old Momotalk business integration
 - advanced Settings pages
 - QuickSettings behavior
 - RecentApps behavior
 - multi-task/background app runtime
 - WebView or React integration
+- WhatsApp green theme, name, or logo as final Momotalk UI
 
 ## Stage 3 Scope
 
@@ -177,22 +196,43 @@ Stage 4 scope is limited to:
 
 Real chat, LLM, TTS, ASR, StagePlan, Memory, Camera, Debug, QuickSettings, RecentApps, and multi-task/background runtime remain out of scope.
 
-## Stage 5 Next
+## Stage 5 Scope
 
-Stage 5 will continue improving and completing Momotalk static UI and page structure. Stage 5 should still not connect real models or the real chat pipeline unless a later stage explicitly changes that scope.
+Stage 5 continues improving and completing Momotalk static UI and page structure.
+
+Stage 5 scope is limited to:
+
+- Momotalk-style ContactList static UI
+- Toki contact card with avatar, preview, time, and unread indicator
+- Momotalk-style Chat static UI
+- ScrollRect mock message list
+- left-side Toki bubbles and right-side user bubbles
+- fixed bottom input bar
+- Send placeholder log only
+- Stage 5 status documentation
+
+Stage 5 does not connect real models or the real chat pipeline.
+
+## Stage 6 Next
+
+Stage 6 will be the first stage that may consider the real text chat pipeline. Stage 6 should be planned separately before connecting any LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business code.
 
 ## Validation Checklist
 
-Stage 4 Minimal MomotalkApp Migration acceptance:
+Stage 5 Momotalk Static UI Completion acceptance:
 
 - Play Mode shows PhoneOS Home normally.
 - Momotalk icon opens the real minimal MomotalkApp window.
-- MomotalkApp defaults to ContactList.
-- ContactList shows Toki.
+- ContactList shows a chat app contact list structure.
+- ContactList top area shows a Momotalk title and Momotalk pink/peach AppBar.
+- ContactList Toki card includes an avatar placeholder, name, message preview, time, and unread indicator.
 - Clicking Toki opens Chat.
-- Chat shows the Toki title and mock messages.
-- Chat shows an input placeholder and Send button placeholder.
-- Send logs only and does not call real chat, LLM, TTS, ASR, StagePlan, or Memory.
+- Chat shows a Momotalk-style top chat bar.
+- Chat shows a ScrollRect mock message list.
+- The message list includes left-side Toki bubbles and right-side user bubbles.
+- Long text wraps without breaking the UI.
+- The input area is fixed at the bottom and does not cover the message list or PhoneOS NavigationBar.
+- Send logs only and does not call real chat, LLM, LlmRelay, TTS, ASR, StagePlan, or Memory.
 - Back from Chat returns to ContactList.
 - Back from ContactList closes MomotalkApp and returns to Home.
 - Camera icon opens the Camera empty app window.
