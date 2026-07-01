@@ -4,9 +4,9 @@ Last updated: 2026-07-01
 
 ## Current Stage
 
-VirtualPhoneOS has completed Stage 3 Minimal SettingsApp.
+VirtualPhoneOS has entered Stage 4 - Minimal MomotalkApp Migration.
 
-The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, and replaces only the Settings placeholder with a minimal real SettingsApp.
+The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, replaces Settings with a minimal real SettingsApp, and now starts replacing the Momotalk placeholder with a minimal PhoneOS-native MomotalkApp shell.
 
 ## Completed
 
@@ -56,6 +56,22 @@ Stage 3 Minimal SettingsApp is complete.
 - `SettingsSection.prefab` and `SettingsOptionButton.prefab` own reusable Settings UI row templates.
 - Momotalk, Camera, and Debug remain placeholder app windows.
 
+## In Progress
+
+### Stage 4 - Minimal MomotalkApp Migration
+
+Stage 4 has started.
+
+- Momotalk now opens a PhoneOS-native `MomotalkApp.prefab` instead of `EmptyApp_Momotalk.prefab`.
+- `MomotalkApp.prefab` contains a minimal ContactList page and Chat page.
+- The ContactList page shows one mock contact: Toki.
+- The Chat page shows a Toki title, mock messages, an input placeholder, and a Send button placeholder.
+- Send only logs a Stage 4 preview message and does not call any real chat system.
+- App-internal Back returns from Chat to ContactList.
+- Back from ContactList falls through to `PhoneAppHost`, closing Momotalk and returning Home.
+
+Stage 4 deliberately does not connect real Momotalk chat, LLM, TTS, ASR, StagePlan, Memory, or old Momotalk business logic. Camera and Debug remain EmptyApp placeholders.
+
 ## Frozen Shell Contract
 
 The system shell structure should remain stable before Stage 3:
@@ -86,12 +102,12 @@ Do not remove or rename the shell nodes above without an explicit PhoneOS shell 
 
 The registered PhoneOS apps are:
 
-- `momotalk` -> `EmptyApp_Momotalk.prefab`
+- `momotalk` -> `MomotalkApp.prefab`
 - `camera` -> `EmptyApp_Camera.prefab`
 - `debug` -> `EmptyApp_Debug.prefab`
 - `settings` -> `SettingsApp.prefab`
 
-Momotalk, Camera, and Debug prefabs are placeholders only. Settings is a completed minimal real SettingsApp for Stage 3.
+Momotalk is a minimal real PhoneOS app shell for Stage 4. Camera and Debug prefabs are placeholders only. Settings is a completed minimal real SettingsApp for Stage 3.
 
 ## Art Replacement Contract
 
@@ -122,11 +138,16 @@ Do not replace system-level resources by hard-coding sprites into runtime script
 
 ## Explicit Non-Goals
 
-Stage 3 Minimal SettingsApp does not include:
+Stage 4 Minimal MomotalkApp Migration does not include:
 
-- real Momotalk migration
+- real Momotalk chat migration
 - real Camera migration
 - real Debug migration
+- LLM integration
+- TTS integration
+- ASR integration
+- StagePlan integration
+- Memory integration
 - advanced Settings pages
 - QuickSettings behavior
 - RecentApps behavior
@@ -143,24 +164,44 @@ Stage 3 completed the following scope:
 - support wallpaper, time format, and Dock visibility only
 - do not migrate Momotalk, Camera, or Debug during the SettingsApp first pass
 
-## Stage 4 Entry
+## Stage 4 Scope
 
-Stage 4 will start the minimal MomotalkApp migration into PhoneOS.
+Stage 4 starts the minimal MomotalkApp migration into PhoneOS.
 
-Stage 4 must be planned separately before implementation. Do not migrate real Momotalk, Camera, Debug, QuickSettings, RecentApps, or multi-task/background runtime as part of Stage 3 closeout.
+Stage 4 scope is limited to:
+
+- `MomotalkApp.prefab`
+- ContactList page
+- Toki contact
+- mock Chat page
+- Momotalk app-internal Back behavior
+
+Real chat, LLM, TTS, ASR, StagePlan, Memory, Camera, Debug, QuickSettings, RecentApps, and multi-task/background runtime remain out of scope.
+
+## Stage 5 Next
+
+Stage 5 will continue improving Momotalk static UI and page structure. Stage 5 should still not connect real models or the real chat pipeline unless a later stage explicitly changes that scope.
 
 ## Validation Checklist
 
-Stage 3 Minimal SettingsApp acceptance:
+Stage 4 Minimal MomotalkApp Migration acceptance:
 
 - Play Mode shows PhoneOS Home normally.
-- Momotalk icon opens the Momotalk empty app window.
+- Momotalk icon opens the real minimal MomotalkApp window.
+- MomotalkApp defaults to ContactList.
+- ContactList shows Toki.
+- Clicking Toki opens Chat.
+- Chat shows the Toki title and mock messages.
+- Chat shows an input placeholder and Send button placeholder.
+- Send logs only and does not call real chat, LLM, TTS, ASR, StagePlan, or Memory.
+- Back from Chat returns to ContactList.
+- Back from ContactList closes MomotalkApp and returns to Home.
 - Camera icon opens the Camera empty app window.
 - Debug icon opens the Debug empty app window.
 - Settings icon opens the real minimal SettingsApp window.
 - Settings can switch wallpaper, 12/24-hour time, and Dock visibility.
 - Settings changes apply immediately and persist after exiting and re-entering Play Mode.
-- Back closes SettingsApp and returns to Home because SettingsApp has no secondary page.
-- Home closes SettingsApp and returns to Home.
+- Back and Home close SettingsApp and return to Home.
+- Home closes MomotalkApp from any Momotalk page and returns to Home.
 - Recent logs only.
 - Existing real Momotalk, SceneCamera, and Debug business code remains untouched.
