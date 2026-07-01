@@ -4,7 +4,7 @@ Last updated: 2026-07-01
 
 ## Current Stage
 
-VirtualPhoneOS is currently in Stage 3 minimal SettingsApp implementation.
+VirtualPhoneOS has completed Stage 3 Minimal SettingsApp.
 
 The current implementation is a uGUI-based virtual phone shell. It keeps the real Momotalk, SceneCamera, and Runtime Debug business systems untouched, provides a PhoneOS home screen plus AppHost windows, and replaces only the Settings placeholder with a minimal real SettingsApp.
 
@@ -43,11 +43,15 @@ Stage 2.5 shell closeout is complete.
 
 ### Stage 3 - Minimal SettingsApp
 
-Stage 3 minimal SettingsApp is in progress.
+Stage 3 Minimal SettingsApp is complete.
 
 - Settings now opens `SettingsApp.prefab` instead of `EmptyApp_Settings.prefab`.
-- Settings supports local UI preferences for wallpaper, 12/24-hour time, and Dock visibility.
+- Settings supports wallpaper switching.
+- Settings supports 12/24-hour time format switching.
+- Settings supports Dock show/hide.
+- Settings changes apply immediately through `PhoneSettingsApplier`.
 - `PhoneSettingsStore` persists only non-sensitive PhoneOS UI preferences through PlayerPrefs.
+- Back and Home return from SettingsApp to Home through the existing `PhoneAppHost` flow.
 - `PhoneWallpaperCatalog.asset` owns the built-in wallpaper options.
 - `SettingsSection.prefab` and `SettingsOptionButton.prefab` own reusable Settings UI row templates.
 - Momotalk, Camera, and Debug remain placeholder app windows.
@@ -87,7 +91,7 @@ The registered PhoneOS apps are:
 - `debug` -> `EmptyApp_Debug.prefab`
 - `settings` -> `SettingsApp.prefab`
 
-Momotalk, Camera, and Debug prefabs are placeholders only. Settings is currently a minimal real SettingsApp and must not be expanded beyond the active Stage 3 scope without a new task.
+Momotalk, Camera, and Debug prefabs are placeholders only. Settings is a completed minimal real SettingsApp for Stage 3.
 
 ## Art Replacement Contract
 
@@ -118,7 +122,7 @@ Do not replace system-level resources by hard-coding sprites into runtime script
 
 ## Explicit Non-Goals
 
-Stage 3 minimal SettingsApp does not include:
+Stage 3 Minimal SettingsApp does not include:
 
 - real Momotalk migration
 - real Camera migration
@@ -131,7 +135,7 @@ Stage 3 minimal SettingsApp does not include:
 
 ## Stage 3 Scope
 
-The active Stage 3 scope is:
+Stage 3 completed the following scope:
 
 - keep the current PhoneOS shell stable
 - replace `EmptyApp_Settings.prefab` with a minimal Settings app prefab
@@ -139,9 +143,15 @@ The active Stage 3 scope is:
 - support wallpaper, time format, and Dock visibility only
 - do not migrate Momotalk, Camera, or Debug during the SettingsApp first pass
 
+## Stage 4 Entry
+
+Stage 4 will start the minimal MomotalkApp migration into PhoneOS.
+
+Stage 4 must be planned separately before implementation. Do not migrate real Momotalk, Camera, Debug, QuickSettings, RecentApps, or multi-task/background runtime as part of Stage 3 closeout.
+
 ## Validation Checklist
 
-Before accepting Stage 3 minimal SettingsApp:
+Stage 3 Minimal SettingsApp acceptance:
 
 - Play Mode shows PhoneOS Home normally.
 - Momotalk icon opens the Momotalk empty app window.
@@ -150,7 +160,7 @@ Before accepting Stage 3 minimal SettingsApp:
 - Settings icon opens the real minimal SettingsApp window.
 - Settings can switch wallpaper, 12/24-hour time, and Dock visibility.
 - Settings changes apply immediately and persist after exiting and re-entering Play Mode.
-- Back closes the current app and returns to Home when the app does not handle Back.
-- Home closes the current app and returns to Home.
+- Back closes SettingsApp and returns to Home because SettingsApp has no secondary page.
+- Home closes SettingsApp and returns to Home.
 - Recent logs only.
 - Existing real Momotalk, SceneCamera, and Debug business code remains untouched.
