@@ -1,6 +1,6 @@
 # VirtualPartner
 
-更新时间：2026-06-14
+更新时间：2026-10-02
 
 VirtualPartner 是一个基于 Unity 的桌面虚拟陪伴角色项目。它的目标不是只做一个聊天窗口，而是把虚拟角色、Momotalk 风格手机 UI、LLM 行为规划、本地语音服务和可交互场景组合成一个可运行的桌面陪伴系统。
 
@@ -10,9 +10,15 @@ VirtualPartner 是一个基于 Unity 的桌面虚拟陪伴角色项目。它的�
 
 - [Bilibili 演示视频](https://www.bilibili.com/video/BV1KSEy6pEHX/)
 
+## 当前开发进度
+
+虚拟手机 OS 的功能接入、三键导航与最近任务已完成。第三阶段已完成桌面、聊天与最近任务的代表页打磨；2026-10-02 用户确认进入下一步，接下来将视觉规范推广到其余应用页面，再做完整回归和真实服务验收。
+
+详细阶段、证据和未完成项见 [PhoneOS 当前进度](Docs/PhoneOS-Progress.md)。代表页通过不代表所有页面或真实 LLM 链路已完成验收。
+
 ## 当前能力
 
-- Momotalk 风格虚拟手机界面：支持联系人与聊天式交互，后续会继续并入完整虚拟手机 AppHost 体系。
+- 虚拟手机 OS：已接入 Momotalk、Settings、Camera、Debug 四个 App，默认场景为 `Assets/Scenes/PhoneOS.unity`。真实 LLM 验收需有效 API 配置；接入范围与验证边界见 [PhoneOS-LiveIntegration](Docs/PhoneOS-LiveIntegration.md)。
 - 文本与语音输入：支持文本对话、ASR 语音识别入口、本地 TTS 语音播放链路。
 - LLM 行为规划：使用 StagePlan 2.0 JSON 描述角色行为，当前稳定路径为 `LlmRelay` one-shot 生成。
 - 角色反馈播放：支持 `speech`、`expression`、`bonePose`、`animation`、`facing`、`locomotion` 等动作类型。
@@ -42,6 +48,8 @@ VirtualPartner-new/
   VirtualPartner/
     Assets/
       Scenes/
+        PhoneOS.unity
+        PhoneOS_VisualReview.unity
         SampleScene.unity
       VirtualPartner/
         Art/

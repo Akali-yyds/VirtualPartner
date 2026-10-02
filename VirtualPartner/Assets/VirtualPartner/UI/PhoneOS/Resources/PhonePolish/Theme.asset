@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a36e32da4e8ef43ba1692fba2b4c15, type: 3}
+  m_Name: Theme
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.PhoneVisualTheme
+  regular: {fileID: 11400000, guid: a24886297a5c4e24db2f718410fe1727, type: 2}
+  semibold: {fileID: 11400000, guid: 0fabe62a4e2da604bbe232c0c022df23, type: 2}
+  light: {fileID: 11400000, guid: 49470874467284f4fb38b2a792dad6b3, type: 2}
+  ink: {r: 0.13333334, g: 0.14901961, b: 0.18039216, a: 1}
+  muted: {r: 0.39215687, g: 0.41568628, b: 0.45490196, a: 1}
+  paper: {r: 0.972549, g: 0.9764706, b: 0.9843137, a: 1}
+  chat: {r: 0.95686275, g: 0.9607843, b: 0.972549, a: 1}
+  pink: {r: 0.7254902, g: 0.20784314, b: 0.4117647, a: 1}
+  pale: {r: 0.98039216, g: 0.88235295, b: 0.92156863, a: 1}
+  title: 22
+  body: 16
+  caption: 12
+  clock: 64
+  openDuration: 0.22
+  closeDuration: 0.2
+  pageDuration: 0.18
+  card: {fileID: 21300000, guid: f90b63b1fd4415f4bbc3996ccf78a177, type: 3}
+  bubble: {fileID: 21300000, guid: f14cc5d66e87c5a45a02766bd8a47413, type: 3}
+  control: {fileID: 21300000, guid: cbd8fe2e25a196f4f8a0dde3040377fa, type: 3}

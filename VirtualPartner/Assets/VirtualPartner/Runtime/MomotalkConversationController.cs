@@ -14,10 +14,14 @@ namespace VirtualPartner.Runtime
     {
         private readonly MomotalkHistoryStore historyStore = new MomotalkHistoryStore();
         private readonly Dictionary<int, MomotalkChatMessageView> typingViews = new Dictionary<int, MomotalkChatMessageView>();
+        private readonly HashSet<int> pendingTypingRequests = new HashSet<int>();
         private readonly Dictionary<string, int> unreadCounts = new Dictionary<string, int>();
         private readonly List<int> requestIdBuffer = new List<int>();
 
         private readonly MomotalkChatView chat = new MomotalkChatView();
+        private System.Func<string, bool> externalVisibility;
+        public bool ExternalPresentation { get; private set; }
+        public bool RuntimeReady => llmRelay != null && requestRegistry != null;
         private readonly MomotalkVoiceModeView voiceMode = new MomotalkVoiceModeView();
 
         private MomotalkUIManager uiManager;
@@ -94,7 +98,7 @@ namespace VirtualPartner.Runtime
 
         private void EnsureViewsConfigured()
         {
-            if (chatView == null)
+            if (ExternalPresentation || chatView == null)
                 return;
 
             chat.Configure(chatView, this);
@@ -240,20 +244,38 @@ namespace VirtualPartner.Runtime
             Application.OpenURL("file:///" + folder.Replace("\\", "/"));
         }
 
-        private void SendCurrentInput()
+        private void SendCurrentInput() => SendMessage(currentContext, chat.InputText);
+
+        // A presentation can attach without building or activating the legacy view.
+        // Requests, history and memory continue to be owned here while that view is hidden.
+        public void UseExternalPresentation(System.Func<string,bool> visible)
+        { ExternalPresentation=true; externalVisibility=visible; }
+        public void SelectConversation(CharacterRuntimeContext context)
+        { currentContext=context; if(context!=null)ClearUnread(context.CharacterId); }
+        public List<MomotalkChatMessageRecord> ReadMessages(string characterId) => historyStore.LoadAll(characterId);
+        public List<int> ReadPending(string characterId)
         {
+            var ids=new List<int>();requestRegistry?.GetNonTerminalRequestIds(characterId,ids);
+            var messages=historyStore.LoadAll(characterId);
+            ids.RemoveAll(id=>HasResponseForTurn(GetTurnIdForRequest(id),messages));return ids;
+        }
+        public void MarkRead(string characterId) => ClearUnread(characterId);
+
+        public bool SendMessage(CharacterRuntimeContext context, string input)
+        {
+            currentContext = context;
             if (currentContext == null)
-                return;
+                return false;
 
             EnsureSubscriptions();
 
-            var text = chat.InputText == null ? string.Empty : chat.InputText.Trim();
+            var text = input == null ? string.Empty : input.Trim();
             if (string.IsNullOrWhiteSpace(text))
-                return;
+                return false;
 
             var characterId = GetCharacterId(currentContext);
             var avatar = currentContext.Profile != null ? currentContext.Profile.AvatarIcon : null;
-            var historyContext = historyStore.BuildPromptContext(characterId, uiManager != null ? uiManager.LlmHistoryContextMessageCount : 0);
+            var historyContext = historyStore.BuildPromptContext(characterId, uiManager != null ? uiManager.LlmHistoryContextMessageCount : 12);
 
             LlmSubmitResult submit = null;
             if (llmRelay != null)
@@ -271,13 +293,13 @@ namespace VirtualPartner.Runtime
             if (submit == null)
             {
                 AddSystemMessage(characterId, "LLM relay is missing.", "error", 0, turnId);
-                return;
+                return false;
             }
 
             if (!submit.Accepted)
             {
                 AddSystemMessage(characterId, submit.Message, "error", submit.RequestId, turnId);
-                return;
+                return false;
             }
 
             if (requestRegistry != null)
@@ -288,10 +310,12 @@ namespace VirtualPartner.Runtime
             if (memorySystem != null)
                 memorySystem.RegisterUserMessage(characterId, submit.RequestId, text);
             ReplaceStaleTypingViews(submit.RequestId);
-            var typingView = chat.CreateTypingView(submit.RequestId, avatar);
+            var typingView = ExternalPresentation ? null : chat.CreateTypingView(submit.RequestId, avatar);
             typingViews[submit.RequestId] = typingView;
+            pendingTypingRequests.Add(submit.RequestId);
             ContactsChanged?.Invoke();
             chat.ScrollToBottom();
+            return true;
         }
 
         private void StartVoiceMode()
@@ -335,7 +359,7 @@ namespace VirtualPartner.Runtime
 
         private void HandleAsrRecognitionFinished(AsrRecognitionResult result)
         {
-            if (result == null)
+            if (ExternalPresentation || result == null)
                 return;
 
             switch (result.Status)
@@ -433,6 +457,8 @@ namespace VirtualPartner.Runtime
             if (memorySystem != null)
                 memorySystem.RecordSpeech(speech);
 
+            pendingTypingRequests.Remove(speech.RequestId);
+            if (ExternalPresentation) RemoveTyping(speech.RequestId);
             var avatar = GetAvatarForCharacter(characterId);
             if (IsLoadedConversation(characterId))
             {
@@ -449,7 +475,7 @@ namespace VirtualPartner.Runtime
                 chat.ScrollToBottom();
             }
 
-            if (uiManager == null || !uiManager.IsCurrentChatVisible(characterId))
+            if (ExternalPresentation ? !(externalVisibility?.Invoke(characterId) ?? false) : (uiManager == null || !uiManager.IsCurrentChatVisible(characterId)))
                 IncrementUnread(characterId);
 
             ContactsChanged?.Invoke();
@@ -468,17 +494,19 @@ namespace VirtualPartner.Runtime
 
             if (requestRegistry != null)
                 requestRegistry.TrySetStatus(finished.RequestId, RequestStatus.Finished);
+            RemoveTyping(finished.RequestId);
+            ContactsChanged?.Invoke();
         }
 
         private void ReplaceStaleTypingViews(int newestRequestId)
         {
             var staleRequestIds = new List<int>();
-            foreach (var pair in typingViews)
+            foreach (var request in pendingTypingRequests)
             {
-                if (pair.Key == newestRequestId)
+                if (request == newestRequestId)
                     continue;
 
-                staleRequestIds.Add(pair.Key);
+                staleRequestIds.Add(request);
             }
 
             for (var i = 0; i < staleRequestIds.Count; i++)
@@ -489,7 +517,7 @@ namespace VirtualPartner.Runtime
                 var characterId = GetCharacterIdForRequest(requestId);
                 if (string.IsNullOrWhiteSpace(characterId))
                     characterId = GetCharacterId(currentContext);
-                if (uiManager != null && uiManager.ShowReplacedSystemMessage)
+                if (ExternalPresentation || (uiManager != null && uiManager.ShowReplacedSystemMessage))
                     ReplaceTypingWithSystem(characterId, requestId, "Replaced by newer message", "replaced", true);
                 else
                     RemoveTyping(requestId);
@@ -498,6 +526,7 @@ namespace VirtualPartner.Runtime
 
         private void ReplaceTypingWithSystem(string characterId, int requestId, string text, string status, bool save)
         {
+            pendingTypingRequests.Remove(requestId);
             var turnId = GetTurnIdForRequest(requestId);
             if (typingViews.TryGetValue(requestId, out var typingView) && typingView != null)
             {
@@ -545,6 +574,7 @@ namespace VirtualPartner.Runtime
                     continue;
 
                 typingViews[requestId] = chat.CreateTypingView(requestId, avatar);
+                pendingTypingRequests.Add(requestId);
             }
         }
 
@@ -585,6 +615,7 @@ namespace VirtualPartner.Runtime
 
         private void RemoveTyping(int requestId)
         {
+            pendingTypingRequests.Remove(requestId);
             if (!typingViews.TryGetValue(requestId, out var view))
                 return;
 
@@ -612,7 +643,7 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < requestIdBuffer.Count; i++)
             {
                 var requestId = requestIdBuffer[i];
-                if (typingViews.ContainsKey(requestId))
+                if (pendingTypingRequests.Contains(requestId))
                     removedAnyPendingRequest = true;
                 RemoveTyping(requestId);
             }
@@ -701,7 +732,7 @@ namespace VirtualPartner.Runtime
         {
             return requestRegistry != null
                 && requestRegistry.TryGet(requestId, out var request)
-                && request.Status == RequestStatus.Canceled;
+                && request.IsCanceledOrReplaced;
         }
 
         private Sprite GetAvatarForCharacter(string characterId)

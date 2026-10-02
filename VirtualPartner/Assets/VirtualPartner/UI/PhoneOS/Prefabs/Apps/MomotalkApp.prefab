@@ -62,7 +62,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.96862745, b: 0.98039216, a: 1}
+  m_Color: {r: 0.9254902, g: 0.8980392, b: 0.8666667, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -94,6 +94,7 @@ MonoBehaviour:
   theme: {fileID: 11400000, guid: 60f5f10010dfe7d428d5a301892a2f9b, type: 2}
   pageBackground: {fileID: 3750721743431663934}
   topBarBackground: {fileID: 8159785835340465226}
+  chatBackgroundPattern: {fileID: 0}
   avatarImage: {fileID: 2380020194138072622}
   avatarText: {fileID: 4023989193603929065}
   titleText: {fileID: 3598903153528810689}
@@ -101,13 +102,21 @@ MonoBehaviour:
   backButton: {fileID: 4422459541418874003}
   messageScrollRect: {fileID: 3988480037277808931}
   messageContent: {fileID: 1962621339484677971}
+  messageContentLayout: {fileID: 3242057777396230895}
   dateChipTemplate: {fileID: 2844459029780493240}
   bubblePrefab: {fileID: 230799202370090539}
   inputBarBackground: {fileID: 3276389547320127267}
   inputField: {fileID: 5585544050967727211}
   inputPlaceholderText: {fileID: 8489910257253822944}
   sendButton: {fileID: 5966421244806535552}
+  sendButtonBackground: {fileID: 2734040466557673409}
   sendButtonText: {fileID: 6637225751086769721}
+  backButtonText: {fileID: 5622593717125979278}
+  moreButtonText: {fileID: 2311827234438141556}
+  callButtonText: {fileID: 6539286983650071160}
+  emojiButtonText: {fileID: 1896504861277957605}
+  attachButtonText: {fileID: 5122562263422762771}
+  cameraButtonText: {fileID: 9083354859568940445}
 --- !u!1 &62772293408521622
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,8 +154,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -47, y: 0}
-  m_SizeDelta: {x: -198, y: 40}
+  m_AnchoredPosition: {x: -25, y: 0}
+  m_SizeDelta: {x: -66, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3448483732659082383
 CanvasRenderer:
@@ -312,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.68}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.72}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -406,8 +415,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -438,9 +447,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
-    m_PressedColor: {r: 1, g: 0.86, b: 0.92, a: 1}
-    m_SelectedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
+    m_HighlightedColor: {r: 0.9647059, g: 0.972549, b: 0.9764706, a: 1}
+    m_PressedColor: {r: 0.91764706, g: 0.93333334, b: 0.9411765, a: 1}
+    m_SelectedColor: {r: 0.9647059, g: 0.972549, b: 0.9764706, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -495,6 +504,7 @@ MonoBehaviour:
   theme: {fileID: 11400000, guid: 60f5f10010dfe7d428d5a301892a2f9b, type: 2}
   button: {fileID: 190942432088153048}
   backgroundImage: {fileID: 3881493754545157557}
+  layoutElement: {fileID: 477209636432596185}
   avatarImage: {fileID: 2015380732529986001}
   avatarText: {fileID: 5799203673382453667}
   nameText: {fileID: 4069143684608717339}
@@ -749,7 +759,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 13
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -760,7 +770,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: S
+  m_Text: O
 --- !u!1 &750831096741583040
 GameObject:
   m_ObjectHideFlags: 0
@@ -822,7 +832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.96862745, g: 0.56078434, b: 0.7019608, a: 1}
+  m_Color: {r: 0.02745098, g: 0.36862746, b: 0.32941177, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -898,7 +908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.972549, g: 0.827451, b: 0.8745098, a: 1}
+  m_Color: {r: 0, g: 0.65882355, b: 0.5176471, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -949,8 +959,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1}
-  m_SizeDelta: {x: 0, y: -126}
+  m_AnchoredPosition: {x: 0, y: 1}
+  m_SizeDelta: {x: 0, y: -114}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3988480037277808931
 MonoBehaviour:
@@ -1042,7 +1052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  m_Color: {r: 0, g: 0.65882355, b: 0.5176471, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1081,9 +1091,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
-    m_PressedColor: {r: 1, g: 0.86, b: 0.92, a: 1}
-    m_SelectedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
+    m_HighlightedColor: {r: 0.11764706, g: 0.7254902, b: 0.58431375, a: 1}
+    m_PressedColor: {r: 0, g: 0.56078434, b: 0.44705883, a: 1}
+    m_SelectedColor: {r: 0.11764706, g: 0.7254902, b: 0.58431375, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1170,7 +1180,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 19
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1181,7 +1191,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Momotalk
+  m_Text: WhatsApp
 --- !u!1 &1157794666656449858
 GameObject:
   m_ObjectHideFlags: 0
@@ -1241,7 +1251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83137256, b: 0.8862745, a: 1}
+  m_Color: {r: 0, g: 0.65882355, b: 0.5176471, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1325,7 +1335,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 28
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1336,7 +1346,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Msg
+  m_Text: +
 --- !u!1 &1354931184255853492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1404,7 +1414,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 13
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1415,7 +1425,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Send
+  m_Text: "\u266A"
 --- !u!1 &1526975127581566208
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,8 +1462,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -32, y: 0}
-  m_SizeDelta: {x: 52, y: 40}
+  m_AnchoredPosition: {x: -30, y: 0}
+  m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5755875576867366286
 CanvasRenderer:
@@ -1476,7 +1486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  m_Color: {r: 0, g: 0.65882355, b: 0.5176471, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1515,9 +1525,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
-    m_PressedColor: {r: 1, g: 0.86, b: 0.92, a: 1}
-    m_SelectedColor: {r: 1, g: 0.94, b: 0.97, a: 1}
+    m_HighlightedColor: {r: 0.11764706, g: 0.7254902, b: 0.58431375, a: 1}
+    m_PressedColor: {r: 0, g: 0.56078434, b: 0.44705883, a: 1}
+    m_SelectedColor: {r: 0.11764706, g: 0.7254902, b: 0.58431375, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1683,7 +1693,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 24
+    m_FontSize: 22
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1768,8 +1778,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -126, y: 0}
-  m_SizeDelta: {x: 34, y: 38}
+  m_AnchoredPosition: {x: -116, y: 0}
+  m_SizeDelta: {x: 36, y: 36}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4717967738886730215
 CanvasRenderer:
@@ -2008,8 +2018,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: -24, y: 0}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: -138, y: -4}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1105343302585165319
 CanvasRenderer:
@@ -2032,7 +2042,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2041,7 +2051,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -2052,7 +2062,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Type a message...
+  m_Text: Message
 --- !u!1 &3286321617254039173
 GameObject:
   m_ObjectHideFlags: 0
@@ -2120,10 +2130,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 11
+    m_FontSize: 1
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 0
     m_AlignByGeometry: 0
@@ -2131,7 +2141,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Available
+  m_Text: 
 --- !u!1 &3310653061523368339
 GameObject:
   m_ObjectHideFlags: 0
@@ -2190,7 +2200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2199,7 +2209,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 11
+    m_FontSize: 17
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -2210,7 +2220,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cam
+  m_Text: "\u25A3"
 --- !u!1 &3357236757461707684
 GameObject:
   m_ObjectHideFlags: 0
@@ -2268,7 +2278,7 @@ MonoBehaviour:
     m_Top: 10
     m_Bottom: 12
   m_ChildAlignment: 1
-  m_Spacing: 8
+  m_Spacing: 3
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -2348,7 +2358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2427,7 +2437,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2436,7 +2446,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 15
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -2447,7 +2457,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: :-)
+  m_Text: :)
 --- !u!1 &3658374304718028020
 GameObject:
   m_ObjectHideFlags: 0
@@ -2506,7 +2516,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.4, g: 0.4666667, b: 0.5058824, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2515,7 +2525,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 13
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -2523,7 +2533,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: This is the new PhoneOS Momotalk preview.
@@ -2620,15 +2630,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.MomotalkContactListView
   theme: {fileID: 11400000, guid: 60f5f10010dfe7d428d5a301892a2f9b, type: 2}
+  visualReferenceContacts: 1
   pageBackground: {fileID: 1784803288075127456}
   appBarBackground: {fileID: 3586787933788512914}
   tabBarBackground: {fileID: 7222104396283073542}
   peachMarkImage: {fileID: 0}
   titleText: {fileID: 8449731819793738939}
+  searchButtonText: {fileID: 4209462288932244305}
+  moreButtonText: {fileID: 6940570796885123706}
+  searchButtonBackground: {fileID: 4118542000434332826}
+  moreButtonBackground: {fileID: 3609067456642937481}
   messagesTabText: {fileID: 6810524810186815408}
   statusTabText: {fileID: 2245778987143531051}
   callsTabText: {fileID: 4279981200678591176}
   activeTabUnderline: {fileID: 4217026002468717423}
+  contactScrollRect: {fileID: 5589563561212696934}
+  floatingActionButtonBackground: {fileID: 1868196268623026741}
+  floatingActionButtonText: {fileID: 4361427519397158988}
+  floatingActionButton: {fileID: 8010275943976064070}
   tokiItem: {fileID: 9082158955730218097}
 --- !u!1 &4162809249501798595
 GameObject:
@@ -2769,7 +2788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.01}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2866,8 +2885,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 24, y: 0}
-  m_SizeDelta: {x: 40, y: 38}
+  m_AnchoredPosition: {x: 31, y: 0}
+  m_SizeDelta: {x: 36, y: 36}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4794700288465409499
 CanvasRenderer:
@@ -3009,7 +3028,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.68}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.72}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3168,7 +3187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  m_Color: {r: 0.14509805, g: 0.827451, b: 0.4, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3406,10 +3425,14 @@ MonoBehaviour:
   theme: {fileID: 11400000, guid: 60f5f10010dfe7d428d5a301892a2f9b, type: 2}
   rowLayout: {fileID: 6310273695174099258}
   bubbleBackground: {fileID: 7369003284452671619}
+  bubbleLayout: {fileID: 8185663282512222417}
   bubbleLayoutElement: {fileID: 3026104548023793715}
   senderText: {fileID: 5666944035879902326}
   messageText: {fileID: 4093069893041645563}
   timeText: {fileID: 8576804165507380394}
+  imagePreviewBackground: {fileID: 0}
+  imagePreviewText: {fileID: 0}
+  imagePreviewLayoutElement: {fileID: 0}
   minBubbleWidth: 76
   maxBubbleWidth: 292
 --- !u!1 &6355252899826632894
@@ -3470,7 +3493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3549,7 +3572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3558,7 +3581,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 18
+    m_FontSize: 15
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -3778,7 +3801,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 13
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -3978,7 +4001,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 13
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -4221,7 +4244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.96862745, g: 0.56078434, b: 0.7019608, a: 1}
+  m_Color: {r: 0.07058824, g: 0.54901963, b: 0.49411765, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4346,7 +4369,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 64}
+  m_SizeDelta: {x: 0, y: 56}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8639248130758304851
 CanvasRenderer:
@@ -4369,7 +4392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.96862745, g: 0.56078434, b: 0.7019608, a: 1}
+  m_Color: {r: 0.02745098, g: 0.36862746, b: 0.32941177, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4523,7 +4546,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
+  m_Color: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4532,7 +4555,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -4543,7 +4566,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: +
+  m_Text: "\u222A"
 --- !u!1 &7549949330828990903
 GameObject:
   m_ObjectHideFlags: 0
@@ -4670,8 +4693,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -88, y: 0}
-  m_SizeDelta: {x: 38, y: 38}
+  m_AnchoredPosition: {x: -82, y: 0}
+  m_SizeDelta: {x: 36, y: 36}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2632876420401952348
 CanvasRenderer:
@@ -4894,7 +4917,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.01}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5060,8 +5083,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7643568663800282085}
   - {fileID: 7887789246820663241}
+  - {fileID: 7643568663800282085}
   - {fileID: 3307324693708685700}
   - {fileID: 2019047834975676218}
   - {fileID: 5055068389601198238}
@@ -5070,7 +5093,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 62}
+  m_SizeDelta: {x: 0, y: 58}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &2672385742667679612
 CanvasRenderer:
@@ -5093,14 +5116,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9254902, g: 0.8980392, b: 0.8666667, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5168,7 +5191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.14117648, g: 0.15686275, b: 0.17254902, a: 1}
+  m_Color: {r: 0.1254902, g: 0.12941177, b: 0.14117648, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5178,7 +5201,7 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 16
-    m_FontStyle: 0
+    m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 10
     m_MaxSize: 40
@@ -5334,7 +5357,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 16
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -5661,8 +5684,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: -24, y: 0}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: -138, y: -4}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2752308246068906658
 CanvasRenderer:
@@ -5685,7 +5708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.14117648, g: 0.15686275, b: 0.17254902, a: 1}
+  m_Color: {r: 0.1254902, g: 0.12941177, b: 0.14117648, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5694,7 +5717,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
+    m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10

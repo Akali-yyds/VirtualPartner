@@ -44,6 +44,13 @@ namespace VirtualPartner.Runtime
         private Vector2 expandedWindowSize = new Vector2(360f, 640f);
         private int lastSelectedIndex = -1;
 
+        public IReadOnlyList<BoneMapInstance> Bones => controlInstances;
+        public int SelectedIndex => selectedIndex;
+        public Vector3 Rotation { get=>rotation; set {var instance=GetSelectedInstance();rotation=instance!=null?instance.Entry.ClampRotation(value):Vector3.zero;} }
+        public bool Apply { get=>apply; set=>apply=value; }
+        public int PinnedCount => heldRotations.Count;
+        public string ExportedJson => exportedJson;
+        public void SelectBone(int index){if(IsValidIndex(index)){selectedIndex=index;SyncSelection();}}
         public void SetStandaloneVisible(bool visible)
         {
             standaloneVisible = visible;
@@ -322,7 +329,7 @@ namespace VirtualPartner.Runtime
             GUILayout.EndHorizontal();
         }
 
-        private void PinSelected()
+        public void PinSelected()
         {
             if (!IsValidIndex(selectedIndex))
                 return;
@@ -332,7 +339,7 @@ namespace VirtualPartner.Runtime
 
         // Pin the selected bone and, for side bones, also pin its mirrored side with the
         // same semantic rotation (runtime mirrors R internally) for easy symmetric poses.
-        private void PinSelectedPair()
+        public void PinSelectedPair()
         {
             if (!IsValidIndex(selectedIndex))
                 return;
@@ -365,12 +372,12 @@ namespace VirtualPartner.Runtime
             return -1;
         }
 
-        private void UnpinSelected()
+        public void UnpinSelected()
         {
             heldRotations.Remove(selectedIndex);
         }
 
-        private void ClearPins()
+        public void ClearPins()
         {
             heldRotations.Clear();
         }
@@ -429,7 +436,7 @@ namespace VirtualPartner.Runtime
                 GUILayout.TextArea(exportedJson, GUILayout.Height(120f));
         }
 
-        private void ExportSelectedJson()
+        public void ExportSelectedJson()
         {
             if (!IsValidIndex(selectedIndex))
                 return;
@@ -443,7 +450,7 @@ namespace VirtualPartner.Runtime
 
         // Export every currently-held bone (plus the live-previewed selected bone when
         // Apply is on) as a single ready-to-play StagePlan, matching what is on screen.
-        private void ExportPinnedStagePlan()
+        public void ExportPinnedStagePlan()
         {
             indexBuffer.Clear();
             foreach (var pair in heldRotations)
@@ -463,7 +470,7 @@ namespace VirtualPartner.Runtime
             Debug.Log($"[VirtualPartner] Debug pinned StagePlan exported:\n{exportedJson}", this);
         }
 
-        private void RefreshControlInstances()
+        public void RefreshControlInstances()
         {
             ReleaseAllApplied();
             heldRotations.Clear();

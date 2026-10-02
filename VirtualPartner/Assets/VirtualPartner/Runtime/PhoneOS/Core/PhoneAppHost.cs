@@ -1,359 +1,233 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace VirtualPartner.Runtime.PhoneOS
 {
+    public interface IPhoneTaskReset { void ResetTaskView(); }
+
+    public sealed class PhoneTaskSnapshot
+    {
+        public PhoneAppDefinition Definition { get; internal set; }
+        public Texture2D Preview { get; internal set; }
+        public bool PrivatePreview { get; internal set; }
+    }
+
     [DisallowMultipleComponent]
     public sealed class PhoneAppHost : MonoBehaviour
     {
         [SerializeField] private PhoneAppRegistry registry;
-        [SerializeField] private GameObject homeLayer;
-        [SerializeField] private GameObject appLayer;
+        [SerializeField] private GameObject homeLayer, appLayer;
         [SerializeField] private RectTransform appWindowContainer;
-        [SerializeField] private float openDuration = 0.18f;
-        [SerializeField] private float closeDuration = 0.14f;
-        [SerializeField] private float homeReturnDuration = 0.14f;
-
+        [SerializeField] private float openDuration = .18f, closeDuration = .14f, homeReturnDuration = .14f;
         private GameObject currentAppObject;
         private IPhoneApp currentApp;
         private PhoneAppDefinition currentAppDefinition;
-        private Coroutine transitionRoutine;
-        private Coroutine homeTransitionRoutine;
-        private bool isClosingCurrentApp;
-
+        private readonly Dictionary<string, GameObject> cachedApps = new Dictionary<string, GameObject>();
+        private readonly List<PhoneTaskSnapshot> tasks = new List<PhoneTaskSnapshot>();
+        private string linkedOrigin, linkedTarget;
+        private int linkedPage;
+        private bool suspended;
+        private Coroutine transition, departure;
+        private Action pendingDeparture;
+        private bool completingDeparture;
+        private PhoneTransitionCoordinator visuals;
+        private PhoneTransitionCoordinator Visuals { get { if(visuals==null)visuals=GetComponent<PhoneTransitionCoordinator>();if(visuals==null)visuals=gameObject.AddComponent<PhoneTransitionCoordinator>();return visuals; } }
+        public bool NavigationPending => departure != null || (visuals!=null&&visuals.Busy);
+        private RectTransform DockIcon(string id){var shell=GetComponent<PhonePresentationShell>();return shell!=null?shell.dock.transform.Find("Open_"+id) as RectTransform:null;}
+        private RectTransform Screen => GetComponent<PhonePresentationShell>().navigationBackground.transform.parent as RectTransform;
+        public event Action<PhoneAppDefinition> ApplicationChanged;
+        public event Action TasksChanged;
+        public event Action<bool> OverviewChanged;
+        public bool IsOverviewOpen { get; private set; }
+        public IReadOnlyList<PhoneTaskSnapshot> RecentTasks => tasks.AsReadOnly();
         public IPhoneApp CurrentApp => currentApp;
-
         public PhoneAppDefinition CurrentAppDefinition => currentAppDefinition;
-
         public bool HasCurrentApp => currentAppObject != null;
-
-        private void Awake()
+        public RectTransform WindowContainer => appWindowContainer;
+        public void Configure(PhoneAppRegistry apps, GameObject home, GameObject layer, RectTransform container)
+        { registry=apps;homeLayer=home;appLayer=layer;appWindowContainer=container; }
+        private void Awake() { if(homeLayer!=null)homeLayer.SetActive(true);if(appLayer!=null)appLayer.SetActive(false); }
+        public void SetSuspended(bool value)
         {
-            SetHomeVisible(true);
-            SetAppLayerVisible(false);
+            if(suspended==value)return;
+
+            suspended=value;if(value&&visuals!=null)visuals.Cancel();
+            if(!IsOverviewOpen){if(value)currentApp?.OnPause();else currentApp?.OnResume();}
         }
-
-        public bool OpenApp(string appId, object args = null)
+        public bool OpenLinkedApp(string id, object args=null)
         {
-            if (registry == null)
-            {
-                Debug.LogWarning("[PhoneOS] Cannot open app: registry is not assigned.", this);
-                return false;
-            }
-
-            var definition = registry.FindApp(appId);
-            if (definition == null)
-            {
-                Debug.LogWarning($"[PhoneOS] Cannot open app: '{appId}' is not registered.", this);
-                return false;
-            }
-
-            if (definition.AppPrefab == null)
-            {
-                Debug.LogWarning($"[PhoneOS] Cannot open app: '{appId}' has no appPrefab.", this);
-                return false;
-            }
-
-            if (appWindowContainer == null)
-            {
-                Debug.LogWarning("[PhoneOS] Cannot open app: AppWindowContainer is not assigned.", this);
-                return false;
-            }
-
-            CloseCurrentAppImmediate();
-
-            SetHomeVisible(false);
-            SetAppLayerVisible(true);
-            appWindowContainer.gameObject.SetActive(true);
-            currentAppDefinition = definition;
-            currentAppObject = Instantiate(definition.AppPrefab, appWindowContainer);
-            currentAppObject.name = "AppWindow_" + definition.AppId;
-            currentAppObject.SetActive(true);
-
-            var rectTransform = currentAppObject.GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                rectTransform.anchorMin = Vector2.zero;
-                rectTransform.anchorMax = Vector2.one;
-                rectTransform.offsetMin = Vector2.zero;
-                rectTransform.offsetMax = Vector2.zero;
-                rectTransform.localScale = Vector3.one;
-            }
-
-            var windowView = currentAppObject.GetComponentInChildren<PhoneAppWindowView>(true);
-            if (windowView != null)
-                windowView.Bind(definition);
-
-            currentApp = FindPhoneApp(currentAppObject);
-            currentApp?.OnOpen(args);
-
-            PlayOpenAnimation(currentAppObject);
-            Debug.Log($"[PhoneOS] Open app: {definition.AppId}", this);
+            if(DeferDeparture(()=>OpenLinkedApp(id,args)))return true;
+            var origin=currentAppDefinition?.AppId;
+            if(!OpenApp(id,args))return false;
+            if(origin!=null&&origin!=id){linkedOrigin=origin;linkedTarget=id;linkedPage=(currentApp as PhonePreviewApp)?.CurrentPage??0;}
             return true;
         }
-
+        public bool OpenApp(string id, object args=null)
+        {
+            var definition=registry!=null?registry.FindApp(id):null;
+            if(definition==null||definition.AppPrefab==null||appWindowContainer==null)return false;
+            if(DeferDeparture(()=>OpenApp(id,args)))return true;
+            var launchSource=IsOverviewOpen?GetComponent<PhoneRecentTasksView>().PreviewRect(id):DockIcon(id);
+            ClearLink();StopTransition();PauseAndHide();
+            IsOverviewOpen=false;
+            currentAppDefinition=definition;
+            bool created=!cachedApps.TryGetValue(id,out currentAppObject)||currentAppObject==null;
+            if(created)
+            {currentAppObject=Instantiate(definition.AppPrefab,appWindowContainer);cachedApps[id]=currentAppObject;}
+            currentAppObject.name="AppWindow_"+id;
+            var rect=(RectTransform)currentAppObject.transform;
+            rect.pivot=new Vector2(.5f,.5f);rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=rect.offsetMax=Vector2.zero;rect.localScale=Vector3.one;
+            appLayer.SetActive(true);appWindowContainer.gameObject.SetActive(true);currentAppObject.SetActive(true);homeLayer.SetActive(false);
+            currentApp=FindPhoneApp(currentAppObject);
+            if(currentApp is PhonePreviewApp styled)PhoneVisualPolish.ApplyApp(styled);
+            currentAppObject.GetComponentInChildren<PhoneAppWindowView>(true)?.Bind(definition);
+            if(created||args!=null)currentApp?.OnOpen(args);
+            if(suspended)currentApp?.OnPause();else currentApp?.OnResume();
+            var task=tasks.Find(t=>t.Definition.AppId==id);
+            if(task==null)task=new PhoneTaskSnapshot{Definition=definition};else tasks.Remove(task);
+            task.PrivatePreview=id=="settings";tasks.Insert(0,task);
+            Visuals.Open(currentAppObject,launchSource,appWindowContainer);
+            OverviewChanged?.Invoke(false);ApplicationChanged?.Invoke(definition);TasksChanged?.Invoke();
+            return true;
+        }
         public void CloseCurrentApp()
         {
-            if (currentAppObject == null || isClosingCurrentApp)
-                return;
-
-            var closingObject = currentAppObject;
-            var closingApp = currentApp;
-
-            currentAppObject = null;
-            currentApp = null;
-            currentAppDefinition = null;
-            isClosingCurrentApp = true;
-            closingApp?.OnClose();
-
-            if (transitionRoutine != null)
-            {
-                StopCoroutine(transitionRoutine);
-                transitionRoutine = null;
-            }
-
-            SetHomeVisible(true);
-            PlayHomeReturnAnimation();
-            transitionRoutine = StartCoroutine(CloseCurrentAppAnimated(closingObject));
+            if(DeferDeparture(CloseCurrentApp))return;
+            var departing=tasks.Find(t=>t.Definition==currentAppDefinition);var icon=DockIcon(currentAppDefinition?.AppId);
+            StopTransition();PauseAndHide();ClearLink();
+            currentAppObject=null;currentApp=null;currentAppDefinition=null;IsOverviewOpen=false;
+            appLayer.SetActive(false);homeLayer.SetActive(true);
+            OverviewChanged?.Invoke(false);ApplicationChanged?.Invoke(null);
+            Visuals.Depart(departing,appWindowContainer,icon,Screen);
         }
-
+        public void ToggleOverview(){if(IsOverviewOpen)ExitOverview();else ShowOverview();}
+        public void ShowOverview()
+        {
+            if(IsOverviewOpen)return;
+            if(DeferDeparture(ShowOverview))return;
+            StopTransition();PauseAndHide();IsOverviewOpen=true;
+            homeLayer.SetActive(false);appLayer.SetActive(false);
+            OverviewChanged?.Invoke(true);ApplicationChanged?.Invoke(null);
+            var task=tasks.Find(t=>t.Definition==currentAppDefinition);
+            if(task!=null)Visuals.Depart(task,appWindowContainer,GetComponent<PhoneRecentTasksView>().PreviewRect(task.Definition.AppId),Screen);
+        }
+        public void ExitOverview()
+        {
+            if(!IsOverviewOpen)return;
+            var source=HasCurrentApp?GetComponent<PhoneRecentTasksView>().PreviewRect(currentAppDefinition.AppId):null;
+            IsOverviewOpen=false;
+            homeLayer.SetActive(!HasCurrentApp);appLayer.SetActive(HasCurrentApp);
+            if(HasCurrentApp){appWindowContainer.gameObject.SetActive(true);currentAppObject.SetActive(true);if(!suspended)currentApp?.OnResume();}
+            if(HasCurrentApp)Visuals.Open(currentAppObject,source,appWindowContainer);
+            OverviewChanged?.Invoke(false);ApplicationChanged?.Invoke(currentAppDefinition);
+        }
+        public void DismissTask(string id)
+        {
+            var task=tasks.Find(t=>t.Definition.AppId==id);if(task==null)return;
+            tasks.Remove(task);ReleasePreview(task);
+            if(linkedOrigin==id||linkedTarget==id)ClearLink();
+            if(cachedApps.TryGetValue(id,out var root)&&root!=null)
+            {
+                FindPhoneApp(root)?.OnPause();
+                foreach(var component in root.GetComponents<MonoBehaviour>())if(component is IPhoneTaskReset reset)reset.ResetTaskView();
+                root.SetActive(false);
+            }
+            if(currentAppDefinition!=null&&currentAppDefinition.AppId==id)
+            {StopTransition();currentApp=null;currentAppObject=null;currentAppDefinition=null;if(!IsOverviewOpen){appLayer.SetActive(false);homeLayer.SetActive(true);}ApplicationChanged?.Invoke(null);}
+            TasksChanged?.Invoke();
+        }
         public bool HandleBackPressed()
         {
-            if (currentAppObject == null)
-                return false;
-
-            if (isClosingCurrentApp)
+            if(departure!=null&&!completingDeparture){pendingDeparture=()=>HandleBackPressed();return true;}
+            if(IsOverviewOpen){ExitOverview();return true;}
+            if(!HasCurrentApp)return false;
+            var page=currentApp as PhonePreviewApp;
+            if(linkedOrigin!=null&&currentAppDefinition.AppId==linkedTarget&&(page==null||page.CurrentPage==linkedPage))
+            {var origin=linkedOrigin;ClearLink();OpenApp(origin);return true;}
+            if(currentApp!=null&&currentApp.OnBackPressed())return true;
+            CloseCurrentApp();return true;
+        }
+        private void ClearLink(){linkedOrigin=null;linkedTarget=null;}
+        private void PauseAndHide()
+        {
+            if(currentAppObject==null)return;
+            if(!suspended&&!IsOverviewOpen)currentApp?.OnPause();
+            currentAppObject.SetActive(false);
+        }
+        private void StopTransition()
+        {
+            if(visuals!=null)visuals.Cancel();
+            if(transition!=null){StopCoroutine(transition);transition=null;}
+            foreach(var root in cachedApps.Values)Normalize(root);
+            Normalize(homeLayer);
+        }
+        private static void Normalize(GameObject root)
+        {if(root==null)return;root.transform.localScale=Vector3.one;var group=root.GetComponent<CanvasGroup>();if(group!=null){group.alpha=1;group.interactable=true;group.blocksRaycasts=true;}}
+        private IEnumerator Animate(GameObject root,float duration)
+        {
+            var group=root.GetComponent<CanvasGroup>();if(group==null)group=root.AddComponent<CanvasGroup>();
+            for(float elapsed=0;elapsed<duration;elapsed+=Time.unscaledDeltaTime)
+            {var t=1-Mathf.Pow(1-elapsed/Mathf.Max(.01f,duration),3);group.alpha=Mathf.Lerp(.3f,1,t);root.transform.localScale=Vector3.one*Mathf.Lerp(.97f,1,t);yield return null;}
+            Normalize(root);transition=null;
+        }
+        private bool DeferDeparture(Action action)
+        {
+            if(completingDeparture)return false;
+            if(departure!=null){pendingDeparture=action;return true;}
+            if(visuals!=null&&visuals.Busy)
+            {
+                // A partial transition is not a valid task thumbnail. Keep the last complete
+                // snapshot and continue the next transition from the current visual rectangle.
+                visuals.PreserveInterruptedPose();completingDeparture=true;
+                try{action.Invoke();}finally{completingDeparture=false;}
                 return true;
-
-            if (currentApp != null && currentApp.OnBackPressed())
-                return true;
-
-            CloseCurrentApp();
+            }
+            if(!HasCurrentApp||IsOverviewOpen||suspended)return false;
+            pendingDeparture=action;
+            StopTransition();currentApp?.OnPause();
+            departure=StartCoroutine(CompleteDeparture());
             return true;
         }
-
-        private void PlayOpenAnimation(GameObject target)
+        private IEnumerator CompleteDeparture()
         {
-            if (transitionRoutine != null)
-                StopCoroutine(transitionRoutine);
-
-            isClosingCurrentApp = false;
-            transitionRoutine = StartCoroutine(AnimateWindow(target, 0f, 1f, 0.96f, 1f, openDuration, false));
-        }
-
-        private void PlayHomeReturnAnimation()
-        {
-            if (homeLayer == null)
-                return;
-
-            if (homeTransitionRoutine != null)
-            {
-                StopCoroutine(homeTransitionRoutine);
-                homeTransitionRoutine = null;
-            }
-
-            homeTransitionRoutine = StartCoroutine(AnimateHomeReturn());
-        }
-
-        private IEnumerator CloseCurrentAppAnimated(GameObject closingObject)
-        {
-            yield return AnimateWindow(
-                closingObject,
-                GetCanvasGroupAlpha(closingObject, 1f),
-                0f,
-                GetRectScale(closingObject, 1f),
-                0.96f,
-                closeDuration,
-                true);
-
-            isClosingCurrentApp = false;
-            transitionRoutine = null;
-
-            if (appWindowContainer != null)
-                appWindowContainer.gameObject.SetActive(false);
-
-            SetAppLayerVisible(false);
-            SetHomeVisible(true);
-        }
-
-        private IEnumerator AnimateHomeReturn()
-        {
-            var canvasGroup = homeLayer.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = homeLayer.AddComponent<CanvasGroup>();
-
-            canvasGroup.alpha = 0.85f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-            var elapsed = 0f;
-            var duration = Mathf.Max(0.01f, homeReturnDuration);
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                var t = Mathf.Clamp01(elapsed / duration);
-                var eased = 1f - Mathf.Pow(1f - t, 3f);
-                canvasGroup.alpha = Mathf.Lerp(0.85f, 1f, eased);
-                yield return null;
-            }
-
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-            homeTransitionRoutine = null;
-        }
-
-        private static float GetCanvasGroupAlpha(GameObject target, float fallback)
-        {
-            if (target == null)
-                return fallback;
-
-            var canvasGroup = target.GetComponent<CanvasGroup>();
-            return canvasGroup != null ? canvasGroup.alpha : fallback;
-        }
-
-        private static float GetRectScale(GameObject target, float fallback)
-        {
-            if (target == null)
-                return fallback;
-
-            var rectTransform = target.GetComponent<RectTransform>();
-            return rectTransform != null ? rectTransform.localScale.x : fallback;
-        }
-
-        private IEnumerator AnimateWindow(GameObject target, float fromAlpha, float toAlpha, float fromScale, float toScale, float duration, bool destroyWhenDone)
-        {
-            if (target == null)
-                yield break;
-
-            var canvasGroup = target.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = target.AddComponent<CanvasGroup>();
-
-            var rectTransform = target.GetComponent<RectTransform>();
-            canvasGroup.alpha = fromAlpha;
-            if (rectTransform != null)
-                rectTransform.localScale = Vector3.one * fromScale;
-
+            // Let resolution/layout changes reach a rendered frame before sampling its pixel coordinates.
             yield return null;
-
-            var elapsed = 0f;
-            duration = Mathf.Max(0.01f, duration);
-
-            while (elapsed < duration && target != null)
+            Canvas.ForceUpdateCanvases();
+            yield return new WaitForEndOfFrame();
+            try{CaptureCurrent();}catch(Exception error){Debug.LogException(error,this);}
+            var action=pendingDeparture;pendingDeparture=null;departure=null;
+            completingDeparture=true;
+            try{action?.Invoke();}finally{completingDeparture=false;if(!IsOverviewOpen&&!suspended&&currentApp is PhonePreviewApp page&&page.Suspended)currentApp.OnResume();}
+        }
+        private void CaptureCurrent()
+        {
+            if(!HasCurrentApp||IsOverviewOpen||suspended||!currentAppObject.activeInHierarchy)return;
+            var task=tasks.Find(t=>t.Definition==currentAppDefinition);if(task==null)return;
+            ReleasePreview(task);
+            // Never put configuration values in a texture, including a key temporarily revealed by the user.
+            task.PrivatePreview=currentAppDefinition.AppId=="settings";
+            if(task.PrivatePreview)return;
+            var corners=new Vector3[4];appWindowContainer.GetWorldCorners(corners);
+            var canvas=appWindowContainer.GetComponentInParent<Canvas>();var camera=canvas.renderMode==RenderMode.ScreenSpaceOverlay?null:canvas.worldCamera;
+            var min=RectTransformUtility.WorldToScreenPoint(camera,corners[0]);var max=RectTransformUtility.WorldToScreenPoint(camera,corners[2]);
+            Texture2D frame=null;
+            try
             {
-                elapsed += Time.unscaledDeltaTime;
-                var t = Mathf.Clamp01(elapsed / duration);
-                var eased = 1f - Mathf.Pow(1f - t, 3f);
-                canvasGroup.alpha = Mathf.Lerp(fromAlpha, toAlpha, eased);
-                if (rectTransform != null)
-                    rectTransform.localScale = Vector3.one * Mathf.Lerp(fromScale, toScale, eased);
-                yield return null;
+                frame=ScreenCapture.CaptureScreenshotAsTexture();if(frame==null)return;
+                int x=Mathf.Clamp(Mathf.CeilToInt(min.x),0,frame.width-1),y=Mathf.Clamp(Mathf.CeilToInt(min.y),0,frame.height-1);
+                int width=Mathf.Min(Mathf.FloorToInt(max.x)-x,frame.width-x),height=Mathf.Min(Mathf.FloorToInt(max.y)-y,frame.height-y);
+                if(width<1||height<1)return;
+                task.Preview=new Texture2D(width,height,TextureFormat.RGB24,false){name="PhoneTask_"+currentAppDefinition.AppId};
+                task.Preview.SetPixels(frame.GetPixels(x,y,width,height));task.Preview.Apply(false,false);
             }
-
-            if (target == null)
-                yield break;
-
-            canvasGroup.alpha = toAlpha;
-            if (rectTransform != null)
-                rectTransform.localScale = Vector3.one * toScale;
-
-            if (destroyWhenDone)
-                Destroy(target);
+            finally{if(frame!=null)Destroy(frame);}
         }
-
-        private void CloseCurrentAppImmediate()
-        {
-            if (transitionRoutine != null)
-            {
-                StopCoroutine(transitionRoutine);
-                transitionRoutine = null;
-            }
-
-            if (homeTransitionRoutine != null)
-            {
-                StopCoroutine(homeTransitionRoutine);
-                homeTransitionRoutine = null;
-            }
-
-            if (currentApp != null)
-                currentApp.OnClose();
-
-            currentAppObject = null;
-            currentApp = null;
-            currentAppDefinition = null;
-            isClosingCurrentApp = false;
-            ClearAppWindowContainer();
-            RestoreHomeIfNoAppWindows();
-        }
-
-        private void ClearAppWindowContainer()
-        {
-            if (appWindowContainer == null)
-                return;
-
-            for (var i = appWindowContainer.childCount - 1; i >= 0; i--)
-            {
-                var child = appWindowContainer.GetChild(i);
-                if (child == null)
-                    continue;
-
-                child.gameObject.SetActive(false);
-                Destroy(child.gameObject);
-            }
-
-            appWindowContainer.gameObject.SetActive(false);
-        }
-
-        private void RestoreHomeIfNoAppWindows()
-        {
-            if (appWindowContainer != null && appWindowContainer.childCount > 0)
-                return;
-
-            if (appWindowContainer != null)
-                appWindowContainer.gameObject.SetActive(false);
-
-            SetAppLayerVisible(false);
-            SetHomeVisible(true);
-        }
-
-        private void SetHomeVisible(bool visible)
-        {
-            if (homeLayer == null)
-                return;
-
-            homeLayer.SetActive(visible);
-            if (!visible)
-                return;
-
-            var canvasGroup = homeLayer.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                return;
-
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-        }
-
-        private void SetAppLayerVisible(bool visible)
-        {
-            if (appLayer != null)
-                appLayer.SetActive(visible);
-        }
-
+        private static void ReleasePreview(PhoneTaskSnapshot task){if(task.Preview!=null)Destroy(task.Preview);task.Preview=null;}
         private static IPhoneApp FindPhoneApp(GameObject root)
-        {
-            if (root == null)
-                return null;
-
-            var behaviours = root.GetComponentsInChildren<MonoBehaviour>(true);
-            for (var i = 0; i < behaviours.Length; i++)
-            {
-                if (behaviours[i] is IPhoneApp app)
-                    return app;
-            }
-
-            return null;
-        }
+        {foreach(var component in root.GetComponents<MonoBehaviour>())if(component is IPhoneApp app)return app;return null;}
+        private void OnDestroy(){foreach(var task in tasks)ReleasePreview(task);foreach(var root in cachedApps.Values)if(root!=null)FindPhoneApp(root)?.OnClose();}
     }
 }

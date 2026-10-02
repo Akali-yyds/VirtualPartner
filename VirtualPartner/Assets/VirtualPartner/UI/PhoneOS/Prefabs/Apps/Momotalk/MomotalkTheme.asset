@@ -14,19 +14,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.PhoneOS.MomotalkTheme
   topBarBackground: {fileID: 0}
   contactListBackground: {fileID: 0}
-  contactItemBackground: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  contactItemBackground: {fileID: 0}
+  chatBackgroundPattern: {fileID: 0}
   leftBubbleSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   rightBubbleSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   inputBarBackground: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   unreadBadgeSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  fabBackgroundSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
+  imageMessageMaskSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   statusBadgeSprite: {fileID: 21300000, guid: f9327909fa2c4264d90538785639ac32, type: 3}
   peachMarkSprite: {fileID: 21300000, guid: 1d1c748e88defc9dbe709a0243438d7c, type: 3}
-  topBarColor: {r: 0.96862745, g: 0.56078434, b: 0.7019608, a: 1}
-  contactBackgroundColor: {r: 1, g: 0.96862745, b: 0.98039216, a: 1}
+  topBarColor: {r: 0.07058824, g: 0.54901963, b: 0.49411765, a: 1}
+  appBarDarkColor: {r: 0.02745098, g: 0.36862746, b: 0.32941177, a: 1}
+  accentColor: {r: 0, g: 0.65882355, b: 0.5176471, a: 1}
+  contactBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+  chatBackgroundColor: {r: 0.9254902, g: 0.8980392, b: 0.8666667, a: 1}
   contactItemColor: {r: 1, g: 1, b: 1, a: 1}
   leftBubbleColor: {r: 1, g: 1, b: 1, a: 1}
-  rightBubbleColor: {r: 1, g: 0.83137256, b: 0.8862745, a: 1}
-  inputBarColor: {r: 1, g: 0.96862745, b: 0.98039216, a: 1}
-  primaryTextColor: {r: 0.14117648, g: 0.15686275, b: 0.17254902, a: 1}
-  secondaryTextColor: {r: 0.47843137, g: 0.49803922, b: 0.5294118, a: 1}
-  unreadBadgeColor: {r: 1, g: 0.43529412, b: 0.62352943, a: 1}
+  rightBubbleColor: {r: 0.8627451, g: 0.972549, b: 0.7764706, a: 1}
+  inputBarColor: {r: 0.9411765, g: 0.9490196, b: 0.9607843, a: 1}
+  primaryTextColor: {r: 0.1254902, g: 0.12941177, b: 0.14117648, a: 1}
+  secondaryTextColor: {r: 0.4, g: 0.4666667, b: 0.5058824, a: 1}
+  mutedTextColor: {r: 0.5254902, g: 0.5882353, b: 0.627451, a: 1}
+  dividerColor: {r: 0.9137255, g: 0.92941177, b: 0.9372549, a: 1}
+  unreadBadgeColor: {r: 0.14509804, g: 0.827451, b: 0.4, a: 1}
+  appBarHeight: 56
+  tabBarHeight: 48
+  contactItemHeight: 70
+  avatarSize: 48
+  chatAvatarSize: 40
+  unreadBadgeSize: 20
+  floatingActionButtonSize: 56
+  chatHorizontalPadding: 12
+  messageSpacing: 3
+  bubbleMinWidth: 68
+  bubbleMaxWidth: 336
+  bubbleHorizontalPadding: 10
+  bubbleVerticalPadding: 6
+  inputBarHeight: 58
+  inputPillHeight: 44
+  imageMessageMaxWidth: 328
+  imageMessageMaxHeight: 170
+  titleFontSize: 20
+  tabFontSize: 13
+  contactNameFontSize: 16
+  contactPreviewFontSize: 13
+  messageFontSize: 14
+  messageTimeFontSize: 11
+  inputFontSize: 14

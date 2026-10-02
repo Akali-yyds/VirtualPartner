@@ -147,7 +147,16 @@ namespace VirtualPartner.Runtime
                     momotalkUIManager);
             }
 
-            if (momotalkUIManager != null)
+            var phoneRuntime=FindFirstObjectByType<PhoneOS.PhoneLiveRuntime>();
+            if(phoneRuntime!=null)
+            {
+                var conversation=GetComponent<MomotalkConversationController>();
+                if(conversation==null)conversation=gameObject.AddComponent<MomotalkConversationController>();
+                conversation.UseExternalPresentation(phoneRuntime.IsConversationVisible);
+                conversation.ConfigureRuntime(llmRelay,stagePlanPlayer,speechBubbleView,asrManager,memorySystem,requestRegistry);
+                phoneRuntime.Configure(conversation,llmRelay,asrManager);
+            }
+            else if (momotalkUIManager != null)
                 momotalkUIManager.BindConversationRuntime(llmRelay, stagePlanPlayer, speechBubbleView, asrManager, memorySystem, requestRegistry);
 
             yield return null;

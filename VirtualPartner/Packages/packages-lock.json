@@ -1,17 +1,19 @@
 {
   "dependencies": {
     "com.besty.unity-skills": {
-      "version": "https://github.com/Besty0728/Unity-Skills.git?path=/SkillsForUnity",
+      "version": "https://github.com/Besty0728/Unity-Skills.git?path=/SkillsForUnity#v2.8.4",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.timeline": "1.7.7"
+        "com.unity.test-framework": "1.1.33",
+        "com.unity.timeline": "1.7.7",
+        "com.unity.ugui": "1.0.0"
       },
-      "hash": "65f1dc950031d774f8a30be79ea1e804636d890b"
+      "hash": "c479dd0c5b4acd73b6f4247108d60dad7dd51db8"
     },
     "com.coplaydev.unity-mcp": {
-      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v10.2.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -25,7 +27,7 @@
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.test-framework": "1.1.31"
       },
-      "hash": "11836003a5e2ffcb7715ecec7e1fbb9d9cdb5bb8"
+      "hash": "30d22075093d1d35dfb0091c1c7550e9ad948577"
     },
     "com.unity.ai.navigation": {
       "version": "2.0.11",

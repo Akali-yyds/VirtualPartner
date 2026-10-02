@@ -30,6 +30,10 @@ namespace VirtualPartner.Runtime
         private Vector2 resultScroll;
         private Vector2 expandedWindowSize = new Vector2(480f, 620f);
 
+        public string Json { get=>stagePlanJson; set=>stagePlanJson=value; }
+        public string Result => lastResult;
+        public void LoadBasic()=>LoadSample(basicSample);
+        public void LoadFull()=>LoadSample(fullSample);
         public void SetStandaloneVisible(bool visible)
         {
             standaloneVisible = visible;
@@ -152,7 +156,7 @@ namespace VirtualPartner.Runtime
             lastResult = "Sample loaded. Press Validate.";
         }
 
-        private void ValidateCurrentJson()
+        public void ValidateCurrentJson()
         {
             var result = stagePlanPlayer != null
                 ? stagePlanPlayer.ValidateStagePlanJson(stagePlanJson)
@@ -170,7 +174,7 @@ namespace VirtualPartner.Runtime
                 Debug.LogWarning($"[VirtualPartner] StagePlan validation failed. errors={errorCount}, warnings={warningCount}", this);
         }
 
-        private void PlayCurrentJson(bool replace)
+        public void PlayCurrentJson(bool replace)
         {
             if (stagePlanPlayer == null)
             {
@@ -195,7 +199,7 @@ namespace VirtualPartner.Runtime
             lastResult = FormatResult(result) + (started ? "\nPlayback started." : "\nPlayback did not start.");
         }
 
-        private void StopCurrentPlayback()
+        public void StopCurrentPlayback()
         {
             if (stagePlanPlayer == null)
                 return;
@@ -203,7 +207,7 @@ namespace VirtualPartner.Runtime
             stagePlanPlayer.StopStagePlan();
         }
 
-        private void Clear()
+        public void Clear()
         {
             stagePlanJson = string.Empty;
             valid = false;

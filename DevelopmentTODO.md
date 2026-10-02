@@ -1,8 +1,21 @@
 # VirtualPartner 当前 TODO
 
-更新时间：2026-06-10
+更新时间：2026-10-02
 
-本文记录当前活跃 TODO。当前主线是 `LlmRelay` prompt 工程、StagePlan 2.0 质量优化与流式 StagePlan 执行体验；Stage 3 AgentLoop 不在当前活跃开发路径中。
+本文记录当前活跃 TODO。当前实施重点是虚拟手机 OS 的视觉统一与交互打磨；既有 `LlmRelay` prompt、StagePlan 2.0 和流式执行待办保留。Stage 3 AgentLoop 不在当前活跃开发路径中。
+
+## 当前实施：PhoneOS 第三阶段第二步
+
+- [x] 四个 App 接入现有业务接口。
+- [x] 三键导航、最近任务、缓存状态与后台业务保留。
+- [x] 桌面、聊天、最近任务代表页与导航动效打磨。
+- [x] 用户于 2026-10-02 确认进入下一阶段。
+- [ ] 将接受的视觉规范推广到联系人、角色详情、Settings、Camera、Debug、弹层及空状态。
+- [ ] 完成全部页面的分辨率／手机大小矩阵与行为回归。
+- [ ] 临时配置下验证真实 DeepSeek → StagePlan → TTS／角色执行；基础认证测试不等于完整链路验收。
+- [ ] 人工验收中文输入法、麦克风准确率、卡片和镜头手感。
+
+详见 [PhoneOS 当前进度](Docs/PhoneOS-Progress.md)。
 
 ## 当前状态
 
@@ -17,7 +30,7 @@
 - [x] 镜头控制第一轮完成：右下角入口、独占控制模式、旋转/平移/缩放、退出与重置。
 - [x] Runtime Debug 面板改为默认隐藏，通过独立圆形按钮打开/关闭。
 
-## 当前活跃主线：Prompt Engineering
+## 保留的业务质量待办：Prompt Engineering
 
 目标：在不继续推进 AgentLoop 的前提下，提升 `LlmRelay` one-shot StagePlan 的动作质量、稳定性和可控性。
 

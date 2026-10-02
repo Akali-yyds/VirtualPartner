@@ -9,6 +9,9 @@ namespace VirtualPartner.Runtime.PhoneOS
         public bool use24HourTime = PhoneSettingsDefaults.Use24HourTime;
         public bool showDock = PhoneSettingsDefaults.ShowDock;
 
+        public float heightFraction = .9f;
+        public bool autoSendVoice;
+
         public PhoneSettingsData Clone()
         {
             return new PhoneSettingsData
@@ -16,11 +19,14 @@ namespace VirtualPartner.Runtime.PhoneOS
                 wallpaperId = wallpaperId,
                 use24HourTime = use24HourTime,
                 showDock = showDock,
+                heightFraction = heightFraction,
+                autoSendVoice = autoSendVoice,
             };
         }
 
         public void Normalize()
         {
+            heightFraction=heightFraction==0?.9f:UnityEngine.Mathf.Clamp(heightFraction,.7f,.95f);
             if (string.IsNullOrWhiteSpace(wallpaperId))
                 wallpaperId = PhoneSettingsDefaults.WallpaperId;
         }

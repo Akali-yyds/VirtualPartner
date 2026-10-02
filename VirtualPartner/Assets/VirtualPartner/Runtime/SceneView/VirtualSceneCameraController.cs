@@ -49,6 +49,9 @@ namespace VirtualPartner.Runtime
         public float ZoomUnitsPerUnit => zoomUnitsPerUnit;
         public float MinRadius => minRadius;
         public float MaxRadius => maxRadius;
+        public float Radius => orbitalFollow != null ? orbitalFollow.Radius : 0;
+        public void SetRadius(float value) { if(orbitalFollow!=null)orbitalFollow.Radius=Mathf.Clamp(value,minRadius,maxRadius); }
+        public void SetDebugInputEnabled(bool value) => enableDebugInput=value;
 
         public void SetZoomRadiusLimits(float min, float max)
         {
