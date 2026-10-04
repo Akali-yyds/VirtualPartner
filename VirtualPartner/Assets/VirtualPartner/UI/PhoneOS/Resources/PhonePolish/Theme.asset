@@ -21,6 +21,7 @@ MonoBehaviour:
   chat: {r: 0.95686275, g: 0.9607843, b: 0.972549, a: 1}
   pink: {r: 0.7254902, g: 0.20784314, b: 0.4117647, a: 1}
   pale: {r: 0.98039216, g: 0.88235295, b: 0.92156863, a: 1}
+  separator: {r: 0.88235295, g: 0.89411765, b: 0.91764706, a: 1}
   title: 22
   body: 16
   caption: 12
@@ -31,3 +32,4 @@ MonoBehaviour:
   card: {fileID: 21300000, guid: f90b63b1fd4415f4bbc3996ccf78a177, type: 3}
   bubble: {fileID: 21300000, guid: f14cc5d66e87c5a45a02766bd8a47413, type: 3}
   control: {fileID: 21300000, guid: cbd8fe2e25a196f4f8a0dde3040377fa, type: 3}
+  disc: {fileID: 21300000, guid: b46c0007e5424984d8ed8f01667b6fd5, type: 3}

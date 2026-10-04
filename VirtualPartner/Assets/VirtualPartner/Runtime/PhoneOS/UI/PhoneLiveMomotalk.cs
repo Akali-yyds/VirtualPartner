@@ -22,8 +22,11 @@ namespace VirtualPartner.Runtime.PhoneOS
         private readonly Dictionary<string,Button> contactRows=new Dictionary<string,Button>();
         private readonly Dictionary<string,PhoneTextBubble> rows=new Dictionary<string,PhoneTextBubble>();
         private readonly Dictionary<string,float> positions=new Dictionary<string,float>();
+        private TMP_Text emptyContacts;
         private bool subscribed,dirty=true,submitPending,firstLoad=true,startingVoice;
         private string voiceSession,voiceCharacter;
+        private float nextPendingRefresh;
+        private string pendingSignature="";
         public string CharacterId => selected?.CharacterId ?? string.Empty;
         private string DraftKey => "VirtualPartner.PhoneOS.Draft."+CharacterId.ToLowerInvariant();
         private void Awake(){app=GetComponent<PhonePreviewApp>();runtime=GetComponentInParent<PhoneLiveRuntime>();app.StateChanged+=PageChanged;}
@@ -36,6 +39,12 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void Update()
         {
             if(runtime==null||!runtime.Ready)return;
+            if(selected!=null&&app.CurrentPage==1&&!app.Suspended&&Time.unscaledTime>=nextPendingRefresh)
+            {
+                nextPendingRefresh=Time.unscaledTime+.15f;
+                var signature=string.Join(",",runtime.Conversation.ReadPending(CharacterId));
+                if(signature!=pendingSignature){pendingSignature=signature;dirty=true;}
+            }
             if(!subscribed){runtime.Conversation.ContactsChanged+=Changed;runtime.Asr.RecognitionFinished+=Recognized;subscribed=true;dirty=true;}
             if(contexts.Count!=CharacterRegistry.RegisteredCount){CharacterRegistry.GetRegisteredContexts(contexts);RefreshContacts();}
             if(dirty){if(selected!=null && app.CurrentPage==1)RefreshMessages();RefreshContacts();dirty=false;}
@@ -48,6 +57,8 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void RefreshContacts()
         {
             if(runtime==null||!runtime.Ready)return;
+            int visible=0;
+            foreach(var old in contactRows.Values)old.gameObject.SetActive(false);
             foreach(var context in contexts)
             {
                 if(!contactRows.TryGetValue(context.CharacterId,out var row))
@@ -57,10 +68,19 @@ namespace VirtualPartner.Runtime.PhoneOS
                 }
                 row.transform.Find("Name").GetComponent<TMP_Text>().text=context.Profile.DisplayName;
                 row.transform.Find("Message").GetComponent<TMP_Text>().text=runtime.Conversation.GetContactSummary(context);
-                var unread=runtime.Conversation.GetUnreadCount(context);row.transform.Find("Time").GetComponent<TMP_Text>().text=unread>0?$"{unread} new":"";
+                var unread=runtime.Conversation.GetUnreadCount(context);
+                var messages=runtime.Conversation.ReadMessages(context.CharacterId);
+                var stamp=messages.Count>0?messages[messages.Count-1].timestampUtc:null;
+                row.transform.Find("Time").GetComponent<TMP_Text>().text=DateTime.TryParse(stamp,out var recent)?(recent.ToLocalTime().Date==DateTime.Now.Date?recent.ToLocalTime().ToString("HH:mm"):recent.ToLocalTime().ToString("MM/dd")):"";
+                var badge=row.transform.Find("UnreadCount");if(badge!=null){badge.gameObject.SetActive(unread>0);badge.GetComponentInChildren<TMP_Text>(true).text=unread>99?"99+":unread.ToString();}
                 row.transform.Find("TokiAvatar/Portrait").GetComponent<Image>().sprite=context.Profile.AvatarIcon;
                 row.gameObject.SetActive(string.IsNullOrWhiteSpace(search.text)||context.Profile.DisplayName.IndexOf(search.text,StringComparison.OrdinalIgnoreCase)>=0);
+                if(row.gameObject.activeSelf)visible++;
             }
+            if(emptyContacts==null){emptyContacts=PhonePagePolish.Label(contacts,"EmptyContacts","",0,0,340,72,16);emptyContacts.gameObject.AddComponent<LayoutElement>().preferredHeight=72;emptyContacts.alignment=TextAlignmentOptions.Center;}
+            emptyContacts.text=contexts.Count==0?"No characters available":"No matching contacts";
+            emptyContacts.gameObject.SetActive(visible==0);
+
         }
         public void Select(CharacterRuntimeContext context)
         {
@@ -109,8 +129,8 @@ namespace VirtualPartner.Runtime.PhoneOS
             foreach(var id in runtime.Conversation.ReadPending(CharacterId))
             {
                 var key="pending:"+id;keep.Add(key);
-                if(!rows.TryGetValue(key,out var row)){row=Instantiate(incomingTemplate,scroll.content);rows[key]=row;row.gameObject.SetActive(true);}
-                row.body.text="Waiting for reply…";row.bubble.Find("Time").GetComponent<TMP_Text>().text="";row.transform.SetAsLastSibling();
+                if(!rows.TryGetValue(key,out var row)){row=Instantiate(incomingTemplate,scroll.content);rows[key]=row;row.gameObject.SetActive(true);added=true;}
+                row.SetTyping();row.transform.SetAsLastSibling();
             }
             foreach(var key in new List<string>(rows.Keys))if(!keep.Contains(key)){Destroy(rows[key].gameObject);rows.Remove(key);}
             if(firstLoad){firstLoad=false;StartCoroutine(RestorePosition(positions.TryGetValue(CharacterId,out var y)?y:-1));}

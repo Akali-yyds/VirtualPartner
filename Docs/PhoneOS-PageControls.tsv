@@ -1,0 +1,124 @@
+app	page	control	callback
+settings	0	Display	ShowPage
+settings	0	LLM connection	ShowPage
+settings	0	Voice input	ShowPage
+settings	1	Back	Back
+settings	1	Wallpaper_pink	SetWallpaper
+settings	1	Wallpaper_lavender	SetWallpaper
+settings	1	Wallpaper_sunrise	SetWallpaper
+settings	2	Back	Back
+settings	2	Test	Test
+settings	2	Save	Save
+settings	3	Back	Back
+camera	0	ResetButton	ResetView
+debug	0	Overview	ShowPage
+debug	0	LLM	ShowPage
+debug	0	Momotalk	ShowPage
+debug	0	TTS	ShowPage
+debug	0	ASR	ShowPage
+debug	0	Memory	ShowPage
+debug	0	API configuration	OpenApi
+debug	0	Character	ShowPage
+debug	0	FSM	ShowPage
+debug	0	StagePlan	ShowPage
+debug	0	Root	ShowPage
+debug	0	Bone	ShowPage
+debug	0	Expression / Mouth	ShowPage
+debug	1	Back	Back
+debug	1	Full diagnostics	OpenDocument
+debug	2	Back	Back
+debug	2	Full diagnostics	OpenDocument
+debug	2	Prompt	OpenDocument
+debug	2	Response	OpenDocument
+debug	2	Submit	Execute
+debug	2	Stop LLM plan	Execute
+debug	3	Back	Back
+debug	3	Full diagnostics	OpenDocument
+debug	3	StagePlan JSON	OpenDocument
+debug	3	Validation result	OpenDocument
+debug	3	Load basic	Execute
+debug	3	Load full	Execute
+debug	3	Paste clipboard	Execute
+debug	3	Validate	Execute
+debug	3	Play	Execute
+debug	3	Replace	Execute
+debug	3	Clear	Execute
+debug	3	Stop	Execute
+debug	4	Back	Back
+debug	4	Full diagnostics	OpenDocument
+debug	4	Open	Execute
+debug	4	Close	Execute
+debug	4	Show contacts	Execute
+debug	4	History folder	Execute
+debug	5	Back	Back
+debug	5	Full diagnostics	OpenDocument
+debug	5	TTS health	Execute
+debug	5	Real TTS test	Execute
+debug	5	Warmup test	Execute
+debug	5	Mock failure	Execute
+debug	5	Stop TTS	Execute
+debug	6	Back	Back
+debug	6	Full diagnostics	OpenDocument
+debug	6	ASR health	Execute
+debug	6	Start real	Execute
+debug	6	Start mock	Execute
+debug	6	Cancel	Execute
+debug	7	Back	Back
+debug	7	Full diagnostics	OpenDocument
+debug	7	Latest decision	OpenDocument
+debug	7	Reload memory	Execute
+debug	7	Judge last turn	Execute
+debug	7	Memory folder	Execute
+debug	7	Clear decision	Execute
+debug	8	Back	Back
+debug	8	Full diagnostics	OpenDocument
+debug	9	Back	Back
+debug	9	Full diagnostics	OpenDocument
+debug	9	Enable / disable	Execute
+debug	9	Enter interaction	Execute
+debug	9	Exit interaction	Execute
+debug	10	Back	Back
+debug	10	Full diagnostics	OpenDocument
+debug	10	Root interaction	Execute
+debug	10	Root exit	Execute
+debug	11	Back	Back
+debug	11	Full diagnostics	OpenDocument
+debug	11	Select bone	ShowPage
+debug	11	Refresh UI	Execute
+debug	11	Zero	Execute
+debug	11	Pin selected	Execute
+debug	11	Pin L/R pair	Execute
+debug	11	Export selected	Execute
+debug	11	Export pinned	Execute
+debug	11	Unpin selected	Execute
+debug	11	Clear pins	Execute
+debug	12	Back	Back
+debug	12	Full diagnostics	OpenDocument
+debug	12	neutral	Execute
+debug	12	smile	Execute
+debug	12	thinking	Execute
+debug	12	surprised	Execute
+debug	12	embarrassed	Execute
+debug	12	Apply debug	Execute
+debug	12	Release debug	Execute
+debug	12	Clear expression	Execute
+debug	13	Back	Back
+debug	13	Copy	Copy
+debug	13	Paste	Paste
+debug	14	Back	Back
+momotalk	1	Back	Back
+momotalk	1	Details	ShowPage
+momotalk	1	Microphone	StartVoice
+momotalk	1	SendPreview	Send
+momotalk	1	NewMessages	JumpToLatest
+momotalk	2	Back	Back
+momotalk	2	Chat history	ShowPage
+momotalk	2	Long-term memory	ShowPage
+momotalk	3	Back	Back
+momotalk	3	Cancel	ShowPage
+momotalk	4	Back	Back
+momotalk	5	Back	Back
+settings	2	Load / Reload / Details	PhoneSettingsPresentation.Start (runtime)
+all	modal	Confirm / Cancel / Copy	PhoneModal.Show (runtime)
+debug	1-12	Feedback details	PhoneDebugFeedback.Start (runtime)
+momotalk	0	dynamic contacts	PhoneLiveMomotalk.Select (runtime)

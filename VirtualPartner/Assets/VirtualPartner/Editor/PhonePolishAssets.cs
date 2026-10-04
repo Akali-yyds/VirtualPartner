@@ -19,7 +19,7 @@ namespace VirtualPartner.EditorTools
             theme.regular=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fonts+"NotoSans-Regular SDF.asset");
             theme.semibold=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fonts+"NotoSans-SemiBold SDF.asset");
             theme.light=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fonts+"NotoSans-Light SDF.asset");
-            theme.card=Rounded("Card",24);theme.bubble=Rounded("Bubble",16);theme.control=Rounded("Control",14);
+            theme.card=Rounded("Card",24);theme.bubble=Rounded("Bubble",16);theme.control=Rounded("Control",14);theme.disc=Rounded("Disc",63);
             EditorUtility.SetDirty(theme);AssetDatabase.SaveAssets();
         }
         private static void ImportSprite(string path,int border)
@@ -44,7 +44,7 @@ namespace VirtualPartner.EditorTools
             foreach(var stage in new[]{"LiveStage","VisualStage"})
             {
                 var folder="Assets/VirtualPartner/UI/PhoneOS/"+stage;
-                foreach(var name in new[]{"PhoneVisualRoot","momotalk","settings"})
+                foreach(var name in new[]{"PhoneVisualRoot","momotalk","settings","camera","debug"})
                 {
                     var path=folder+"/"+name+".prefab";if(!File.Exists(path))continue;
                     var root=PrefabUtility.LoadPrefabContents(path);

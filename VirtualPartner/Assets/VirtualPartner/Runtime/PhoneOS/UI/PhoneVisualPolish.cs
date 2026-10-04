@@ -37,6 +37,10 @@ namespace VirtualPartner.Runtime.PhoneOS
         public static void ApplyApp(PhonePreviewApp app)
         {
             var t=PhoneVisualTheme.Current;if(t==null)return;
+            // Synchronize both TMP layers, including cached/previously saved prefabs.
+            foreach(var field in app.GetComponentsInChildren<TMP_InputField>(true))
+            {field.richText=false;field.isRichTextEditingAllowed=true;}
+            PhonePagePolish.Apply(app);
             if(app.appId=="settings")
             {
                 var settings=app.GetComponent<PhonePreviewSettings>();if(settings!=null&&settings.dock!=null){settings.dock.gameObject.SetActive(false);var row=settings.dock.transform.parent.GetComponent<LayoutElement>();if(row!=null)row.preferredHeight=62;}

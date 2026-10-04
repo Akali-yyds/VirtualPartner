@@ -80,6 +80,7 @@ namespace VirtualPartner.EditorTools
             var placeholder=Text(area,"Placeholder","Enter text…",0,0,w-28,h-20,15,Muted);Fill(placeholder.rectTransform);placeholder.alignment=TextAlignmentOptions.TopLeft;
             input.textViewport=area;input.textComponent=(TMP_Text)t;input.placeholder=placeholder;input.fontAsset=Regular;
             input.lineType=multiline?TMP_InputField.LineType.MultiLineNewline:TMP_InputField.LineType.SingleLine;
+            input.richText=false;input.isRichTextEditingAllowed=true;
             input.restoreOriginalTextOnEscape=false;
             input.text=value;input.caretColor=Pink;input.customCaretColor=true;input.selectionColor=new Color(.87f,.47f,.60f,.22f);return input;
         }

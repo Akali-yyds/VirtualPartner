@@ -31,7 +31,7 @@ namespace VirtualPartner.Runtime.PhoneOS
         private bool ready;
         private readonly List<GameObject> boneButtons=new List<GameObject>();
         public void ResetTaskView(){nextRefresh=0;runtime?.CancelDebugRecognition();}
-        private void PageChanged(){nextRefresh=0;if(app.Suspended||app.CurrentPage!=6)runtime?.CancelDebugRecognition();}
+        private void PageChanged(){nextRefresh=0;if(ready&&!app.Suspended&&app.CurrentPage==11)SyncBone();if(app.Suspended||app.CurrentPage!=6)runtime?.CancelDebugRecognition();}
         private void OnDisable(){runtime?.CancelDebugRecognition();}
         private void OnDestroy(){if(app!=null)app.StateChanged-=PageChanged;}
         private void Start()
@@ -48,6 +48,7 @@ namespace VirtualPartner.Runtime.PhoneOS
         {
             if(runtime==null||!runtime.Ready)return;
             if(!ready){ready=true;mockText.SetTextWithoutNotify(runtime.Asr.MockText);RefreshBones();SyncBone();}
+            feedback.transform.parent.gameObject.SetActive(app.CurrentPage>0&&!string.IsNullOrWhiteSpace(feedback.text));
             if(app.Suspended||!runtime.Shell.IsOpen||Time.unscaledTime<nextRefresh)return;
             nextRefresh=Time.unscaledTime+.25f;
             var page=app.CurrentPage;
@@ -143,7 +144,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             "Auto-send to LLM"=>runtime.Asr.ResultMode==AsrResultMode.AutoSendToLlm,"ASR unavailable"=>runtime.Asr.AsrUnavailable,"ASR failure"=>runtime.Asr.ForceMockFailure,_=>false};
         public void OpenDocument(string kind)
         {
-            documentKind=kind;document.readOnly=kind!="stage";documentTitle.text=kind=="stage"?"StagePlan JSON":"Details · "+kind;
+            documentKind=kind;document.readOnly=kind!="stage";foreach(var button in app.pages[13].GetComponentsInChildren<Button>(true))if(button.name=="Paste")button.interactable=!document.readOnly;documentTitle.text=kind=="stage"?"StagePlan JSON":"Details · "+kind;
             var text=kind switch {"stage"=>stage.Json,"validation"=>stage.Result,"prompt"=>runtime.Relay.BuildPromptPreview(),"response"=>runtime.Relay.LastRawResponse,"memory"=>memory.LatestRawMemoryJudgeResponse,"bone"=>bone.ExportedJson,_=>Snapshot(app.CurrentPage)};
             document.SetTextWithoutNotify(text??"");app.ShowPage(13);
         }
@@ -152,7 +153,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             object[] sources=page switch {
                 1=>new object[]{runtime.Relay,fsm,tts,runtime.Asr,memory},2=>new object[]{runtime.Relay},3=>new object[]{FindFirstObjectByType<StagePlanPlayer>()},4=>new object[]{runtime.Conversation},5=>new object[]{tts},6=>new object[]{runtime.Asr},7=>new object[]{memory},
                 8=>new object[]{FindFirstObjectByType<VirtualPartnerStage1Bootstrap>()},9=>new object[]{fsm},10=>new object[]{root,FindFirstObjectByType<LocomotionActionExecutor>(),FindFirstObjectByType<MovementConstraintController>()},11=>new object[]{bone,FindFirstObjectByType<ActionCoordinator>()},12=>new object[]{mouth,expression,FindFirstObjectByType<SpeechMouthDriver>()},_=>Array.Empty<object>()};
-            var result=new StringBuilder();
+            var result=new StringBuilder();result.AppendLine(Summary(page));
             if(page==8)
             {
                 var characters=new List<CharacterRuntimeContext>();CharacterRegistry.GetRegisteredContexts(characters);

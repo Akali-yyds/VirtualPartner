@@ -34,6 +34,10 @@ namespace VirtualPartner.Runtime
         private const int MaxStoredMessages = 200;
         private const int DefaultLoadCount = 50;
         private const string RelativeFolder = "UserData/ChatHistory";
+        private readonly string directoryOverride;
+
+        // Validation can use the same storage implementation with an isolated directory.
+        public MomotalkHistoryStore(string directory = null) { directoryOverride = directory; }
 
         public string LastResolvedPath { get; private set; }
 
@@ -151,7 +155,7 @@ namespace VirtualPartner.Runtime
         public string GetPath(string characterId)
         {
             var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-            var path = Path.Combine(projectRoot, RelativeFolder, NormalizeCharacterId(characterId) + ".json");
+            var path = Path.Combine(directoryOverride ?? Path.Combine(projectRoot, RelativeFolder), NormalizeCharacterId(characterId) + ".json");
             LastResolvedPath = path;
             return path;
         }

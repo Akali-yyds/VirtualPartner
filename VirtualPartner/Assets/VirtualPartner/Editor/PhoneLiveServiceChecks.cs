@@ -28,13 +28,21 @@ namespace VirtualPartner.EditorTools
             var relay=runtime.Relay;var shell=runtime.Shell;var controller=runtime.Conversation;
             var configField=Field(typeof(LlmRelay),"config");var savedConfig=configField.GetValue(relay);
             var memoryField=Field(typeof(MomotalkConversationController),"memorySystem");var savedMemory=memoryField.GetValue(controller);
+            var historyField=Field(typeof(MomotalkConversationController),"historyStore");var savedHistory=historyField.GetValue(controller);
+            var relayMemory=Field(typeof(LlmRelay),"memorySystem");var savedRelayMemory=relayMemory.GetValue(relay);
+            var pathField=Field(typeof(LlmRelay),"configPath");var savedPath=pathField.GetValue(relay);PhoneLiveSettings settings=null;
             var tts=Object.FindFirstObjectByType<TtsManager>();var played=false;Action onPlayback=()=>played=true;tts.SpeechPlaybackStarted+=onPlayback;
             PhoneLiveMomotalk chat=null;var originalDraft="";var oldAutoSend=shell.AutoSendVoice;
             try
             {
                 var draft=new LlmRelayConfigDraft{apiKey="local-fixture",model="phone-test",baseUrl="http://127.0.0.1:18767",chatCompletionsUrl="http://127.0.0.1:18767/v1/chat/completions",interactionTimeoutSeconds=45,useJsonResponseFormat=true};
                 var temporary=savedConfig.GetType().GetMethod("FromDraft",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{draft});
-                configField.SetValue(relay,temporary);memoryField.SetValue(controller,null);
+                configField.SetValue(relay,temporary);memoryField.SetValue(controller,null);relayMemory.SetValue(relay,null);
+                historyField.SetValue(controller,new MomotalkHistoryStore(Path.GetFullPath(PhoneLiveReviewChecks.Output+"/isolated-"+DateTime.UtcNow.ToString("yyyyMMddHHmmss"))));
+                shell.OpenApp("settings");yield return new WaitForSecondsRealtime(.4f);var settingsApp=(PhonePreviewApp)shell.host.CurrentApp;settings=settingsApp.GetComponent<PhoneLiveSettings>();settingsApp.ShowPage(2);settings.LoadCurrent();
+                settings.Test();shell.OpenApp("camera");yield return new WaitForSecondsRealtime(.4f);var testDeadline=Time.realtimeSinceStartup+15;while(relay.ConfigTestPending&&Time.realtimeSinceStartup<testDeadline)yield return null;
+                shell.OpenApp("settings");yield return new WaitForSecondsRealtime(.4f);Verify(settings.TestState=="Connection successful","Background API test result restored on reentry");
+                string isolatedConfig=Path.GetFullPath(PhoneLiveReviewChecks.Output+"/isolated-config.json");pathField.SetValue(relay,isolatedConfig);settings.Save();Verify(File.Exists(isolatedConfig)&&settings.TestState=="Configuration saved","Save uses isolated configuration file");settings.model.text="unsaved fixture";settings.Reload();Verify(settings.model.text=="phone-test","Reload reads saved isolated configuration");pathField.SetValue(relay,savedPath);
                 shell.OpenApp("momotalk");yield return new WaitForSecondsRealtime(.4f);
                 var app=(PhonePreviewApp)shell.host.CurrentApp;chat=app.GetComponent<PhoneLiveMomotalk>();var contexts=new List<CharacterRuntimeContext>();CharacterRegistry.GetRegisteredContexts(contexts);chat.Select(contexts[0]);yield return null;
                 originalDraft=chat.input.text;
@@ -77,7 +85,7 @@ namespace VirtualPartner.EditorTools
             }
             finally
             {
-                configField.SetValue(relay,savedConfig);memoryField.SetValue(controller,savedMemory);tts.SpeechPlaybackStarted-=onPlayback;
+                configField.SetValue(relay,savedConfig);memoryField.SetValue(controller,savedMemory);historyField.SetValue(controller,savedHistory);relayMemory.SetValue(relay,savedRelayMemory);pathField.SetValue(relay,savedPath);if(settings!=null)settings.LoadCurrent();tts.SpeechPlaybackStarted-=onPlayback;
                 if(chat!=null){chat.CancelVoice();chat.input.text=originalDraft;}shell.SetAutoSend(oldAutoSend);
                 Running=false;Result=string.Join("\n",results);Directory.CreateDirectory(PhoneLiveReviewChecks.Output);File.WriteAllText(PhoneLiveReviewChecks.Output+"/service-checks.txt",Result);
             }

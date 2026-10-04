@@ -15,6 +15,10 @@ namespace VirtualPartner.Runtime.PhoneOS
         public bool CanSubmit => !composing && Time.frameCount-compositionFrame>1;
         protected override void OnEnable()
         {
+            // TMP must agree with its text renderer: otherwise IME underline tags become
+            // visible characters and rendered selection indices no longer match the draft.
+            richText=false;
+            isRichTextEditingAllowed=true; // Edit raw string offsets, not rich-text glyph ranges.
             base.OnEnable();
 #if ENABLE_INPUT_SYSTEM
             if(Keyboard.current!=null)Keyboard.current.onIMECompositionChange+=OnComposition;

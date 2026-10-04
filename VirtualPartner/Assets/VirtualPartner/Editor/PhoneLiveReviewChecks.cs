@@ -42,7 +42,7 @@ namespace VirtualPartner.EditorTools
             Check(!legacy.use24HourTime&&!legacy.showDock&&Mathf.Approximately(legacy.heightFraction,.9f)&&!legacy.autoSendVoice,"Old display settings upgrade without losing preferences");
             shell.OpenApp("momotalk");yield return new WaitForSecondsRealtime(.4f);
             var app=(PhonePreviewApp)shell.host.CurrentApp;var chat=app.GetComponent<PhoneLiveMomotalk>();var contexts=new List<CharacterRuntimeContext>();CharacterRegistry.GetRegisteredContexts(contexts);chat.Select(contexts[0]);yield return new WaitForSecondsRealtime(.3f);
-            Check(chat.contacts.childCount==contexts.Count,"Contacts come from character registry");
+            Check(chat.contacts.GetComponentsInChildren<UnityEngine.UI.Button>(true).Length==contexts.Count,"Contacts come from character registry");
             Check(!app.GetComponentsInChildren<PhoneChatPreview>(true).Any(),"No simulated-send component in live Momotalk");
             Check(chat.scroll.content.GetComponentsInChildren<PhoneTextBubble>().Length>=runtime.Conversation.ReadMessages(chat.CharacterId).Count,"Existing history rendered");
             var draft=chat.input.text;chat.input.text="Integration draft / 中文\nsecond line";

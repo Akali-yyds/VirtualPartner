@@ -256,8 +256,15 @@ namespace VirtualPartner.Runtime
         public List<int> ReadPending(string characterId)
         {
             var ids=new List<int>();requestRegistry?.GetNonTerminalRequestIds(characterId,ids);
-            var messages=historyStore.LoadAll(characterId);
-            ids.RemoveAll(id=>HasResponseForTurn(GetTurnIdForRequest(id),messages));return ids;
+            List<MomotalkChatMessageRecord> messages=null;
+            ids.RemoveAll(id=>
+            {
+                if(stagePlanPlayer!=null&&stagePlanPlayer.CurrentLlmStagePlanRequestId==id)
+                    return !stagePlanPlayer.HasPendingSpeech(id);
+                if(llmRelay!=null&&llmRelay.RequestPending&&llmRelay.PendingRequestId==id)return false;
+                if(messages==null)messages=historyStore.LoadAll(characterId);
+                return HasResponseForTurn(GetTurnIdForRequest(id),messages);
+            });return ids;
         }
         public void MarkRead(string characterId) => ClearUnread(characterId);
 

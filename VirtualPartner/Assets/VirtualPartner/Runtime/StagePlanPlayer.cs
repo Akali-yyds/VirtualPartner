@@ -166,6 +166,20 @@ namespace VirtualPartner.Runtime
         private int presetSequence;
 
         public bool IsPlaying => playing;
+        // Presentation-only query: speech is displayed when its playback-start event fires.
+        public bool HasPendingSpeech(int requestId)
+        {
+            if (!IsOwnerPlaying(LlmRelay.LlmOwnerId) || activeRequestId != requestId) return false;
+            foreach (var action in runningActions)
+                if (action.ActionType == "speech" && action.Result == null && !action.SpeechEventRaised
+                    && !string.IsNullOrWhiteSpace(action.Action.text)) return true;
+            for (int i = currentStageIndex + 1; i < activeStages.Count; i++)
+                if (activeStages[i]?.actions != null)
+                    foreach (var action in activeStages[i].actions)
+                        if (action != null && action.type == "speech" && !string.IsNullOrWhiteSpace(action.text)) return true;
+            // While the stream is open, later speech stages may not have arrived yet.
+            return activePlanStreaming && !activePlanStreamComplete;
+        }
         public int CurrentStageIndex => currentStageIndex;
         public int ActiveActionCount => activeActionCount;
         public int TerminalActionCount => terminalActionCount;

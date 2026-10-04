@@ -11,7 +11,9 @@ namespace VirtualPartner.Runtime.PhoneOS
         private int page;
         private Coroutine pageMotion;
         private GameObject errorDetails;
-        public void SetDetailsModal(GameObject modal){errorDetails=modal;}
+        public bool HasModal => errorDetails!=null;
+        public void CloseModal(){if(errorDetails!=null){errorDetails.SetActive(false);Destroy(errorDetails);errorDetails=null;}}
+        public void SetDetailsModal(GameObject modal){CloseModal();errorDetails=modal;}
         private readonly Stack<int> history=new Stack<int>();
         public string AppId => appId;
         public int CurrentPage => page;
@@ -27,7 +29,7 @@ namespace VirtualPartner.Runtime.PhoneOS
         public void OnResume() { Suspended=false;StateChanged?.Invoke(); }
         public bool OnBackPressed()
         {
-            if(errorDetails!=null){Destroy(errorDetails);errorDetails=null;return true;}
+            if(HasModal){CloseModal();return true;}
             if (page == 0) return false;
             ApplyPage(history.Count>0?history.Pop():(parentPages != null && page < parentPages.Length ? parentPages[page] : 0),true);
             return true;
@@ -65,7 +67,7 @@ namespace VirtualPartner.Runtime.PhoneOS
         public void ResetTaskView()
         {
             history.Clear();ApplyPage(0);
-            if(errorDetails!=null){Destroy(errorDetails);errorDetails=null;}
+            CloseModal();
             foreach(var scroll in GetComponentsInChildren<UnityEngine.UI.ScrollRect>(true))
             {scroll.StopMovement();scroll.verticalNormalizedPosition=1;scroll.horizontalNormalizedPosition=0;}
         }

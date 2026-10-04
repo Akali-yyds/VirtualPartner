@@ -145,6 +145,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             if(IsOverviewOpen){ExitOverview();return true;}
             if(!HasCurrentApp)return false;
             var page=currentApp as PhonePreviewApp;
+            if(page!=null&&page.HasModal){page.CloseModal();return true;}
             if(linkedOrigin!=null&&currentAppDefinition.AppId==linkedTarget&&(page==null||page.CurrentPage==linkedPage))
             {var origin=linkedOrigin;ClearLink();OpenApp(origin);return true;}
             if(currentApp!=null&&currentApp.OnBackPressed())return true;
