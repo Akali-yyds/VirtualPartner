@@ -28,9 +28,26 @@ namespace VirtualPartner.Runtime
             public Vector3 target, actual;
             public float relativeError, orientationError;
             public bool oriented;
+            public Transform tip;
+            public Quaternion wantedOrientation;
+            public float chainLength;
+            public int frame;
             public override string ToString() => "target="+target.ToString("F4")+" actual="+actual.ToString("F4")+" relativeError="+relativeError.ToString("F5")+" orientationError="+(oriented?orientationError.ToString("F3"):"unconstrained");
         }
         private bool evaluatingLive;
+        // Read after FinalizeFrame. Excludes stale/released samples from previous frames.
+        public int MeasureFinalGeometry(out float positionError,out float orientationError)
+        {
+            positionError=orientationError=0;int count=0;
+            foreach(var sample in geometricResults.Values)
+            {
+                if(sample.frame!=Time.frameCount||sample.tip==null||coordinator.GetOwner(sample.tip)!=BoneOwner.SpatialMotion)continue;
+                count++;
+                positionError=Mathf.Max(positionError,Vector3.Distance(sample.target,sample.tip.position)/Mathf.Max(.001f,sample.chainLength));
+                if(sample.oriented)orientationError=Mathf.Max(orientationError,Quaternion.Angle(sample.wantedOrientation,sample.tip.rotation));
+            }
+            return count;
+        }
         public string GeometryReport
         {
             get { var report=new StringBuilder("Last solved samples (may include released groups):\n");foreach(var sample in geometricResults)report.AppendLine(sample.Key+": "+sample.Value);return report.ToString(); }
@@ -200,7 +217,7 @@ namespace VirtualPartner.Runtime
                     orientation=Quaternion.Slerp(from,wanted,Mathf.SmoothStep(0,1,blend));
                 }
                 if(!pose.SolveLimb(T("UpperArm",side),T("Forearm",side),T("Hand",side),goal,hint,orientation,calibration,profile,out var residual,out error))return false;
-                if(evaluatingLive)geometricResults[m.group]=new GeometrySample{target=goal,actual=pose.Position(T("Hand",side)),relativeError=residual,oriented=orientation.HasValue,orientationError=orientation.HasValue?Quaternion.Angle(pose.Rotation(T("Hand",side)),orientation.Value):0};
+                if(evaluatingLive)geometricResults[m.group]=new GeometrySample{target=goal,actual=pose.Position(T("Hand",side)),relativeError=residual,oriented=orientation.HasValue,orientationError=orientation.HasValue?Quaternion.Angle(pose.Rotation(T("Hand",side)),orientation.Value):0,tip=T("Hand",side),wantedOrientation=orientation??Quaternion.identity,chainLength=calibration.upperLength+calibration.lowerLength,frame=Time.frameCount};
                 // Torso capsule is intentionally conservative; detailed hand/cloth contact is out of scope.
                 Vector3 low=pose.Position(T("Pelvis")),high=pose.Position(T("Chest"));
                 var elbow=pose.Position(T("Forearm",side));var hand=pose.Position(T("Hand",side));
@@ -234,7 +251,7 @@ namespace VirtualPartner.Runtime
                     var rotation=side=="L"?m.leftFootRotation:m.rightFootRotation;
                     if(!pose.SolveLimb(T("Thigh",side),T("Calf",side),T("Foot",side),goal,pose.Position(T("Thigh",side))+m.frame*Vector3.forward*height,rotation,calibration,profile,out var residual,out error))return false;
                     if(residual>profile.footTolerance){error="Foot support drift exceeds tolerance.";return false;}
-                    if(evaluatingLive)geometricResults["foot"+side]=new GeometrySample{target=goal,actual=pose.Position(T("Foot",side)),relativeError=residual};
+                    if(evaluatingLive)geometricResults["foot"+side]=new GeometrySample{target=goal,actual=pose.Position(T("Foot",side)),relativeError=residual,tip=T("Foot",side),chainLength=calibration.upperLength+calibration.lowerLength,frame=Time.frameCount};
                 }
             return true;
         }

@@ -1,6 +1,6 @@
 # VirtualPartner
 
-更新时间：2026-10-09
+更新时间：2026-10-10
 
 VirtualPartner 是一个基于 Unity 的桌面虚拟陪伴角色项目。它的目标不是只做一个聊天窗口，而是把虚拟角色、Momotalk 风格手机 UI、LLM 行为规划、本地语音服务和可交互场景组合成一个可运行的桌面陪伴系统。
 
@@ -60,7 +60,7 @@ Validator → Player
 
 实验机器为 i7-9750H / 16 GB RAM / GTX 1650 4 GB，采用本地独立 Python 环境，不改动 GPT-SoVITS 环境。MoMask 与 DiP 均已取得本机真实生成结果，但生成成功、骨长保持和合法 JSON 都不能替代动作意图与观感验收。
 
-实验记录包含 12 条指令的语义控制和 MoMask 各 3 次运行，以及 DiP 的代表场景；失败结果同样保留。完整汇总与并发验收仍在进行，阶段数据见 [动作路线实验进度](Docs/MotionLab-Progress.md)。
+实验记录包含 88 条主样本：语义控制和 MoMask 各 36 条、DiP 两类前缀各 8 条；失败结果同样保留。三条路线已有真实 TTS 并发成功记录，但学习式路线冷启动仍需数十秒，暖推理不到一秒不能替代端到端验收。使用方式见 [独立实验工具](Tools/MotionLab/README.md)，耗时拆分、动作缺陷和未通过项见 [实验评估](Docs/MotionLab-Evaluation.md)。尚未确定正式接入路线。
 
 ## 当前能力
 
