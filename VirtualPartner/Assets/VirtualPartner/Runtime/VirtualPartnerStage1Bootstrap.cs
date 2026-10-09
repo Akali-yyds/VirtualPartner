@@ -50,6 +50,8 @@ namespace VirtualPartner.Runtime
         [SerializeField] private float currentIdleTime;
         [SerializeField] private bool runtimeShutdown;
 
+        private SpatialMotionRuntime spatialMotion;
+
         private readonly ConversationRequestRegistry requestRegistry = new ConversationRequestRegistry();
 
         private IEnumerator Start()
@@ -173,6 +175,10 @@ namespace VirtualPartner.Runtime
                 yield break;
             }
 
+            spatialMotion = GetComponent<SpatialMotionRuntime>();
+            if (spatialMotion == null) spatialMotion = gameObject.AddComponent<SpatialMotionRuntime>();
+            spatialMotion.Configure(boneMapProfile, boneRoot, characterRoot.transform, actionCoordinator, avatarPoseApplier);
+            stagePlanPlayer.BindSpatialMotion(spatialMotion);
             idleBaseProvider.Play();
             ApplyIdleFrame(0f);
             stagePlanPlayer.ManualUpdate(0f, idleBaseProvider.Clip, currentIdleTime);
@@ -206,7 +212,9 @@ namespace VirtualPartner.Runtime
             if (!wasStagePlanPlaying && rootOrientationController != null)
                 rootOrientationController.ManualUpdate(Time.deltaTime);
             llmRelay.ManualUpdate(Time.deltaTime);
+            if (spatialMotion != null && spatialMotion.HasAny) autonomousBehaviorScheduler.KeepUserInteractionAlive();
             autonomousBehaviorScheduler.ManualUpdate(Time.deltaTime);
+            spatialMotion?.Tick(Time.deltaTime);
             actionCoordinator.FinalizeFrame(Time.deltaTime);
         }
 

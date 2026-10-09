@@ -9,7 +9,9 @@ namespace VirtualPartner.Runtime
         PresetAnimation,
         Locomotion,
         StagePlanBonePose,
-        Debug
+        Debug,
+        SpatialMotion,
+        Thinking
     }
 
     // Structured failure reason for bone ownership requests, so callers map to a
@@ -55,7 +57,7 @@ namespace VirtualPartner.Runtime
     }
 
     [DisallowMultipleComponent]
-    public sealed class ActionCoordinator : MonoBehaviour
+    public sealed partial class ActionCoordinator : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private AvatarPoseApplier avatarPoseApplier;
@@ -96,6 +98,7 @@ namespace VirtualPartner.Runtime
             if (!HasResolvedTransforms(instance) || avatarPoseApplier == null)
                 return false;
 
+            GetComponent<SpatialMotionRuntime>()?.YieldBones(instance.Transforms);
             var clampedRotation = instance.Entry.ClampRotation(semanticRotation);
             var mirrorSign = instance.Entry.GetMirrorSign(instance.Side);
             var debugTargets = new Quaternion[instance.Transforms.Count];
@@ -224,6 +227,7 @@ namespace VirtualPartner.Runtime
             for (var i = 0; i < instance.Transforms.Count; i++)
             {
                 var state = GetOrCreateState(instance.Transforms[i], GetInstanceDisplayName(instance, i));
+                GetComponent<SpatialMotionRuntime>()?.YieldBones(instance.Transforms);
                 state.StagePlanBonePoseTarget = stagePlanBonePoseTargets[i];
 
                 var ownerChanged = state.Owner != BoneOwner.StagePlanBonePose;
@@ -344,7 +348,7 @@ namespace VirtualPartner.Runtime
                     return false;
                 }
 
-                if (state.Owner == BoneOwner.StagePlanBonePose)
+                if (state.Owner == BoneOwner.StagePlanBonePose || state.Owner == BoneOwner.SpatialMotion)
                 {
                     failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
                     failureKind = BoneRequestFailureKind.OwnershipConflict;
@@ -492,7 +496,7 @@ namespace VirtualPartner.Runtime
                     return false;
                 }
 
-                if (state.Owner == BoneOwner.StagePlanBonePose)
+                if (state.Owner == BoneOwner.StagePlanBonePose || state.Owner == BoneOwner.SpatialMotion)
                 {
                     failureReason = $"{state.DisplayName} is owned by StagePlanBonePose.";
                     failureKind = BoneRequestFailureKind.OwnershipConflict;
@@ -649,6 +653,11 @@ namespace VirtualPartner.Runtime
                     if (state.Transition.IsComplete)
                         state.Transition = null;
                 }
+                else if (state.Owner == BoneOwner.SpatialMotion || state.Owner == BoneOwner.Thinking)
+                {
+                    finalPose = state.SpatialRotation; finalPosition = state.SpatialPosition;
+                    shouldWriteRotation = true; shouldWritePosition = true;
+                }
                 else if (state.Owner == BoneOwner.Debug)
                 {
                     finalPose = state.DebugTarget;
@@ -797,6 +806,7 @@ namespace VirtualPartner.Runtime
 
         private static Quaternion GetTargetPose(BoneControlState state, Quaternion idlePoseNow)
         {
+            if (state.Transition.ToOwner == BoneOwner.SpatialMotion || state.Transition.ToOwner == BoneOwner.Thinking) return state.SpatialRotation;
             if (state.Transition.ToOwner == BoneOwner.Debug)
                 return state.DebugTarget;
             if (state.Transition.ToOwner == BoneOwner.StagePlanBonePose)
@@ -811,6 +821,7 @@ namespace VirtualPartner.Runtime
 
         private static Vector3 GetTargetPosition(BoneControlState state, Vector3 idlePositionNow)
         {
+            if (state.Transition.ToOwner == BoneOwner.SpatialMotion || state.Transition.ToOwner == BoneOwner.Thinking) return state.SpatialPosition;
             if (state.Transition.ToOwner == BoneOwner.PresetAnimation)
                 return state.PresetAnimationTargetPosition;
 
@@ -819,7 +830,7 @@ namespace VirtualPartner.Runtime
 
         private static bool UsesPresetAnimationPosition(BoneOwner owner)
         {
-            return owner == BoneOwner.PresetAnimation;
+            return owner == BoneOwner.PresetAnimation || owner == BoneOwner.SpatialMotion || owner == BoneOwner.Thinking;
         }
 
         private void RefreshStatus()
@@ -874,6 +885,9 @@ namespace VirtualPartner.Runtime
                 LastAppliedPosition = bone.localPosition;
             }
 
+            public string SpatialId;
+            public Quaternion SpatialRotation;
+            public Vector3 SpatialPosition;
             public Transform Bone { get; }
             public string DisplayName { get; }
             public BoneOwner Owner { get; set; }

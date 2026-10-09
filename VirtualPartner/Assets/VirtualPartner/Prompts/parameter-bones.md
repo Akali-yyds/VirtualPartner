@@ -15,9 +15,9 @@ Axis and movement method:
 - Single small rotations are the easiest to predict, but expressive gestures and two-hand poses normally need several axes at once (including roll) and larger angles. Combine axes and use bigger values when the pose requires it; do not avoid roll or multi-axis just because a single axis is simpler.
 
 Hand and end-effector poses:
-- For named precise gestures listed in Named Gestures, copy the listed rotations exactly instead of re-deriving them.
+- For arbitrary hand placement, prefer the open spatial targets and trajectories when available.
 - For unlisted hand poses, think in two layers: use Clavicle/UpperArm/Forearm to place the hand, then use Forearm/Hand roll to orient the palm or wrist.
-- The generated end-effector hints are approximate FK guidance, not IK targets. If a request requires both hands to meet at an exact point, prefer a listed named gesture when available.
+- The generated end-effector hints are approximate FK guidance, not IK targets. If a request requires both hands to meet at an exact point, report precision limitations rather than inventing exact contact.
 - Hand/finger detail is limited: there are no finger bones. Represent hand shapes by wrist/hand orientation and arm placement.
 
 Side policy:

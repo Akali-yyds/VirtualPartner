@@ -32,6 +32,9 @@ namespace VirtualPartner.Runtime
         public string type;
         public string text;
         public string emotion;
+        public string sync;
+        public SpatialTrackDto[] tracks;
+        public SpatialCompletionDto completion;
         public float speed;
         public string voiceId;
         public string name;

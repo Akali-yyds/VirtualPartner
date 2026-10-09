@@ -89,6 +89,44 @@ namespace VirtualPartner.Runtime
     [DisallowMultipleComponent]
     public sealed class StagePlanPlayer : MonoBehaviour
     {
+        private SpatialMotionRuntime spatialMotion;
+        private bool suppressBody;
+        private readonly HashSet<string> resetGroups = new HashSet<string>();
+        public void BindSpatialMotion(SpatialMotionRuntime value)
+        {
+            if(spatialMotion!=null) spatialMotion.HeldMotionFailed-=HandleHeldMotionFailed;
+            spatialMotion=value;
+            if(spatialMotion!=null) spatialMotion.HeldMotionFailed+=HandleHeldMotionFailed;
+        }
+        private void HandleHeldMotionFailed(int request,string reason) => BodyActionFailed?.Invoke(request,reason);
+        private void OnDestroy() { if(spatialMotion!=null) spatialMotion.HeldMotionFailed-=HandleHeldMotionFailed; }
+        public void ResetBodyPose(string group = "all")
+        {
+            if (string.IsNullOrEmpty(group)) group = "all";
+            if (group != "all" && !SpatialMotionContract.IsGroup(group)) return;
+            spatialMotion?.ResetPose(group);
+            if (group == "all")
+            {
+                suppressBody = true;
+                ReleaseStageOwners(); ReleaseActivePresetAnimations();
+                locomotionActionExecutor?.StopLocomotion(); rootOrientationController?.StopStagePlanFacing();
+                foreach (var a in runningActions) if (a.Result == null && IsBody(a.Kind)) CompleteAction(a, StageActionStatus.Interrupted, "Body reset.");
+                return;
+            }
+            resetGroups.Add(group);
+            foreach (var bone in controlInstances)
+                if (SpatialMotionContract.BoneGroup(bone.SemanticBone.ToString(), bone.Side.ToString()) == group)
+                    actionCoordinator?.ReleasePresetBone(bone.Transform);
+            for (int i = stageOwnedBones.Count - 1; i >= 0; i--)
+            {
+                var bone = stageOwnedBones[i];
+                if (SpatialMotionContract.BoneGroup(bone.SemanticBone.ToString(), bone.Side.ToString()) != group) continue;
+                actionCoordinator?.ReleaseStagePlanBonePose(bone); stageOwnedBones.RemoveAt(i);
+            }
+            if (group == "support") locomotionActionExecutor?.StopLocomotion();
+        }
+        private static bool IsBody(StageActionKind kind) => kind == StageActionKind.SpatialPose || kind == StageActionKind.BonePose || kind == StageActionKind.Animation || kind == StageActionKind.Facing || kind == StageActionKind.Locomotion;
+
         public const string StagePlanOwnerId = "StagePlan";
 
         [Header("References")]
@@ -147,6 +185,8 @@ namespace VirtualPartner.Runtime
         {
             Speech,
             BonePose,
+            SpatialPose,
+            PoseReset,
             Animation,
             Facing,
             Locomotion,
@@ -205,6 +245,7 @@ namespace VirtualPartner.Runtime
 
         // Raised when speech output actually begins, so chat/scene bubbles stay aligned with TTS playback or fallback.
         public event Action<StagePlanSpeechEvent> SpeechActionStarted;
+        public event Action<int,string> BodyActionFailed;
         public event Action<StagePlanFinishedEvent> StagePlanFinished;
 
         private void OnDisable()
@@ -457,6 +498,8 @@ namespace VirtualPartner.Runtime
             activeRequestId = requestId;
             activePlanId = planId ?? string.Empty;
             activePlanStreaming = streaming;
+            suppressBody = false;
+            resetGroups.Clear();
             activePlanStreamComplete = streamComplete;
             waitingForStreamStage = false;
             holdStreamWaitPose = holdWaitPose;
@@ -546,6 +589,7 @@ namespace VirtualPartner.Runtime
                 var runningAction = new RunningStageAction(currentStageIndex, actionIndex, action != null ? action.type : string.Empty, actionKind, action);
                 if (syncBodyActionsToSpeech
                     && !currentStageSpeechPlaybackStarted
+                    && action.sync != "prepare"
                     && ShouldDelayForSpeechPlayback(actionKind))
                 {
                     runningAction.WaitingForSpeechPlaybackStart = true;
@@ -570,6 +614,23 @@ namespace VirtualPartner.Runtime
                 return;
 
             runningAction.WaitingForSpeechPlaybackStart = false;
+            if (suppressBody && IsBody(runningAction.Kind)) { CompleteAction(runningAction, StageActionStatus.Skipped, "Body reset suppressed queued action."); return; }
+            if (resetGroups.Count > 0 && runningAction.Action != null)
+            {
+                var action = JsonUtility.FromJson<StagePlanActionDto>(JsonUtility.ToJson(runningAction.Action));
+                runningAction.Action = action;
+                if (runningAction.Kind == StageActionKind.SpatialPose && action.tracks != null)
+                {
+                    action.tracks = Array.FindAll(action.tracks, t => !resetGroups.Contains(t.group));
+                    if (action.tracks.Length == 0) { CompleteAction(runningAction, StageActionStatus.Skipped, "Reset groups suppressed queued tracks."); return; }
+                }
+                if (runningAction.Kind == StageActionKind.BonePose && action.bones != null)
+                    action.bones = Array.FindAll(action.bones, b => !resetGroups.Contains(SpatialMotionContract.BoneGroup(b.bone, b.side)));
+                if (runningAction.Kind == StageActionKind.Locomotion && resetGroups.Contains("support"))
+                { CompleteAction(runningAction, StageActionStatus.Skipped, "Support reset suppressed queued locomotion."); return; }
+            }
+            if (IsBody(runningAction.Kind)) GetComponent<PerformanceLatency>()?.Mark(activeRequestId, "firstBodyDispatch");
+            if (IsBody(runningAction.Kind) && runningAction.Kind != StageActionKind.SpatialPose) spatialMotion?.EndThinking(activeRequestId);
             if (runningAction.Action == null)
             {
                 CompleteAction(runningAction, StageActionStatus.Skipped, "Action is null.");
@@ -578,6 +639,15 @@ namespace VirtualPartner.Runtime
 
             switch (runningAction.Kind)
             {
+                case StageActionKind.SpatialPose:
+                    runningAction.InstanceId = activePlanId + ":spatial:" + runningAction.StageIndex + ":" + runningAction.ActionIndex;
+                    if (spatialMotion == null) { CompleteAction(runningAction, StageActionStatus.Failed, "Spatial runtime missing."); break; }
+                    if (!spatialMotion.TryStart(runningAction.Action, runningAction.InstanceId, out var spatialError,requestId:activeOwnerId==LlmRelay.LlmOwnerId?activeRequestId:0)) CompleteAction(runningAction, StageActionStatus.Failed, spatialError);
+                    break;
+                case StageActionKind.PoseReset:
+                    ResetBodyPose(runningAction.Action.target);
+                    CompleteAction(runningAction, StageActionStatus.Completed, "Body reset.");
+                    break;
                 case StageActionKind.Speech:
                     StartSpeechAction(runningAction);
                     break;
@@ -669,6 +739,8 @@ namespace VirtualPartner.Runtime
 
             runningAction.SpeechEventRaised = true;
             currentStageSpeechPlaybackStarted = true;
+            GetComponent<PerformanceLatency>()?.Mark(activeRequestId, "speechPresentationStart");
+            spatialMotion?.EndThinking(activeRequestId);
             StartDelayedActionsForSpeechPlayback();
             speechBubbleView.Show(runningAction.Action.text);
             SpeechActionStarted?.Invoke(new StagePlanSpeechEvent(
@@ -828,6 +900,11 @@ namespace VirtualPartner.Runtime
 
                 switch (action.Kind)
                 {
+                    case StageActionKind.SpatialPose:
+                        var spatialError = spatialMotion.Failure(action.InstanceId);
+                        if (!spatialMotion.IsTransitioning(action.InstanceId))
+                            CompleteAction(action, spatialError!=null?StageActionStatus.Failed:StageActionStatus.Completed, spatialError??"Spatial transition completed.");
+                        break;
                     case StageActionKind.Speech:
                         UpdateSpeechAction(action, deltaTime);
                         break;
@@ -894,6 +971,9 @@ namespace VirtualPartner.Runtime
             }
 
             displacedPresetIds.Clear();
+            sampledPresetPoses.RemoveAll(p => IsResetBone(p.Bone));
+            if (sampledPresetPoses.Count == 0)
+            { CompleteAction(action, StageActionStatus.Interrupted, "Reset groups released animation."); return; }
             if (!actionCoordinator.RequestPresetAnimation(
                     action.InstanceId,
                     action.PresetBinding.ActionName,
@@ -915,6 +995,13 @@ namespace VirtualPartner.Runtime
             action.Elapsed += deltaTime;
             if (!rootOrientationController.IsTurning || action.Elapsed >= action.Duration)
                 CompleteAction(action, StageActionStatus.Completed, "Completed.");
+        }
+
+        private bool IsResetBone(Transform bone)
+        {
+            foreach (var entry in controlInstances)
+                if (entry.Transform == bone) return resetGroups.Contains(SpatialMotionContract.BoneGroup(entry.SemanticBone.ToString(), entry.Side.ToString()));
+            return false;
         }
 
         private void UpdateLocomotionAction(RunningStageAction action, float deltaTime, AnimationClip idleClip, float idleTime)
@@ -997,6 +1084,7 @@ namespace VirtualPartner.Runtime
 
         private void FinishStagePlan()
         {
+            spatialMotion?.EndThinking(activeRequestId);
             var exitInteraction = UsesUserInteraction(activeOwnerId);
             var finishedOwnerId = activeOwnerId;
             var finishedRequestId = activeRequestId;
@@ -1041,6 +1129,7 @@ namespace VirtualPartner.Runtime
 
         private void StopActiveStagePlan(StageActionStatus status, string message, bool exitInteraction)
         {
+            spatialMotion?.CancelMoving();
             if (playing)
             {
                 for (var i = 0; i < runningActions.Count; i++)
@@ -1221,6 +1310,7 @@ namespace VirtualPartner.Runtime
             lastMessage = $"stageIndex {action.StageIndex} action {action.ActionIndex} {status}: {message}";
             if (status != StageActionStatus.Completed)
                 RecordWarning(lastMessage);
+            if ((status == StageActionStatus.Failed || status == StageActionStatus.OwnershipDenied) && IsBody(action.Kind) && activeOwnerId == LlmRelay.LlmOwnerId) BodyActionFailed?.Invoke(activeRequestId, message);
         }
 
         private bool TryBuildDesiredBone(
@@ -1524,6 +1614,8 @@ namespace VirtualPartner.Runtime
             {
                 case "speech":
                     return StageActionKind.Speech;
+                case "spatialpose": return StageActionKind.SpatialPose;
+                case "posereset": return StageActionKind.PoseReset;
                 case "bonepose":
                     return StageActionKind.BonePose;
                 case "animation":
@@ -1543,6 +1635,7 @@ namespace VirtualPartner.Runtime
         {
             switch (kind)
             {
+                case StageActionKind.SpatialPose:
                 case StageActionKind.BonePose:
                 case StageActionKind.Animation:
                 case StageActionKind.Facing:
@@ -1617,7 +1710,7 @@ namespace VirtualPartner.Runtime
             public int ActionIndex { get; }
             public string ActionType { get; }
             public StageActionKind Kind { get; }
-            public StagePlanActionDto Action { get; }
+            public StagePlanActionDto Action { get; set; }
             public float Elapsed { get; set; }
             public float Duration { get; set; }
             public string InstanceId { get; set; }

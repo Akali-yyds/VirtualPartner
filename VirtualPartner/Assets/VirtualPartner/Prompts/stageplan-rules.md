@@ -11,13 +11,15 @@ Supported actions:
 - `speech`: visible character speech bubble.
 - `expression`: registered expression for the current stage.
 - `bonePose`: semantic bone target rotations.
+- `spatialPose`: generated whole-body spatial trajectories and explicit holds.
+- `poseReset`: release body performance/holds while speech continues.
 - `animation`: one registered preset animation.
 - `facing`: turn the character root toward a target.
 - `locomotion`: walk/run along current forward.
 
 Stage execution:
 - `stages` run in array order.
-- Actions in one stage start together.
+- Actions in one stage start together except speech-synchronized body actions; spatial sync=prepare may start before speech playback.
 - The next stage waits until every current-stage action reaches a terminal result.
 - A stage may contain at most one `speech`.
 - Use separate stages for ordered beats and one stage for simultaneous actions.

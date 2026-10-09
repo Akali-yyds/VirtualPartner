@@ -147,6 +147,7 @@ namespace VirtualPartner.Runtime
         public string ConfigPath => configPath;
         public bool IsLlmStagePlanPlaying => stagePlanPlayer != null && stagePlanPlayer.IsOwnerPlaying(LlmOwnerId);
 
+        public string LastReceivedStageJson { get; private set; }
         public event Action<LlmRequestFailure> RequestFailed;
 
         public void Configure(
@@ -338,6 +339,8 @@ namespace VirtualPartner.Runtime
             lastExtractedStagePlan = string.Empty;
             ResetStreamingStatus();
 
+            var latency = GetComponent<PerformanceLatency>(); if (latency == null) latency = gameObject.AddComponent<PerformanceLatency>(); latency.Begin(latestRequestId);
+            GetComponent<SpatialMotionRuntime>()?.BeginThinking(latestRequestId);
             activeCoroutine = StartCoroutine(SendRequest(latestRequestId, userText.Trim(), historyContext));
             return new LlmSubmitResult(true, latestRequestId, statusText);
         }
@@ -378,6 +381,7 @@ namespace VirtualPartner.Runtime
 
         public void StopPendingRequest()
         {
+            GetComponent<SpatialMotionRuntime>()?.EndThinking(pendingRequestId);
             latestRequestId++;
             pendingRequestId = 0;
             requestPending = false;
@@ -726,6 +730,7 @@ namespace VirtualPartner.Runtime
                 if (string.IsNullOrEmpty(deltaContent))
                     continue;
 
+                GetComponent<PerformanceLatency>()?.Mark(requestId, "firstToken");
                 stageParser.Append(deltaContent);
 
                 while (stageParser.TryDequeueStage(out var stageJson))
@@ -745,6 +750,8 @@ namespace VirtualPartner.Runtime
             out string failureReason)
         {
             failureReason = string.Empty;
+            GetComponent<PerformanceLatency>()?.Mark(requestId, "firstCompleteStage");
+            LastReceivedStageJson = stageJson;
             streamingParsedStageCount++;
             var stagePlanJson = BuildStagePlanJsonFromStageJsons(new[] { stageJson });
             var validationResult = StagePlanValidator.Validate(stagePlanJson, characterProfile);
@@ -792,6 +799,7 @@ namespace VirtualPartner.Runtime
                 return false;
             }
 
+            GetComponent<PerformanceLatency>()?.Mark(requestId, "playbackStart");
             streamingStagePlanStarted = true;
             streamingAppendedStageCount += bufferedStageJsons.Count;
             streamingBufferedStageCount = 0;
@@ -891,7 +899,8 @@ namespace VirtualPartner.Runtime
             AppendPromptSection(builder, "Preset Action Rules", LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName), true);
             AppendPromptSection(builder, "Locomotion Rules", LoadPromptText(locomotionPrompt, LocomotionPromptFileName), true);
             AppendPromptSection(builder, "Format Examples", LoadPromptText(examplesPrompt, ExamplesPromptFileName), true);
-            AppendPromptSection(builder, "Named Gestures", LoadPromptText(namedGesturesPrompt, NamedGesturesPromptFileName), false);
+            AppendPromptSection(builder, "Spatial Motion", LoadPromptText(null, "spatial-motion.md"), false);
+            AppendPromptSection(builder, "Current Pose", GetComponent<SpatialMotionRuntime>()?.Describe(), false);
             AppendPromptSection(builder, "Long Term Memory", BuildMemoryPromptContext(), false);
             AppendPromptSection(builder, "Recent Momotalk Chat Context", historyContext, false);
             capabilityBuilder.Append(builder, LoadPromptText(presetActionsPrompt, PresetActionsPromptFileName));
@@ -1097,6 +1106,7 @@ namespace VirtualPartner.Runtime
             lastError = string.IsNullOrWhiteSpace(message) ? "Unknown LLM error." : message;
             statusText = "Error.";
             Debug.LogWarning($"[VirtualPartner] LlmRelay: {lastError}", this);
+            GetComponent<SpatialMotionRuntime>()?.EndThinking(requestId);
             RequestFailed?.Invoke(new LlmRequestFailure(requestId, lastError));
         }
 

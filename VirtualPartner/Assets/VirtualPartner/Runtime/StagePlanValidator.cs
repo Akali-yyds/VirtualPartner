@@ -109,6 +109,10 @@ namespace VirtualPartner.Runtime
                     continue;
                 }
 
+                bool spatial = Array.Exists(stage.actions, a => a != null && NormalizeType(a.type) == "spatialpose");
+                if (spatial && Array.Exists(stage.actions, a => a != null && (NormalizeType(a.type) == "bonepose" || NormalizeType(a.type) == "locomotion" || NormalizeType(a.type) == "animation" || NormalizeType(a.type) == "facing"))) errors.Add(stageLabel + " spatialPose must not share a stage with direct bonePose, facing, animation or locomotion; sequence these actions.");
+                var occupied = new HashSet<string>();
+                foreach (var a in stage.actions) if (a != null && a.tracks != null) foreach (var t in a.tracks) if (t != null && !occupied.Add(t.group)) errors.Add(stageLabel + " duplicate spatial control group.");
                 var speechCount = CountSpeechActions(stage.actions);
                 if (speechCount > 1)
                     errors.Add($"{stageLabel} must not contain more than one speech action.");
@@ -153,6 +157,10 @@ namespace VirtualPartner.Runtime
 
             switch (actionType)
             {
+                case "spatialpose":
+                case "posereset":
+                    if (SpatialMotionContract.Validate(action, out var spatialError)) return true;
+                    errors.Add(stageLabel + " spatial action: " + spatialError); return false;
                 case "speech":
                     return ValidateSpeechAction(stageLabel, actionIndex, action, errors, warnings);
                 case "expression":

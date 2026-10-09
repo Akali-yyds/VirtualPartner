@@ -38,7 +38,7 @@ namespace VirtualPartner.EditorTools
                         PageLink(Row(content,"Select bone","All registered control bones"),app,14);
                         var option=Card(content,"Overlay",62,Color.clear);ui.boneApply=Toggle(option,"Apply debug overlay","Effects persist until released",0);
                         ui.axes=new Slider[3];for(var axis=0;axis<3;axis++){var card=Card(content,"Rotation"+axis,80);Text(card,"Label",new[]{"X rotation","Y rotation","Z rotation"}[axis],16,4,300,24,16);ui.axes[axis]=Slider(card,"Angle",16,32,336,-45,45,0);}
-                        LiveCommands(content,ui,"Refresh UI","Zero","Pin selected","Pin L/R pair","Unpin selected","Clear pins","Export selected","Export pinned");break;
+                        LiveCommands(content,ui,"Refresh UI","Zero","Pin selected","Pin L/R pair","Unpin selected","Clear pins","Reset pose","Export selected","Export pinned");break;
                     case 11:ui.mouthIndex=LabeledField(content,"Mouth index","0");LiveCommands(content,ui,"Apply debug","Release debug");foreach(var expression in new[]{"neutral","smile","thinking","surprised","embarrassed"}){var button=Row(content,expression,"Test expression");UnityEventTools.AddStringPersistentListener(button.onClick,ui.Execute,"Expression:"+expression);}LiveCommands(content,ui,"Clear expression");break;
                 }
             }

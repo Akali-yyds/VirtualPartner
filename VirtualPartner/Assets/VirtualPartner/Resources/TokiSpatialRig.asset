@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b575da2fc5153b64bb6921b99d4c3812, type: 3}
+  m_Name: TokiSpatialRig
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualPartner.Runtime.SpatialRigProfile
+  characterId: Toki
+  bodyForward: {x: -0.45150393, y: 0, z: 0.89226925}
+  bodyUp: {x: 0, y: 1, z: 0}
+  positionTolerance: 0.03
+  maximumPositionCorrection: 0.05
+  orientationTolerance: 10
+  maximumOrientationCorrection: 15
+  footTolerance: 0.01
+  returnSeconds: 0.35
+  maxPelvisOffset: 0.2
+  joints:
+  - bone: Pelvis
+    side: None
+    restRotation: {x: -0.50000006, y: 0.49999997, z: 0.49999928, w: 0.5000007}
+    restPosition: {x: -0, y: 0, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Spine
+    side: None
+    restRotation: {x: -0.0000020441016, y: 0.0000006659562, z: 0.017810665, w: 0.9998414}
+    restPosition: {x: -0.07098961, y: -0.0059162327, z: 0.00000012381413}
+    minimum: {x: -25, y: -25, z: -25}
+    maximum: {x: 25, y: 25, z: 25}
+  - bone: Chest
+    side: None
+    restRotation: {x: 0.0000000036430985, y: -0.00000025156797, z: 0.13114105, w: 0.99136376}
+    restPosition: {x: -0.061504096, y: -0.00008460521, z: -2.379056e-10}
+    minimum: {x: -25, y: -25, z: -25}
+    maximum: {x: 25, y: 25, z: 25}
+  - bone: Neck
+    side: None
+    restRotation: {x: 0.0000000050575135, y: 0.0000006535855, z: -0.22825317, w: 0.9736018}
+    restPosition: {x: -0.11636036, y: -0.011477813, z: -0.00000007085247}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Head
+    side: None
+    restRotation: {x: 0.000000008424295, y: -0.0000002746507, z: 0.08086383, w: 0.99672514}
+    restPosition: {x: -0.066867754, y: 0.002027235, z: -0.0000000018669015}
+    minimum: {x: -40, y: -40, z: -40}
+    maximum: {x: 40, y: 40, z: 40}
+  - bone: Clavicle
+    side: L
+    restRotation: {x: 0.7221681, y: 0.012338851, z: -0.6914981, w: -0.012310759}
+    restPosition: {x: -0.09327282, y: -0.015401917, z: 0.013627891}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Clavicle
+    side: R
+    restRotation: {x: 0.7221681, y: 0.012336963, z: 0.69149804, w: 0.012308724}
+    restPosition: {x: -0.09327282, y: -0.01540184, z: -0.013627974}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: UpperArm
+    side: L
+    restRotation: {x: 0.16203354, y: -0.3397169, z: -0.013433322, w: 0.9263677}
+    restPosition: {x: -0.04963949, y: 0.000000019073486, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: UpperArm
+    side: R
+    restRotation: {x: -0.16203144, y: 0.3397182, z: -0.013427709, w: 0.9263677}
+    restPosition: {x: -0.049639497, y: 0, z: -0.000000038146972}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Forearm
+    side: L
+    restRotation: {x: 0.0000000048136664, y: -0.000000029645994, z: 0.03660361, w: 0.99932986}
+    restPosition: {x: -0.1214985, y: 0, z: 0.000000038146972}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Forearm
+    side: R
+    restRotation: {x: 0.000000003882967, y: -0.000000029680075, z: 0.0366036, w: 0.99932986}
+    restPosition: {x: -0.1214985, y: 0, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Hand
+    side: L
+    restRotation: {x: -0.70531636, y: -0.022933101, z: -0.029876782, w: 0.70789146}
+    restPosition: {x: -0.12378088, y: 0.0000000011920929, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Hand
+    side: R
+    restRotation: {x: 0.70531636, y: 0.022930965, z: -0.029879201, w: 0.70789146}
+    restPosition: {x: -0.12378086, y: -0.0000000023841857, z: -0.000000038146972}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Thigh
+    side: L
+    restRotation: {x: 0.043501347, y: 0.99864095, z: -0.0070905876, w: 0.0278138}
+    restPosition: {x: 0.000000114440915, y: 0.000000114440915, z: 0.06941574}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Thigh
+    side: R
+    restRotation: {x: 0.043501575, y: 0.99864095, z: 0.0070891394, w: -0.02781504}
+    restPosition: {x: -0.000000114440915, y: -0.000000076293944, z: -0.06941574}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Calf
+    side: L
+    restRotation: {x: 7.5361406e-10, y: 0.0000000019413593, z: 0.09322892, w: 0.99564475}
+    restPosition: {x: -0.17763779, y: -0.0000000023841857, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Calf
+    side: R
+    restRotation: {x: 6.372814e-10, y: -0.0000000018111213, z: 0.09322661, w: 0.9956449}
+    restPosition: {x: -0.1776378, y: -0.0000000011920929, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Foot
+    side: L
+    restRotation: {x: -0.0029550246, y: 0.028146312, z: -0.13645428, w: 0.990242}
+    restPosition: {x: -0.16322687, y: 0, z: 0.000000009536743}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Foot
+    side: R
+    restRotation: {x: 0.0029552712, y: -0.028145822, z: -0.13645342, w: 0.9902422}
+    restPosition: {x: -0.1632269, y: 0.0000000023841857, z: 0.000000009536743}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Toe
+    side: L
+    restRotation: {x: 0.00000007938196, y: -0.00000041672214, z: -0.7071069, w: 0.70710665}
+    restPosition: {x: -0.04811182, y: 0.051081385, z: -0.000000009536743}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Toe
+    side: R
+    restRotation: {x: 0.00000022644672, y: 0.000000068580384, z: -0.7071068, w: 0.7071067}
+    restPosition: {x: -0.048111822, y: 0.051081393, z: 0}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  - bone: Eye
+    side: None
+    restRotation: {x: 0.086748324, y: 0.08696787, z: -0.7020395, w: 0.7014642}
+    restPosition: {x: -0.05305313, y: 0.005266197, z: 0.046595868}
+    minimum: {x: -90, y: -90, z: -90}
+    maximum: {x: 90, y: 90, z: 90}
+  limbs:
+  - group: leftArm
+    upperLength: 0.12149832
+    lowerLength: 0.1237802
+    palmLocal: {x: 0.07249669, y: -0.86281335, z: -0.5002973}
+    fingersLocal: {x: -0.9892691, y: -0.12600486, z: 0.073955916}
+    soleLocal: {x: 0, y: 0, z: 0}
+    minBend: 2
+    maxBend: 155
+  - group: leftLeg
+    upperLength: 0.17763785
+    lowerLength: 0.16322693
+    palmLocal: {x: 0, y: 1, z: 0}
+    fingersLocal: {x: 0, y: 0, z: 1}
+    soleLocal: {x: -0.04497998, y: -0.00021241946, z: 0.0013358728}
+    minBend: 0
+    maxBend: 145
+  - group: rightArm
+    upperLength: 0.12149514
+    lowerLength: 0.123782694
+    palmLocal: {x: 0.07250349, y: -0.8628146, z: 0.5002941}
+    fingersLocal: {x: -0.989268, y: -0.12601264, z: -0.07395683}
+    soleLocal: {x: 0, y: 0, z: 0}
+    minBend: 2
+    maxBend: 155
+  - group: rightLeg
+    upperLength: 0.17763792
+    lowerLength: 0.16322692
+    palmLocal: {x: -0, y: -1, z: -0}
+    fingersLocal: {x: 0, y: 0, z: 1}
+    soleLocal: {x: -0.044911776, y: -0.002730871, z: 0.0006901507}
+    minBend: 0
+    maxBend: 145
+  thinkingTracks:
+  - group: rightArm
+    anchor: head
+    keys:
+    - time: 0.8
+      position:
+        x: 0.035
+        y: -0.17
+        z: 0.14
+      palm:
+        x: -1
+        y: 0
+        z: 0
+      fingers:
+        x: 0
+        y: 1
+        z: 0
+      hint:
+        x: 0.25
+        y: -0.35
+        z: 0.2
+      bones: []
+      stop: 0
+    completion:
+      mode:
+      seconds: 0
+  - group: leftArm
+    anchor: chest
+    keys:
+    - time: 0.95
+      position:
+        x: 0.015
+        y: -0.03
+        z: 0.1
+      palm:
+        x: 0
+        y: 1
+        z: 0
+      fingers:
+        x: 1
+        y: 0
+        z: 0
+      hint:
+        x: -0.2
+        y: -0.15
+        z: 0.15
+      bones: []
+      stop: 0
+    completion:
+      mode:
+      seconds: 0
+  - group: head
+    anchor: body
+    keys:
+    - time: 0.9
+      position:
+        x: 0
+        y: 0
+        z: 0
+      palm:
+        x: 0
+        y: 0
+        z: 0
+      fingers:
+        x: 0
+        y: 0
+        z: 0
+      hint:
+        x: 0
+        y: 0
+        z: 0
+      bones:
+      - bone: Head
+        side: None
+        rotation:
+          x: 0
+          y: 0
+          z: 5
+      stop: 0
+    completion:
+      mode:
+      seconds: 0

@@ -37,6 +37,17 @@ namespace VirtualPartner.Runtime.PhoneOS
         private void Start()
         {
             runtime=GetComponentInParent<PhoneLiveRuntime>();app=GetComponent<PhonePreviewApp>();
+            var stop = Array.Find(GetComponentsInChildren<Button>(true), b => b.name == "Clear pins");
+            if (stop != null && Array.Find(GetComponentsInChildren<Button>(true), b => b.name == "Reset pose") == null)
+            {
+                var row = Instantiate(stop.transform.parent.gameObject, stop.transform.parent.parent);
+                foreach (var button in row.GetComponentsInChildren<Button>(true))
+                {
+                    if (button.name != "Clear pins") { button.gameObject.SetActive(false); continue; }
+                    button.name="Reset pose"; button.GetComponentInChildren<TMP_Text>().text="Reset pose";
+                    button.onClick=new Button.ButtonClickedEvent(); button.onClick.AddListener(()=>Execute("Reset pose"));
+                }
+            }
             app.StateChanged+=PageChanged;stage=FindFirstObjectByType<StagePlanDebugPanel>();bone=FindFirstObjectByType<VirtualPartnerBoneDebugPanel>();fsm=FindFirstObjectByType<AutonomousBehaviorScheduler>();root=FindFirstObjectByType<RootOrientationController>();
             tts=FindFirstObjectByType<TtsManager>();memory=FindFirstObjectByType<MemorySystem>();expression=FindFirstObjectByType<ExpressionActionExecutor>();mouth=FindFirstObjectByType<MouthTextureController>();
             document.onValueChanged.AddListener(text=>{if(documentKind=="stage")stage.Json=text;});
@@ -59,7 +70,7 @@ namespace VirtualPartner.Runtime.PhoneOS
             switch(page){
                 case 1:return $"LLM: {runtime.Relay.StatusText}\nFSM: {fsm.State} · {fsm.CurrentActionName}\nTTS: {tts.StatusText}\nASR: {runtime.Asr.Status}";
                 case 2:return $"{runtime.Relay.StatusText}\n{runtime.Relay.LastError}\nRequests: {runtime.Conversation.ActiveRequestCount}";
-                case 3:return $"{FindFirstObjectByType<StagePlanPlayer>().StatusText}\n{stage.Result}";
+                case 3:return (FindFirstObjectByType<SpatialMotionRuntime>()?.Describe() ?? "")+"\n"+(FindFirstObjectByType<SpatialMotionRuntime>()?.LastDiagnostic ?? "")+"\n"+(FindFirstObjectByType<SpatialMotionRuntime>()?.GeometryReport ?? "")+"\n"+$"{FindFirstObjectByType<StagePlanPlayer>().StatusText}\n{stage.Result}";
                 case 4:return $"{runtime.Conversation.CurrentCharacterId}\nUnread: {runtime.Conversation.TotalUnreadCount}\nActive requests: {runtime.Conversation.ActiveRequestCount}";
                 case 5:return $"{tts.StatusText}\n{tts.HealthStatusText}\n{tts.LatestError}";
                 case 6:return $"{runtime.Asr.Status}\n{runtime.Asr.HealthStatusText}\n{runtime.Asr.LatestError}";
@@ -121,6 +132,7 @@ namespace VirtualPartner.Runtime.PhoneOS
                     case "Pin selected":bone.PinSelected();break;
                     case "Pin L/R pair":bone.PinSelectedPair();break;
                     case "Unpin selected":bone.UnpinSelected();break;
+                    case "Reset pose":FindFirstObjectByType<StagePlanPlayer>().ResetBodyPose();feedback.text="Body pose reset; speech and Debug pins retained.";break;
                     case "Clear pins":bone.ClearPins();break;
                     case "Export selected":bone.ExportSelectedJson();OpenDocument("bone");break;
                     case "Export pinned":bone.ExportPinnedStagePlan();OpenDocument("bone");break;

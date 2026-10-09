@@ -131,6 +131,7 @@ namespace VirtualPartner.Runtime
             {
                 stagePlanPlayer.SpeechActionStarted -= HandleSpeechActionStarted;
                 stagePlanPlayer.StagePlanFinished -= HandleStagePlanFinished;
+                stagePlanPlayer.BodyActionFailed -= HandleBodyActionFailed;
             }
             if (asrManager != null && subscribedToAsrManager)
                 asrManager.RecognitionFinished -= HandleAsrRecognitionFinished;
@@ -488,6 +489,17 @@ namespace VirtualPartner.Runtime
             ContactsChanged?.Invoke();
         }
 
+        private void HandleBodyActionFailed(int requestId, string reason)
+        {
+            if (IsClearedRequest(requestId)) return;
+            string characterId = GetCharacterIdForRequest(requestId);
+            if (string.IsNullOrEmpty(characterId)) return;
+            var record = MomotalkHistoryStore.CreateMessage("system", "Motion could not be performed. See Debug for details.", "motion-error", requestId, -1, -1, GetTurnIdForRequest(requestId));
+            historyStore.Append(characterId, record);
+            if (!ExternalPresentation && IsLoadedConversation(characterId) && chat != null) chat.CreateMessageView(record, null);
+            ContactsChanged?.Invoke();
+        }
+
         private void HandleStagePlanFinished(StagePlanFinishedEvent finished)
         {
             if (finished == null)
@@ -684,6 +696,7 @@ namespace VirtualPartner.Runtime
             {
                 stagePlanPlayer.SpeechActionStarted += HandleSpeechActionStarted;
                 stagePlanPlayer.StagePlanFinished += HandleStagePlanFinished;
+                stagePlanPlayer.BodyActionFailed += HandleBodyActionFailed;
                 subscribedToStagePlanPlayer = true;
             }
 
