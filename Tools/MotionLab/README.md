@@ -42,7 +42,32 @@ In Play Mode, editor review entrypoints:
 
 `StartRemainingAudioReview()` resumes learned-route recordings and tests all three routes again without capture. A report's `completed` means the harness finished; success additionally requires real audio, relevant movement, and no error. The HTML index explicitly distinguishes blocked/failed and interrupted comparisons. Results before 2026-10-10 waited for the worker's warm benchmark and both BVH conversions before replay; the revised harness starts from the atomically published first raw MoMask output. Imports/model load and real TTS synthesis still remain on the cold path. Do not attribute that scheduling change to a faster model.
 
-## Interfaces and limitations
+## Short / medium / long visual comparison (2026-10-10)
+
+`duration_cases.json` defines nine bilingual instructions: three each at 2, 4 and 8 seconds. Each route generates one sample per instruction, seed 11, without rerolling. MoMask uses 18 steps and generates the entire clip; DiP uses 10 steps per 40-frame segment, with the same complete instruction at every segment. This evaluates the current adapters, not an optimally tuned upstream benchmark.
+
+```powershell
+& F:/Project/MotionExperiments/momask-env/Scripts/python.exe Tools/MotionLab/duration_batch.py --route momask --output F:/Project/MotionExperiments/Evidence/2026-10-10-MotionLab/duration-comparison --prefix F:/Project/VirtualPartner-new/VirtualPartner/Library/MotionLab/character-prefix.json
+& F:/Project/MotionExperiments/dip-env/Scripts/python.exe Tools/MotionLab/duration_batch.py --route dip --output F:/Project/MotionExperiments/Evidence/2026-10-10-MotionLab/duration-comparison --prefix F:/Project/VirtualPartner-new/VirtualPartner/Library/MotionLab/character-prefix.json
+```
+
+Use a fresh output folder to reproduce. Each process loads its model once, warms all three lengths, then measures the nine requests. `warmRequestSeconds` excludes model loading and warmup but includes text processing, generation, prefix/coordinate processing and JSON export. Optional BVH fitting is excluded. It is not a measurement of the production online pipeline.
+
+In MotionLab Play Mode, run `MotionDurationReview.Start(<absolute output folder>)`. The harness measures real-time replay first, then separately records each sample at 30 FPS with `Time.captureFramerate`; model output remains 20 FPS. The extra 0.5 seconds at the end is coordinator release to Idle, not generated motion. Do not modify C# while capture is running. After `Running` becomes false and `Status` is `COMPLETE`:
+
+```powershell
+& F:/Project/MotionExperiments/momask-env/Scripts/python.exe Tools/MotionLab/duration_gallery.py F:/Project/MotionExperiments/Evidence/2026-10-10-MotionLab/duration-comparison
+```
+
+The generated `index.html` provides two-route playback, individual playback and half speed. `README.md` and `comparison-summary.json` retain per-sample timing. All 18 generated clips, real-time playback reports, captures and MP4s were verified present; playback completion does not certify action meaning or naturalness. See `Docs/MotionLab-DurationComparison.md` for the recorded result and limitations. No TTS or daily chat data is used.
+
+## Interactive MoMask playground (2026-10-11)
+
+Use Unity menu `VirtualPartner > Motion Lab > Open MoMask playground` to open the isolated scene with a temporary Game View input panel. The worker stays resident and warms 2/4/8-second clips before enabling Generate. Chinese instructions use the existing local LLM connection to produce an English motion description; English direct mode skips the LLM. No TTS, chat history or memory is used. Replay reuses the last result; Interrupt prevents late results from playing. Exiting Play Mode stops the owned worker process tree.
+
+Per-request evidence is saved under `F:/Project/MotionExperiments/Evidence/Playground/`. See [usage, timing definitions and checks](../../Docs/MoMask-Playground.md). Validate input boundaries with `python -m unittest discover -s Tools/MotionLab -p 'test_*.py'` in the MoMask environment.
+
+## Retargeting and protocol limitations
 
 - `MotionLabSemantic`: ordered steps, semantic goals, explicit completion; grounded through existing `spatialPose`, without altering StagePlan.
 - `MotionLabClip` v1: HumanML22 parent order, 20 FPS frames of body-right/up/forward Cartesian positions. HumanML X is reflected once on export. No credentials in jobs or results.

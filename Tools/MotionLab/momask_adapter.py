@@ -55,7 +55,9 @@ def generate(args, text, out):
     timings['loadSeconds'] = time.perf_counter()-start
     mean = np.load(repo/'checkpoints/t2m'/model_opt.vq_name/'meta/mean.npy')
     std = np.load(repo/'checkpoints/t2m'/model_opt.vq_name/'meta/std.npy')
-    length = torch.tensor([24], device=device, dtype=torch.long)  # 96 frames, 4.8 seconds
+    frames=getattr(args,'frames',96)
+    if frames<40 or frames>196 or frames%4:raise ValueError('MoMask probe requires 40..196 frames in multiples of four')
+    length = torch.tensor([frames//4], device=device, dtype=torch.long)
     # Measure actual text calls nested within official generation without replacing them.
     text_seconds = [0.0]
     originals=[]
@@ -69,7 +71,7 @@ def generate(args, text, out):
         model.encode_text=timed_text
     all_times=[]
     # One cold inference plus a second warm inference, identical seed/input. Save both.
-    for repeat in range(2):
+    for repeat in range(getattr(args,'repeats',2)):
         fixseed(args.seed)
         sync();tick=time.perf_counter();text_seconds[0]=0
         with torch.inference_mode():
@@ -88,16 +90,19 @@ def generate(args, text, out):
     timings['inference']=all_times
     for model, original in zip((trans,res),originals):
         model.encode_text=original
-    tick=time.perf_counter();converter=Joint2BVHConvertor()
-    _,converted=converter.convert(joints,str(out/'official-no-foot-ik.bvh'),iterations=100,foot_ik=False)
-    timings['bvhNoFootIkSeconds']=time.perf_counter()-tick
-    tick=time.perf_counter()
-    _,corrected=converter.convert(joints,str(out/'official-foot-ik.bvh'),iterations=100,foot_ik=True)
-    timings['bvhFootIkSeconds']=time.perf_counter()-tick
-    export_positions(converted,out/'converted.json','momask-bvh',text,args.seed)
-    export_positions(corrected,out/'foot-ik.json','momask-foot-ik',text,args.seed)
+    correction=None
+    if getattr(args,'postprocess',True):
+        tick=time.perf_counter();converter=Joint2BVHConvertor()
+        _,converted=converter.convert(joints,str(out/'official-no-foot-ik.bvh'),iterations=100,foot_ik=False)
+        timings['bvhNoFootIkSeconds']=time.perf_counter()-tick
+        tick=time.perf_counter()
+        _,corrected=converter.convert(joints,str(out/'official-foot-ik.bvh'),iterations=100,foot_ik=True)
+        timings['bvhFootIkSeconds']=time.perf_counter()-tick
+        export_positions(converted,out/'converted.json','momask-bvh',text,args.seed)
+        export_positions(corrected,out/'foot-ik.json','momask-foot-ik',text,args.seed)
+        correction=float(np.linalg.norm(corrected-joints,axis=-1).max())
     peak=torch.cuda.max_memory_allocated() if device.type=='cuda' else 0
     return dict(status='GENERATED',timings=timings,peakCudaAllocatedBytes=peak,
         frames=len(joints),device=str(device),motionSeconds=len(joints)/20,
-        correctionMaxMeters=float(np.linalg.norm(corrected-joints,axis=-1).max()),
+        correctionMaxMeters=correction,
         limitations=['Finite clip; no persistent interaction semantics','Palm twist is unobserved in position output'])

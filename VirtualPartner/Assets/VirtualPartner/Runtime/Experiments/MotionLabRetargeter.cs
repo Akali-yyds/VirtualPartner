@@ -53,6 +53,7 @@ namespace VirtualPartner.Runtime.Experiments
             sourceLeftFoot=p[7];sourceRightFoot=p[8];
             entryRotations.Clear();entryPositions.Clear();foreach(var t in mapped)if(t!=null){entryRotations[t]=owner.ReadVisibleRotation(t);entryPositions[t]=owner.ReadVisiblePosition(t);}
         }
+        void NormalizeLocal(Transform bone)=>pose.SetLocal(bone,pose.LocalRotation(bone).normalized,pose.LocalPosition(bone));
         public bool Apply(MotionLabClip clip,float seconds,string id,out string reason)
         {
             var owned=new List<Transform>();foreach(var t in mapped)if(t!=null)owned.Add(t);
@@ -61,12 +62,16 @@ namespace VirtualPartner.Runtime.Experiments
             LastSource=new Vector3[22];for(int i=0;i<22;i++)LastSource[i]=Vector3.Lerp(clip.frames[a].positions[i],clip.frames[b].positions[i],frame-a);
             // Unmapped ancestors (notably Bip001) continue to be sampled by Idle. The FK
             // preview must use their actual current transform, not an unapplied rest pose.
-            pose.Capture(rig,owner,false);foreach(var t in mapped)if(t!=null){int i=index[t];pose.SetLocal(t,restRotations[i],restPositions[i]);}
+            pose.Capture(rig,owner,false);
+            // Normalize accumulated products before FK uses Unity TRS's unit tolerance.
+            foreach(var t in rig)NormalizeLocal(t);
+            foreach(var t in mapped)if(t!=null){int i=index[t];pose.SetLocal(t,restRotations[i].normalized,restPositions[i]);}
             Vector3 right=LastSource[2]-LastSource[1],up=LastSource[9]-LastSource[0];
             Vector3 forward=Vector3.Cross(right,up);
             if(forward.sqrMagnitude<.000001f){reason="Degenerate torso basis.";return false;}
             var sourceFrame=Quaternion.LookRotation(forward,up);
             pose.SetRotation(mapped[0],bodyFrame*sourceFrame*Quaternion.Inverse(bodyFrame)*pelvisRest);
+            NormalizeLocal(mapped[0]);
             pose.SetPosition(mapped[0],pelvisOrigin+bodyFrame*((LastSource[0]-sourceOrigin)*sourceScale));
             foreach(var pair in aimChild)
             {
@@ -75,6 +80,7 @@ namespace VirtualPartner.Runtime.Experiments
                 var current=pose.Position(child)-pose.Position(joint);
                 if(target.sqrMagnitude<.0000001f || current.sqrMagnitude<.0000001f){reason="Degenerate source/target segment.";return false;}
                 pose.SetRotation(joint,Quaternion.FromToRotation(current,target)*pose.Rotation(joint));
+                NormalizeLocal(joint);
             }
             float blend=Mathf.SmoothStep(0,1,Mathf.Clamp01(seconds/.25f));
             foreach(var joint in owned) if(!owner.WriteSpatial(id,joint,Quaternion.Slerp(entryRotations[joint],pose.LocalRotation(joint),blend),Vector3.Lerp(entryPositions[joint],pose.LocalPosition(joint),blend),false))

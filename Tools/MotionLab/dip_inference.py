@@ -46,6 +46,7 @@ def run(args,text,out,checkpoint):
         model_var_type=gd.ModelVarType.FIXED_SMALL,loss_type=gd.LossType.MSE,rescale_timesteps=False,
         lambda_vel=0,lambda_rcxyz=0,lambda_fc=0,lambda_target_loc=0)
     mean=np.load(repo/'dataset/t2m_mean.npy');std=np.load(repo/'dataset/t2m_std.npy')
+    prefix_tick=time.perf_counter()
     if args.prefix:
         prefix_clip=json.loads(Path(args.prefix).read_text(encoding='utf-8'))
         positions=np.array([[[v['x'],v['y'],v['z']] for v in f['positions']] for f in prefix_clip['frames']],dtype=np.float32)
@@ -68,10 +69,13 @@ def run(args,text,out,checkpoint):
         prefix_type='official-dataset-example; NOT current-character continuation'
     prefix=torch.from_numpy(((raw[:20]-mean)/std).T.copy()).float()[None,:,None,:].to(device)
     np.save(out/'prefix-humanml.npy',raw[:20])
+    prefix_seconds=time.perf_counter()-prefix_tick
+    frames=getattr(args,'frames',80)
+    if frames<40 or frames%40:raise ValueError('DiP probe requires a multiple of 40 frames')
     times=[];outputs=[]
     initial_raw=raw[:20].copy()
     with torch.inference_mode():
-        for segment in range(2):
+        for segment in range(frames//40):
             tick=time.perf_counter();embedding=model.encode_text([text]);sync();text_time=time.perf_counter()-tick
             y=dict(prefix=prefix,text=[text],text_embed=embedding,scale=torch.tensor([7.5],device=device),
                    mask=torch.ones((1,1,1,40),device=device,dtype=torch.bool),lengths=torch.tensor([40],device=device))
@@ -83,12 +87,13 @@ def run(args,text,out,checkpoint):
             outputs.append(denorm.float().numpy());times.append(dict(textSeconds=text_time,generationSeconds=duration))
     # Integrate root velocity and heading once across prefix and both segments. Decoding
     # each segment independently loses the accumulated heading even if positions are aligned.
+    recovery_tick=time.perf_counter()
     features=np.concatenate([initial_raw]+outputs)
     all_positions=recover_from_ric(torch.from_numpy(features).float(),22).numpy()
     combined=all_positions[20:]
     np.save(out/'raw.npy',combined)
-    timings=dict(loadSeconds=load_time,segments=times)
+    timings=dict(loadSeconds=load_time,prefixSeconds=prefix_seconds,recoverySeconds=time.perf_counter()-recovery_tick,segments=times)
     export_positions(combined,out/'motion.json','dip',text,args.seed,timings)
-    return dict(status='GENERATED',timings=timings,steps=args.steps,prefix=prefix_type,
+    return dict(status='GENERATED',timings=timings,steps=args.steps,prefix=prefix_type,frames=len(combined),motionSeconds=len(combined)/20,
         peakCudaAllocatedBytes=torch.cuda.max_memory_allocated() if device.type=='cuda' else 0,
         limitations=['Position output does not determine palm twist','Prefix morphology conversion and visual continuity require measured verification'])

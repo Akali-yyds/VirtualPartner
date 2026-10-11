@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>动作路线 · 自然度对照</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"Microsoft YaHei",sans-serif;background:#10141d;color:#edf1f8}body{max-width:1500px;margin:32px auto;padding:0 24px}h1{font-size:28px;margin-bottom:8px}p{color:#bac5d8;line-height:1.7}header{margin-bottom:24px}label{display:flex;flex-direction:column;gap:8px;font-size:13px;color:#bac5d8}select,button{font:inherit;color:#edf1f8;background:#202a3c;border:1px solid #455471;border-radius:8px;padding:11px;min-height:44px}button{cursor:pointer}button:hover{background:#334566}.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin:20px 0}.case{flex:1;min-width:260px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:#1a2130;border:1px solid #354057;border-radius:12px;padding:16px}h2{font-size:20px;margin:0 0 6px}.subtitle{font-size:13px;min-height:42px}video{width:100%;aspect-ratio:16/9;background:#111721;display:block;margin:12px 0}.id{font:12px ui-monospace,monospace;overflow-wrap:anywhere;color:#a3b2cc}.missing{min-height:200px;display:grid;place-content:center;color:#a3b2cc;text-align:center}.warning{color:#ffd9a0;font-size:13px;white-space:pre-wrap}.brief{background:#202b3e;border-radius:10px;padding:14px 18px}a{color:#a3d4ff}details{margin-top:18px}summary{cursor:pointer}footer{margin:24px 0;font-size:14px;color:#b8c5da}body.single .grid{grid-template-columns:minmax(0,1fr);max-width:1150px;margin:auto}@media(max-width:950px){.grid{grid-template-columns:1fr}.subtitle{min-height:0}}
+</style>
+<header><h1>动作路线 · 自然度对照</h1><p>选择同一条指令，分别播放三条路线的真实 Unity 录像。默认原速；本页无需启动模型或语音服务。</p></header>
+<div class="controls">
+<label class="case">动作指令<select id="case"></select></label>
+<label>重复 / 种子<select id="repeat"><option value="11">第 1 次 / 11</option><option value="22">第 2 次 / 22</option><option value="33">第 3 次 / 33</option></select></label>
+<label>DiP 前缀<select id="prefix"><option value="dip-character-prefix-v2">当前角色姿态（实验适配）</option><option value="dip-suite-v2">官方数据示例</option></select></label>
+<label>DiP 步数<select id="steps"><option value="10">10 步</option><option value="5">5 步</option></select></label>
+<label>观看方式<select id="layout"><option value="all">三路线并排</option><option value="semantic">只看语义 + IK</option><option value="momask">只看 MoMask</option><option value="dip">只看 DiP</option></select></label>
+</div>
+<div class="brief" id="instruction"></div>
+<div class="controls"><button id="play">从头播放可见录像</button><button id="pause">全部暂停</button><label>播放速度<select id="speed"><option value="1">1× 原速</option><option value="0.5">0.5× 检查细节</option></select></label></div>
+<div class="grid" id="grid"></div>
+<p id="message" role="status"></p>
+<details><summary>如何判断，以及录像的局限</summary><p>先看原速下是否僵硬、是否有突跳、手臂与身体是否协调、脚是否滑动，再检查左右、高度、次数和指令是否一致。青色线条是生成模型的源骨架，角色是重定向后的实际结果；语义路线没有独立的生成源骨架。</p><p>录像约每秒采集 10 帧，按真实采集时间播放，无音轨。它适合对比姿态、顺序和明显问题，但不足以最终判断高帧率下的流畅度；最终自然度请在 Unity 中原速重播。三条录像从各自播放起点开始，不强行拉伸成相同时长或按动作阶段对齐。</p><p>DiP 仅测试了右手挥动、左前方指向、浅蹲和中断四项，种子固定 11。语义的重复编号不是 LLM 确定性种子。保持和局部接管不属于有限长度生成片段已支持的能力；第 12 项停止来自实验器的外部中断。</p></details>
+<footer>反馈时记下「指令编号 / 路线 / 重复或种子 / DiP 前缀与步数」，例如：01 / MoMask / 22，手臂自然，但脚在滑动。<br><a href="index.html" target="_blank">完整证据索引（含历史失败和中断）</a></footer>
+<script>
+const data=__REVIEW_DATA__;
+const $=id=>document.getElementById(id), ids=['case','repeat','prefix','steps','layout'];
+data.cases.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.id.slice(0,2)+' · '+c.text;$('case').append(o)});
+function stop(){document.querySelectorAll('video').forEach(v=>v.pause())}
+function render(){stop();$('message').textContent='';const c=data.cases.find(x=>x.id===$('case').value);$('instruction').textContent=c.text;document.body.classList.toggle('single',$('layout').value!=='all');$('grid').replaceChildren();
+const configs=[['semantic','语义目标 + IK','使用角色尺寸构造目标，Unity 求解动作。','semantic-suite/'+c.id+'-'+$('repeat').value],['momask','MoMask','完整动作生成 · 原始位置输出重定向。','momask-suite/'+c.id+'-'+$('repeat').value],['dip','DiP','两段短动作接续 · 种子固定 11。',$('prefix').value+'/'+c.id+'-11-steps'+$('steps').value]];
+for(const [route,title,desc,key] of configs){if($('layout').value!=='all'&&$('layout').value!==route)continue;const card=document.createElement('article');card.className='card';const h=document.createElement('h2');h.textContent=title;card.append(h);const p=document.createElement('p');p.className='subtitle';p.textContent=desc;card.append(p);const s=data.samples[key];if(s){const v=document.createElement('video');v.controls=true;v.preload='metadata';v.playsInline=true;v.src=s.video;v.playbackRate=Number($('speed').value);card.append(v);const a=document.createElement('a');a.href=s.video;a.target='_blank';a.textContent='单独打开录像';card.append(a);const id=document.createElement('p');id.className='id';id.textContent=key;card.append(id);if(s.diagnostics.length){const warning=document.createElement('p');warning.className='warning';warning.textContent='执行诊断（保留失败）：\n'+s.diagnostics.join('\n');card.append(warning)}}else{const p=document.createElement('div');p.className='missing';p.textContent='本路线未测试这条指令\n请切换 01、06、09 或 12';card.append(p)}$('grid').append(card)}}
+ids.forEach(id=>$(id).addEventListener('change',render));$('pause').onclick=stop;$('speed').onchange=()=>document.querySelectorAll('video').forEach(v=>v.playbackRate=Number($('speed').value));$('play').onclick=async()=>{const videos=[...document.querySelectorAll('video')];videos.forEach(v=>{v.currentTime=0;v.playbackRate=Number($('speed').value)});const results=await Promise.allSettled(videos.map(v=>v.play()));$('message').textContent=results.some(r=>r.status==='rejected')?'部分录像未开始，请点击对应视频的播放按钮。':''};render();
+</script></html>

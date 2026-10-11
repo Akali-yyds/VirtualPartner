@@ -1,12 +1,12 @@
 # VirtualPartner
 
-更新时间：2026-10-10
+更新时间：2026-10-11
 
 VirtualPartner 是一个基于 Unity 的桌面虚拟陪伴角色项目。它的目标不是只做一个聊天窗口，而是把虚拟角色、Momotalk 风格手机 UI、LLM 行为规划、本地语音服务和可交互场景组合成一个可运行的桌面陪伴系统。
 
 当前主要角色是 Toki / CH0187。日常入口是虚拟手机 OS；对话通过 `LlmRelay → StagePlan 2.0 → Validator → Player` 执行，支持流式接收与分阶段播放，由 Unity 协调语音、表情、骨骼、朝向和位移。
 
-**当前重点：自然语言动作控制的路线验证。** 手机主要功能已落地，但“模型能发送骨骼指令”还不等于“角色能准确、自然地完成指令”。目前正在独立实验环境中比较语义目标控制、MoMask 和 DiP，尚未把学习式动作生成接入日常聊天。
+**当前重点：MoMask 实验检查点与 Toki 骨架适配。** 三路线比较、短中长动作对照及临时输入面板已交付。用户初测认为 MoMask 能根据自然语言产生较流畅的动作，选择其作为后续优先路线；同时发现穿模和 Toki 头部前倾等适配问题。当前保存的是实验阶段检查点，尚未完成角色适配验收，也未把学习式动作生成接入日常聊天。
 
 ## 演示视频
 
@@ -21,7 +21,9 @@ VirtualPartner 是一个基于 Unity 的桌面虚拟陪伴角色项目。它的�
 | 视觉统一与其余页面改造 | 桌面、聊天、最近任务代表页已接受；其余页面已交付，人工体验确认仍有剩余项 |
 | 真实对话与语音链路 | DeepSeek → StagePlan → 真实 GPT-SoVITS 播放已有验证；不代表全部动作场景通过 |
 | 空间动作与等待思考姿态 | 已实现并保存阶段检查点；开放动作准确性、完整关节约束与自然度尚未验收 |
-| 自然语言动作路线实验 | **正在进行**：独立 Unity 场景、语义控制、MoMask 基线、DiP 连续生成探针及真实 TTS 并发对照 |
+| 自然语言动作路线实验 | 已交付三路线基线、88 条主样本及真实 TTS 并发记录；额外完成 MoMask / DiP 短中长 18 段对照，用户优先选择 MoMask |
+| MoMask 临时交互实验 | 已交付独立场景输入面板、常驻预热模型、无 TTS 的生成／重播／中断及分阶段计时；用户已初步实测 |
+| Toki 专项适配与上下文时长 | **待讨论、未实施**：头颈基准姿态、Q 版比例下的活动范围与穿模，以及由 LLM 和上下文决定动作时长 |
 
 PhoneOS 已有四种分辨率 × 三种手机高度的布局检查，以及应用、导航和受控服务回归；中文输入法、语音识别准确率、镜头手感和最终视觉仍需实机确认。真实移动验收曾被场景障碍区拒绝，未通过修改边界或假动作掩盖。
 
@@ -48,7 +50,7 @@ Validator → Player
 
 保留直接 `bonePose` 控制。新增的 `spatialPose` / `poseReset` 探索将空间目标、轨迹、双骨链 IK、保持与恢复接入现有协调器；请求等待期间使用当前角色专用的低优先级思考姿态。思考动画用于等待反馈，不计作正式动作响应，也不作为 LLM 必须复制的动作答案。
 
-### 正在比较的动作生成方案
+### 已比较的动作生成方案
 
 | 路线 | 分工 | 当前需要验证的问题 |
 |---|---|---|
@@ -60,7 +62,24 @@ Validator → Player
 
 实验机器为 i7-9750H / 16 GB RAM / GTX 1650 4 GB，采用本地独立 Python 环境，不改动 GPT-SoVITS 环境。MoMask 与 DiP 均已取得本机真实生成结果，但生成成功、骨长保持和合法 JSON 都不能替代动作意图与观感验收。
 
-实验记录包含 88 条主样本：语义控制和 MoMask 各 36 条、DiP 两类前缀各 8 条；失败结果同样保留。三条路线已有真实 TTS 并发成功记录，但学习式路线冷启动仍需数十秒，暖推理不到一秒不能替代端到端验收。使用方式见 [独立实验工具](Tools/MotionLab/README.md)，耗时拆分、动作缺陷和未通过项见 [实验评估](Docs/MotionLab-Evaluation.md)。尚未确定正式接入路线。
+实验记录包含 88 条主样本：语义控制和 MoMask 各 36 条、DiP 两类前缀各 8 条；失败结果同样保留。随后以 9 条指令生成 MoMask / DiP 各 9 段短、中、长动作，保留全部 18 段对照。用户选择 MoMask 为后续优先路线；语义 + IK 与 DiP 的实验保留作为比较基线，正式接入方式尚待确定。
+
+### MoMask 临时交互与计时
+
+Unity 菜单 **VirtualPartner → Motion Lab → Open MoMask playground** 打开独立实验场景。等待模型加载和预热至 `READY` 后，可输入自然语言，生成、重播或中断动作，并排查看源骨架和 Toki。当前面板提供 2／4／8 秒与随机种子用于对照实验；这些固定档位不是后续交互的最终时长策略。
+
+```text
+中文自然语言 → LLM 转成英文动作描述 ─┐
+英文直接输入（跳过 LLM）───────────┤
+                                ↓
+常驻 MoMask → HumanML22 位置序列 → Toki 重定向 → ActionCoordinator
+```
+
+面板不调用 TTS，不读取聊天历史或写入长期记忆。LLM 转换、MoMask 生成和提交到首个实际身体动作分别计时，冷启动与预热排除。一次中文挥手样本测得 **LLM 0.835 秒、MoMask 0.640 秒、首动作 1.532 秒**；MoMask 数值包含坐标转换与导出。这是少量暖运行实验，不能当作稳定延迟保证。
+
+另有服务预热后的“早上好呀”真实并发样本：LLM 完整输出 **1.184 秒**，MoMask **2.021 秒**，提交至首动作 **3.260 秒**、真实音频播放 **11.270 秒**。MoMask 与 TTS 并行，不能相加计算等待；该测试使用独立短提示，未经过日常 Momotalk / StagePlan 完整链路。
+
+使用与证据见 [临时输入面板](Docs/MoMask-Playground.md)、[短中长动作对照](Docs/MotionLab-DurationComparison.md)、[真实暖运行问候计时](Docs/MotionLab-WarmGreeting-Timing.md)及[实验评估](Docs/MotionLab-Evaluation.md)。模型权重、生成缓存、原始结果和录像保留在本机实验目录，不随源码检查点提交到 GitHub。
 
 ## 当前能力
 
@@ -90,11 +109,13 @@ Validator → Player
 
 ## 下一步优化方向
 
-1. **先依据实验决定动作路线。** 优先保证指令准确与响应及时，再比较自然度；目前不承诺某个生成模型就是最终方案。
-2. **完善身体语义与重定向。** 减少 LLM 猜测数值坐标，重点处理掌心方向、角色比例、全身协调、脚底支撑和关节限制。生成了自然动作不代表已经适配当前角色。
-3. **拆开测量等待时间。** 分别记录 LLM、动作生成、转换、首个真实身体动作、TTS 首音频和实际播放；对比“动作先行”和“等待语音同步”。不靠思考动画掩盖正式响应延迟。
-4. **验证并发与连续交互。** 在 Unity、动作路线和真实 TTS 同时运行时检查资源与帧时间，再验证保持、局部接管、中断、恢复和复位。
-5. **人工确认后再接入日常链路。** 多数动作 2 秒内、较慢动作 3 秒内启动作为目标；超过 3 秒但质量更好的结果仍保留，由用户决定取舍。
+以下是用户反馈与待讨论方向，不代表新阶段已实施或已生成详细开发计划。
+
+1. **优先完成 MoMask → Toki 的正常、流畅演出。** 核对头颈映射、轴向与基准姿态，定位用户观察到的默认头部前倾。根因尚未确认，不能直接归因于 MoMask 或某一个骨骼角度。
+2. **适配 Q 版身体比例与活动范围。** Toki 的大头、短肢体等比例与生成源人体不同；重点检查手臂与头部／躯干穿插、关节范围和脚底支撑。结合源骨架与最终角色对照，区分生成问题和重定向问题。
+3. **让 LLM 和具体上下文决定动作时长。** 不把人工选择的 2／4／8 秒作为最终交互要求。需讨论模型片段长度限制、动作顺序与长动作衔接；当前适配器仍有长度限制，尚未实现任意时长生成。
+4. **持续测量暖运行与语音并发。** 分别记录 LLM、生成、转换、首动作与真实音频播放，保留不含冷启动的计时；动作先行、语音同步与连续交互策略仍待确定。
+5. **角色适配与人工观感确认后，再讨论日常接入。** 当前优先修正头部、穿模和动作范围，不把“生成并播放成功”当成完整验收；保留现有聊天、FSM、记忆和语音业务链路。
 
 本轮聚焦站立手势、指向、头部与躯干配合、浅蹲和保持，不扩展跳跃、动态平衡、精确身体接触或手指控制。物理策略训练、大规模动作模型与远程 GPU 不作为当前实施前提。
 
@@ -107,6 +128,7 @@ VirtualPartner-new/
       Scenes/
         PhoneOS.unity
         PhoneOS_VisualReview.unity
+        MotionLab.unity          # 独立动作实验场景
         SampleScene.unity
       VirtualPartner/
         Art/
@@ -131,7 +153,7 @@ VirtualPartner-new/
     launcher_config.v1.json
 
   Docs/                       # 分阶段进度、验收与调研
-  Tools/                      # 开发与实验工具（动作实验正在整理）
+  Tools/                      # 开发与实验工具，MotionLab 含生成、计时和对照播放器
 
   DevelopmentDirection.md
   DevelopmentTODO.md
@@ -157,6 +179,9 @@ VirtualPartner-new/
 - [PhoneOS-Progress](Docs/PhoneOS-Progress.md)：手机 OS 的实际交付阶段与剩余验收。
 - [SpatialMotion-Progress](Docs/SpatialMotion-Progress.md)：空间动作、保持与思考姿态检查点及已知不足。
 - [MotionLab-Progress](Docs/MotionLab-Progress.md)：当前动作路线实验、证据与测量边界。
+- [MoMask-Playground](Docs/MoMask-Playground.md)：临时自然语言输入面板与暖运行计时。
+- [MotionLab-DurationComparison](Docs/MotionLab-DurationComparison.md)：MoMask / DiP 短中长动作对照及用户反馈。
+- [MotionLab-WarmGreeting-Timing](Docs/MotionLab-WarmGreeting-Timing.md)：真实 LLM、MoMask、TTS 与 Unity 并发计时。
 - [MotionRoute-Evaluation](Docs/MotionRoute-Evaluation-2026-10-09.md)：路线选择的调研依据与官方来源。
 - [DevelopmentDirection.md](./DevelopmentDirection.md)：项目方向、架构边界与阶段性目标。
 - [DevelopmentTODO.md](./DevelopmentTODO.md)：当前开发进度、已完成内容和待办事项。
