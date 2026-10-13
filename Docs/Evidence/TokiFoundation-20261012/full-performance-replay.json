@@ -1,0 +1,25 @@
+{
+    "passed": true,
+    "rows": [
+        {
+            "repeat": 0,
+            "segments": 5,
+            "seconds": 30.0,
+            "resetPosition": 0.0,
+            "resetAngle": 0.0,
+            "span": 30.027249100000064,
+            "passed": true,
+            "status": "整场重播结束；视觉质量待确认。"
+        },
+        {
+            "repeat": 1,
+            "segments": 5,
+            "seconds": 30.0,
+            "resetPosition": 0.0,
+            "resetAngle": 0.0,
+            "span": 30.033619499999987,
+            "passed": true,
+            "status": "整场重播结束；视觉质量待确认。"
+        }
+    ]
+}

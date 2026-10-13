@@ -18,7 +18,7 @@ def summarize(root):
     rows=[]
     for result in sorted(root.rglob('result.json')):
         record=read(result);folder=result.parent
-        plays=sorted(folder.glob('playback-*.json'))
+        plays=sorted([*folder.glob('playback-*.json'),*folder.glob('inspections/*/playback-*.json')],key=lambda p:p.name)
         playback=read(plays[-1]) if plays else {}
         videos=sorted(folder.glob('*.mp4'))
         pictures=sorted(folder.glob('final*.png'))

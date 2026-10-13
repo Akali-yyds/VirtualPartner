@@ -83,10 +83,16 @@ def generate(args, text, out):
         sync();elapsed=time.perf_counter()-tick
         all_times.append({'total':elapsed,'text':text_seconds[0],'generationExcludingText':elapsed-text_seconds[0]})
         np.save(out/('raw-'+str(repeat)+'.npy'),joints)
+        # Preserve the decoder evidence, including 6D rotations and contact channels.
+        # Rotations derive from HumanML's position IK and do not establish wrist twist.
+        np.save(out/('features-'+str(repeat)+'.npy'),features)
         if repeat==0:
             # Publish the first valid motion atomically. Replay need not wait for the
             # warm benchmark or optional BVH fitting; those remain separate evidence.
-            export_positions(joints,out/'motion.json','momask-raw',text,args.seed,{'firstInference':all_times[0]})
+            export_positions(joints,out/'motion.json','momask-raw',text,args.seed,{'firstInference':all_times[0]},features=features)
+            from lab import save
+            save(out/'channels.json',dict(version=1,fps=20,rotationSemantics='HumanML position-derived 6D; not observed palm/head twist',
+                rotation6d=features[:,67:193].reshape(-1,21,6).tolist(),contacts=features[:,-4:].tolist()))
     timings['inference']=all_times
     for model, original in zip((trans,res),originals):
         model.encode_text=original

@@ -1,0 +1,9 @@
+{
+  "pythonTests": 20,
+  "unityFixtures": 10,
+  "headNodDegrees": 19.925458908081055,
+  "originalFeaturesUnchanged": 17,
+  "phase": "1; visual gate NOT accepted",
+  "anomalousLastSegment": "still fails; not flipped, exchanged or resampled",
+  "dailyServicesChanged": false
+}

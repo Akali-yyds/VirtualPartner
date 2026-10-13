@@ -1,0 +1,36 @@
+{
+  "source": "F:/Project/MotionExperiments/Evidence/TokiFoundation/20261012/audit-02/decode/1",
+  "unityCapture": "VirtualPartner\\Library\\MotionLab\\foundation\\20261013-032006-354-capture",
+  "metrics": {
+    "Foundation": {
+      "frames": 90,
+      "directionErrorMax": 0.02797645516693592,
+      "inferredHeadTiltMin": 61.57611083984375,
+      "inferredHeadTiltMax": 81.0931396484375,
+      "note": "Head tilt is inferred, not a measured face normal. In v3 unlike neck segment directions are reported separately from binding-relative rotation error.",
+      "neckUsesBindingDelta": true,
+      "neckRotationErrorMax": 0.0,
+      "neckSegmentDifferenceMax": 23.97007179260254
+    },
+    "LegacyRaw": {
+      "frames": 90,
+      "directionErrorMax": 0.02797645516693592,
+      "inferredHeadTiltMin": 48.94755554199219,
+      "inferredHeadTiltMax": 62.53338623046875,
+      "note": "Head tilt is inferred, not a measured face normal. In v3 unlike neck segment directions are reported separately from binding-relative rotation error.",
+      "neckUsesBindingDelta": false,
+      "neckRotationErrorMax": 0.0,
+      "neckSegmentDifferenceMax": 0.02797645516693592
+    },
+    "LegacyCorrected": {
+      "frames": 90,
+      "directionErrorMax": 39.21283721923828,
+      "inferredHeadTiltMin": 42.20317077636719,
+      "inferredHeadTiltMax": 49.19374084472656,
+      "note": "Head tilt is inferred, not a measured face normal. In v3 unlike neck segment directions are reported separately from binding-relative rotation error.",
+      "neckUsesBindingDelta": false,
+      "neckRotationErrorMax": 0.0,
+      "neckSegmentDifferenceMax": 0.01978234015405178
+    }
+  }
+}

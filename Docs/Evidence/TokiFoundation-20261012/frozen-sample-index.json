@@ -1,0 +1,656 @@
+{
+  "version": 1,
+  "policy": "Frozen originals. Inspections must use new directories.",
+  "cases": [
+    {
+      "case": "backbend-last-groove",
+      "source": "F:\\Project\\MotionExperiments\\Evidence\\Playground\\20261012-014939-833\\jobs\\20261012-015041-117-a6d6d8",
+      "status": "FROZEN",
+      "files": [
+        {
+          "file": "interactive-timing.json",
+          "sha256": "33059d0b90754ae7347691a5a0d0799ec2e7c739d19ae4b5a29362a0cb11a45c",
+          "bytes": 409
+        },
+        {
+          "file": "progress.json",
+          "sha256": "7fd2437d2c3e1d73a998c9b0c39286f127ef6731ee5eab673113ffbbb3746c5d",
+          "bytes": 124
+        },
+        {
+          "file": "request.json",
+          "sha256": "117daac5dbe31f71897483c49af67967ac728d5eafe37fbc6be351b7807bca30",
+          "bytes": 542
+        },
+        {
+          "file": "result.json",
+          "sha256": "88e4e5ca6439bd771a62eb7e366124e0f8a8dfc6f25647c908258a58bbcf08ea",
+          "bytes": 341
+        },
+        {
+          "file": "unity-events.json",
+          "sha256": "432dc34df1c0483a1b1ea86dfbcc249b890681f90a540954d647716b3b89fbf7",
+          "bytes": 4480
+        },
+        {
+          "file": "segments/000/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/000/channels.json",
+          "sha256": "7b483d9f7929863fc45be63900a9a9788d978ddf2501e7e027a423247d401501",
+          "bytes": 513281
+        },
+        {
+          "file": "segments/000/features-0.npy",
+          "sha256": "f5c517b7a55b62f6a8151ceed4b7e344ae72e4ce662e7c2100a3ecc78df05a8f",
+          "bytes": 252608
+        },
+        {
+          "file": "segments/000/motion.json",
+          "sha256": "d1dc053d04e366eba990ef77a9fa7070ee25452279692c3740e008fa221d9b25",
+          "bytes": 832543
+        },
+        {
+          "file": "segments/000/raw-0.npy",
+          "sha256": "cbbf4ce03eb03aeee74e8485258ea9994c87c5cfadf838669d844b7f89300f0a",
+          "bytes": 31808
+        },
+        {
+          "file": "segments/000/ready.json",
+          "sha256": "cbd02f9505163b4bafcc5905e07811b8df1a4f117aab526c87eae6edbd5df49f",
+          "bytes": 687
+        },
+        {
+          "file": "segments/001/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/001/channels.json",
+          "sha256": "7b7b09887c138a98c1cfb508d967e41f2faabd894329b4d0a66663c4e02a78e7",
+          "bytes": 511692
+        },
+        {
+          "file": "segments/001/features-0.npy",
+          "sha256": "2a88e27d760fe64a20e0d028955227eb681b8aa9d18ecf005f9e04f86f15f01f",
+          "bytes": 252608
+        },
+        {
+          "file": "segments/001/motion.json",
+          "sha256": "d037c7afd18fef6459d9e805bfe60795b0189b3d98830e406c227b75ac1b212b",
+          "bytes": 829102
+        },
+        {
+          "file": "segments/001/raw-0.npy",
+          "sha256": "72e42d04d0f8402da1c9361f8c327b0f927278921822437b7ebc24d25b6f9ad8",
+          "bytes": 31808
+        },
+        {
+          "file": "segments/001/ready.json",
+          "sha256": "34cd092cca5a0d20a8061be7f3e8950a4221138fd159e5b93ecc1064ef702936",
+          "bytes": 683
+        },
+        {
+          "file": "segments/002/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/002/channels.json",
+          "sha256": "872ecfdcc66771cefbb0e4b3d39b5b023628b0028507f51a5dad569c35b67e4e",
+          "bytes": 682281
+        },
+        {
+          "file": "segments/002/features-0.npy",
+          "sha256": "448f8e985eb1b650cfc7f2f64db17374b38986649f4a1093540a607e95a86b11",
+          "bytes": 336768
+        },
+        {
+          "file": "segments/002/motion.json",
+          "sha256": "99345e6c15981129530b4af6f9a98e474d20d804f8e735a2ee8387eae39a909a",
+          "bytes": 1105716
+        },
+        {
+          "file": "segments/002/raw-0.npy",
+          "sha256": "8092fd9e69213a0e93ae4fc025ae648d243b707884f0cdfc86dd26a8e0278d51",
+          "bytes": 42368
+        },
+        {
+          "file": "segments/002/ready.json",
+          "sha256": "ddcf745e6e4d6baa171a2e00d19d4f74ec2fbcf3759b30a8a96a27f088fee057",
+          "bytes": 711
+        },
+        {
+          "file": "segments/003/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/003/channels.json",
+          "sha256": "0e6685b676cb949da73ee7fa17ba038c31ba83a17bf62a918b1afd0eff68e3de",
+          "bytes": 427043
+        },
+        {
+          "file": "segments/003/features-0.npy",
+          "sha256": "3fd8168b0736767826544d1af1ff99fdd739a4ebd4b51893761fa3670d2933eb",
+          "bytes": 210528
+        },
+        {
+          "file": "segments/003/motion.json",
+          "sha256": "68366b20ad3885564bacdbbbdadda38625926bb6a3ab3c2cfa4b2d4404f0ae97",
+          "bytes": 691040
+        },
+        {
+          "file": "segments/003/raw-0.npy",
+          "sha256": "efef2794546cbb17e8cc676b683447b13aabae1c7b78639854ad94c52e1bed03",
+          "bytes": 26528
+        },
+        {
+          "file": "segments/003/ready.json",
+          "sha256": "109e372a6dc0889aa79140ec0510e2bb5fcb42b0ddb31e139a96e391105693b4",
+          "bytes": 794
+        },
+        {
+          "file": "segments/004/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/004/channels.json",
+          "sha256": "24e536003f675ed9c7506f03a70ed02678e45d52cfe0de4b80340f2b7b46c6d6",
+          "bytes": 426495
+        },
+        {
+          "file": "segments/004/features-0.npy",
+          "sha256": "2bc5dc7b0e5be3adbe82e3dc4df9f4b1f6062169bcf02c80d680087d28f5ea23",
+          "bytes": 210528
+        },
+        {
+          "file": "segments/004/motion.json",
+          "sha256": "c6aa524d7f40538ffe5eef1488efc79a90e8ad90b6eb309635eecce7dae3b59c",
+          "bytes": 690883
+        },
+        {
+          "file": "segments/004/raw-0.npy",
+          "sha256": "17d2a54c655ae2ab31d22e627e5d7fce56f060c4bec1eb1501cb671d40b16876",
+          "bytes": 26528
+        },
+        {
+          "file": "segments/004/ready.json",
+          "sha256": "e51d4f8b1296f9167e4524c0129da7c9c27b78988acb71f47c8a24307cc568eb",
+          "bytes": 788
+        }
+      ]
+    },
+    {
+      "case": "leg-mask",
+      "source": "F:\\Project\\MotionExperiments\\Evidence\\Playground\\20261012-012040-951\\jobs\\20261012-012407-506-a9ed93",
+      "status": "FROZEN",
+      "files": [
+        {
+          "file": "interactive-timing.json",
+          "sha256": "7accf903000785c425e31b1e3ee13be1071a1a54d50c1ac429207c792bbc74b4",
+          "bytes": 172
+        },
+        {
+          "file": "request.json",
+          "sha256": "b14ebd1760c24b9d03cd23ceccd8e2a2c2cf73c933496a5e829048933b8b5406",
+          "bytes": 2100
+        },
+        {
+          "file": "result.json",
+          "sha256": "b4e9ae51680432dfa548361bc9d178e7710bfd3e734adc2ab677df927430f7dd",
+          "bytes": 276
+        },
+        {
+          "file": "unity-events.json",
+          "sha256": "df8cba30ee47474456102e13c2155785410ced23a3dab634f140cc6828650386",
+          "bytes": 2617
+        },
+        {
+          "file": "segments/000/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/000/channels.json",
+          "sha256": "1e04fb10a86850bca1c351cd371b1211c143db08d6fafe188ac11e6cc9bee556",
+          "bytes": 255698
+        },
+        {
+          "file": "segments/000/features-0.npy",
+          "sha256": "9616796908247f3c56da1161db94f1d5dfed9b7f7d56fff9c37e83cd9be51609",
+          "bytes": 126368
+        },
+        {
+          "file": "segments/000/motion.json",
+          "sha256": "04ea15f8df6d2a68c6069cd1211a24edc182b4f26843a00c81db38970759ca71",
+          "bytes": 414088
+        },
+        {
+          "file": "segments/000/raw-0.npy",
+          "sha256": "b38f3e275c8f7a6ab529c7afa184753bd8d13f15454c5a8326186163bf3e9bdd",
+          "bytes": 15968
+        },
+        {
+          "file": "segments/000/ready.json",
+          "sha256": "01868db6ca04890a70ebdeac6d64cda96712cd51d22d77147df2dcb1d1544bc1",
+          "bytes": 608
+        },
+        {
+          "file": "segments/001/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/001/channels.json",
+          "sha256": "208a45f3413aa61e29ac47e474c070963be8e88f8074ccf6ff4d909d4313d74b",
+          "bytes": 256096
+        },
+        {
+          "file": "segments/001/features-0.npy",
+          "sha256": "b943a2f96a947c0a67f182eee662cf5b3a9fb9887e6568f23b035766b089451f",
+          "bytes": 126368
+        },
+        {
+          "file": "segments/001/motion.json",
+          "sha256": "3f9d610f9c584d8c5f836ced08590f7dd134a7b606aaaafff553f68181f634c8",
+          "bytes": 413340
+        },
+        {
+          "file": "segments/001/raw-0.npy",
+          "sha256": "6eff9014cf3b80d2c9d26a6f492f340c7f613d6d281ccdf4bd6663b574bb8fcb",
+          "bytes": 15968
+        },
+        {
+          "file": "segments/001/ready.json",
+          "sha256": "afe50e01d1c5b27e2c6138fa5c24500043cdd86158a1abfb1282137af67689c0",
+          "bytes": 614
+        },
+        {
+          "file": "segments/002/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/002/channels.json",
+          "sha256": "8ddc5f7c6edec83446aa24e2dbc151a2efbc9018cfdfa86ebac8a3dc270d6fb8",
+          "bytes": 256165
+        },
+        {
+          "file": "segments/002/features-0.npy",
+          "sha256": "c9a53f92320fa638a1b11ce548fe62513326c1088f5c9dc87e25f2a6b62847c5",
+          "bytes": 126368
+        },
+        {
+          "file": "segments/002/motion.json",
+          "sha256": "c8ef932c6eeff180917c6d58a52c86a2366e2975496bf9302fdd2ea388112845",
+          "bytes": 412947
+        },
+        {
+          "file": "segments/002/raw-0.npy",
+          "sha256": "aef082e450b2f98037e51bca3e9fb1f2ddc8d747bfcc0c94f55e4d99229fd793",
+          "bytes": 15968
+        },
+        {
+          "file": "segments/002/ready.json",
+          "sha256": "a4e7a6b9bc1db64093004ffc638c88227fe2cf3d732d8d013a70803506a305dc",
+          "bytes": 657
+        }
+      ]
+    },
+    {
+      "case": "height-accumulation",
+      "source": "F:\\Project\\MotionExperiments\\Evidence\\Playground\\20261012-013348-727\\jobs\\20261012-013500-007-581068",
+      "status": "FROZEN",
+      "files": [
+        {
+          "file": "interactive-timing.json",
+          "sha256": "3b4ce003f2290fef6361f8072d1e65342c0f6531fae997ae3f2fb3cf6aeddebe",
+          "bytes": 171
+        },
+        {
+          "file": "request.json",
+          "sha256": "722035ad6e696e9a6ceff928f6bd6b16fd2b96bebe9bcc1d428c5d3a8a775ae3",
+          "bytes": 171
+        },
+        {
+          "file": "result.json",
+          "sha256": "f33a96222c5367cfcc3250ff1253ae2b61d65ea836f57d112a7ce48b61cc28c8",
+          "bytes": 273
+        },
+        {
+          "file": "unity-events.json",
+          "sha256": "e814bf6bfaeb7ddf4aa2ebbafaad89e33cf1450ee123a34d8dab98784fa251da",
+          "bytes": 2645
+        },
+        {
+          "file": "segments/000/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/000/channels.json",
+          "sha256": "257f2cbdd8801eeb0ed5033f9bafe13fa3f6eab1108bc00af6033432a8119612",
+          "bytes": 340471
+        },
+        {
+          "file": "segments/000/features-0.npy",
+          "sha256": "cc463fbf679a1a9470fba521a6c65ca0c05800444335980314b73a9d1cd97f0d",
+          "bytes": 168448
+        },
+        {
+          "file": "segments/000/motion.json",
+          "sha256": "6f0d2954fabb256c10c55c6c2544ec37457665d55258a8f88980a130ff7883dd",
+          "bytes": 547680
+        },
+        {
+          "file": "segments/000/raw-0.npy",
+          "sha256": "b7b1a666ac91f403a6084d80f81ab0230f8e1cf15a6eb356f5014f432015fed1",
+          "bytes": 21248
+        },
+        {
+          "file": "segments/000/ready.json",
+          "sha256": "994f089f5c0492046b311d8f813b9e088d045e5b2cd8e4f17635e69baa235b01",
+          "bytes": 687
+        },
+        {
+          "file": "segments/001/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/001/channels.json",
+          "sha256": "64bc4bf76f45fb0bddac6930aaf09736c733d10b910393b769da11495d8f0fc8",
+          "bytes": 341285
+        },
+        {
+          "file": "segments/001/features-0.npy",
+          "sha256": "dc75779360c224664842b7ec74e9271ba6b10a84eadad0f5d476c12bcdbbc82b",
+          "bytes": 168448
+        },
+        {
+          "file": "segments/001/motion.json",
+          "sha256": "9a1c47f283558ac50312a78fd77f14f6bca4f9817a9c319435437b70ecc1e306",
+          "bytes": 550001
+        },
+        {
+          "file": "segments/001/raw-0.npy",
+          "sha256": "06b356f195b1664036b66a1292aa5faba2858042312f978503193f558c6c9110",
+          "bytes": 21248
+        },
+        {
+          "file": "segments/001/ready.json",
+          "sha256": "e7c1b1f277f35e900bb9a61e4fc5de801dc4e255cc3441f9e173d54085a185a6",
+          "bytes": 688
+        },
+        {
+          "file": "segments/002/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/002/channels.json",
+          "sha256": "cae271429711510a477f05bdbb0d89e40ccd7269fe36da509471b85d11a315e9",
+          "bytes": 255977
+        },
+        {
+          "file": "segments/002/features-0.npy",
+          "sha256": "1c37be83e77723995eca4815395a822e6e6a7a7880c9e4da5e4ca13ef26dddfb",
+          "bytes": 126368
+        },
+        {
+          "file": "segments/002/motion.json",
+          "sha256": "1c7cbd7048c90ee07d64d13a0b957915129f2c4e61bf3b62a2f3505698789085",
+          "bytes": 413448
+        },
+        {
+          "file": "segments/002/raw-0.npy",
+          "sha256": "f6829ac545bc0ad1a27d01238f3046c1dee1cef532ab32403f4c1810664ebbde",
+          "bytes": 15968
+        },
+        {
+          "file": "segments/002/ready.json",
+          "sha256": "d5ed209adfbe442a3775dbcdeed936f843a6f61147e9fea9bd1217a13f8d6833",
+          "bytes": 708
+        }
+      ]
+    },
+    {
+      "case": "missing-last-segment",
+      "source": "F:\\Project\\MotionExperiments\\Evidence\\Playground\\20261012-013348-727\\jobs\\20261012-014008-932-cab1c9",
+      "status": "FROZEN",
+      "files": [
+        {
+          "file": "interactive-timing.json",
+          "sha256": "7af1962c65f25b673aa1610d8929601473d120c5fdcc31e70f68bc801c9e2d2b",
+          "bytes": 172
+        },
+        {
+          "file": "request.json",
+          "sha256": "72efb281e190de7092aa85c3f4e90d9448d027542662d7ea1b1d5c857f9bd254",
+          "bytes": 2683
+        },
+        {
+          "file": "result.json",
+          "sha256": "9ae335ccf7a48071638255ffafe3983c9295f5e8b0bd7746c0c54a166cf660b5",
+          "bytes": 335
+        },
+        {
+          "file": "unity-events.json",
+          "sha256": "6e12a1799ccddcbbc238a3d271f47733aa2d1f4c0b48322c96290d33f482175e",
+          "bytes": 2991
+        },
+        {
+          "file": "segments/000/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/000/channels.json",
+          "sha256": "1df8826a733313825eb82dc3019258599818300055b0b2588f08030152c7fe27",
+          "bytes": 513171
+        },
+        {
+          "file": "segments/000/features-0.npy",
+          "sha256": "665713ad29d5662c4d43169f2bb99d7c1c4e463bef2272487c3f2f3bbc87d7a8",
+          "bytes": 252608
+        },
+        {
+          "file": "segments/000/motion.json",
+          "sha256": "b795f0e3e1e15b33defc558621c787ce47d2c47094cd3735fd4c1bae8468797a",
+          "bytes": 832490
+        },
+        {
+          "file": "segments/000/raw-0.npy",
+          "sha256": "6bb78243dcf0e3f21998fc2d337d608c9239ef699177e0435e28788179f41d24",
+          "bytes": 31808
+        },
+        {
+          "file": "segments/000/ready.json",
+          "sha256": "dbbfd53b35640244a681afb07e1126c66345fcf91b6ceec66bbfb1758a85671a",
+          "bytes": 656
+        },
+        {
+          "file": "segments/001/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/001/channels.json",
+          "sha256": "86e52c84fd616ea064e856b8311815bfd179eede96e86352ebf42a0c57593255",
+          "bytes": 512209
+        },
+        {
+          "file": "segments/001/features-0.npy",
+          "sha256": "1baebbd3d388eb5ccc4f6242649b8231829a18d6cdadb9cf36dc75f0793ddbe1",
+          "bytes": 252608
+        },
+        {
+          "file": "segments/001/motion.json",
+          "sha256": "a6abc9a224aa99154f29fc9b590e2a2a3fc3a4999866d1e37e5df772a720e811",
+          "bytes": 831482
+        },
+        {
+          "file": "segments/001/raw-0.npy",
+          "sha256": "98e158e766e5499981e7d54fefe4e3b0e4bcf067402dbdd14202535ce70978e0",
+          "bytes": 31808
+        },
+        {
+          "file": "segments/001/ready.json",
+          "sha256": "b1019acfb11dca244249fe65b516ff59cb3d6bfb520803797a0485243711568c",
+          "bytes": 686
+        },
+        {
+          "file": "segments/002/adaptation-profile.json",
+          "sha256": "42188893b1fb7792cbfe5d4f0ceded0f576ea5fb3ad0b98bd6104d479cf8ef19",
+          "bytes": 1852
+        },
+        {
+          "file": "segments/002/channels.json",
+          "sha256": "b364ff3fed8a890467522e3c1c8eca0ccb9dc2fb1adf290da5de449681048aae",
+          "bytes": 682890
+        },
+        {
+          "file": "segments/002/features-0.npy",
+          "sha256": "5f305fa0ee2523cd2a0194b871f94f9b7d8aebfee85d83216fcffd6966a2b79a",
+          "bytes": 336768
+        },
+        {
+          "file": "segments/002/motion.json",
+          "sha256": "2209cd30078666b7cce7e75a677def16690ef55aeb2a3f0dc82a121e6dabaa4d",
+          "bytes": 1106330
+        },
+        {
+          "file": "segments/002/raw-0.npy",
+          "sha256": "004d0c941c5e3757ae163945e7715e6f147eecdadd9558eca51a2569415e748b",
+          "bytes": 42368
+        },
+        {
+          "file": "segments/002/ready.json",
+          "sha256": "8a986b69717b7fe3204a892afc78d002f7db894d9acea77c6bf59cddca1ee226",
+          "bytes": 682
+        }
+      ]
+    },
+    {
+      "case": "raised-arms",
+      "source": "F:\\Project\\MotionExperiments\\Evidence\\Playground\\20261011-145349-467\\jobs\\20261011-145500-123-23213f",
+      "status": "FROZEN",
+      "files": [
+        {
+          "file": "interactive-timing.json",
+          "sha256": "b92e79064df3d85c97a40c7bce16b816c6a92a458da36bcf93997a1e05e1a455",
+          "bytes": 171
+        },
+        {
+          "file": "request.json",
+          "sha256": "e82873ce18418219790bd2267bb9339fe2bb476f93ef78a3fec67f26a8fce587",
+          "bytes": 271
+        },
+        {
+          "file": "result.json",
+          "sha256": "6afdc493444bfeaedb69d9c1229287ee6f40897a77dfb7e200a362b52fcb12b2",
+          "bytes": 274
+        },
+        {
+          "file": "unity-events.json",
+          "sha256": "928de273a472bc28ec91b6901fec112e64baf54027880fc2366117da673cabe4",
+          "bytes": 2668
+        },
+        {
+          "file": "segments/000/adaptation-profile.json",
+          "sha256": "b6bd06b60f30aec30615e9b9ce5cf048d006e26fc16fa27622fdff2964ba1e71",
+          "bytes": 1717
+        },
+        {
+          "file": "segments/000/channels.json",
+          "sha256": "3e09348253d09bfdc039c0bec53752d391546f45f0d356f4194ce278fe791299",
+          "bytes": 256274
+        },
+        {
+          "file": "segments/000/features-0.npy",
+          "sha256": "39f40680321a9a515fef5468cae937ae00093df209e54ffeb072e0981789be18",
+          "bytes": 126368
+        },
+        {
+          "file": "segments/000/motion.json",
+          "sha256": "74aab50f6fb69750658d59b65fc270dcdf0b97108dde6c5d8c18f4ec97c57298",
+          "bytes": 179756
+        },
+        {
+          "file": "segments/000/raw-0.npy",
+          "sha256": "19653c951caeb8374511e1d76d74b24c56a4f130977d34ca26c1e017b96a6c7d",
+          "bytes": 15968
+        },
+        {
+          "file": "segments/000/ready.json",
+          "sha256": "c09baf8783e8f347dbbf3a4bba91baba74848f205ecfe5c786c6d1e4b474b812",
+          "bytes": 539
+        },
+        {
+          "file": "segments/001/adaptation-profile.json",
+          "sha256": "b6bd06b60f30aec30615e9b9ce5cf048d006e26fc16fa27622fdff2964ba1e71",
+          "bytes": 1717
+        },
+        {
+          "file": "segments/001/channels.json",
+          "sha256": "10013f54e21c45d527260448ee0533eb4664ec52a58657209017ca65aa1fe3ad",
+          "bytes": 341489
+        },
+        {
+          "file": "segments/001/features-0.npy",
+          "sha256": "05548562de1916b6c60997a9da5a419306b3ae28351aefb1879d94fbce2c67ab",
+          "bytes": 168448
+        },
+        {
+          "file": "segments/001/motion.json",
+          "sha256": "4c9a9d46a3326394d9350bc7435e9c3c98c7e570536d6a6abe72ff9d055dfa8e",
+          "bytes": 240043
+        },
+        {
+          "file": "segments/001/raw-0.npy",
+          "sha256": "37b228c0dd24b3b4992dd3035a67789a95d5f5611046b941680a13628745b038",
+          "bytes": 21248
+        },
+        {
+          "file": "segments/001/ready.json",
+          "sha256": "2b4bd54e787e2d806dd42367d34c51703717ddacb480a6630183f3a5e2c8f337",
+          "bytes": 538
+        },
+        {
+          "file": "segments/002/adaptation-profile.json",
+          "sha256": "b6bd06b60f30aec30615e9b9ce5cf048d006e26fc16fa27622fdff2964ba1e71",
+          "bytes": 1717
+        },
+        {
+          "file": "segments/002/channels.json",
+          "sha256": "16b529461d65052259a77906d4c28bc9ffc810cba490605358abddaf865eecbf",
+          "bytes": 426872
+        },
+        {
+          "file": "segments/002/features-0.npy",
+          "sha256": "9ba3aa3968a1e105b6bd049b78290d1516c0c2612ffe67c703a0bc977e438209",
+          "bytes": 210528
+        },
+        {
+          "file": "segments/002/motion.json",
+          "sha256": "176f59cd553810ac88e1426a15718834e7d171b39bf72977c55a7c872caaac18",
+          "bytes": 299625
+        },
+        {
+          "file": "segments/002/raw-0.npy",
+          "sha256": "e4d06e8aefb1ea61775ca03a185fd04417ee67fdcaa832d860ade6ce51de1df6",
+          "bytes": 26528
+        },
+        {
+          "file": "segments/002/ready.json",
+          "sha256": "5df63ce22682f538a235371843fb05444eb5d413232674a01693a36e1fac00be",
+          "bytes": 558
+        }
+      ]
+    }
+  ]
+}

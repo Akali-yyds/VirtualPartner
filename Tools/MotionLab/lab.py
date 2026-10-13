@@ -61,18 +61,25 @@ def semantic(text, config_path):
     return result
 
 
-def export_positions(positions, path, route, caption, seed, timings=None):
+def export_positions(positions, path, route, caption, seed, timings=None, features=None):
     import numpy as np
     positions = np.asarray(positions, dtype=np.float32)
     if positions.ndim != 3 or positions.shape[1:] != (22, 3) or not np.isfinite(positions).all():
         raise ValueError('Expected finite HumanML3D positions [frames,22,3]')
+    if features is not None:
+        features=np.asarray(features)
+        if features.shape!=(len(positions),263) or not np.isfinite(features).all():
+            raise ValueError('Expected finite denormalized HumanML263 features matching positions')
     # HumanML3D +X is anatomical left. Reflect X to Unity's body-right convention.
     positions = positions.copy()
     positions[:, :, 0] *= -1
+    from motion_coordinates import root_quaternions
+    roots=None if features is None else root_quaternions(features)
     save(path, dict(version=1, route=route, caption=caption, seed=seed, fps=20,
+        sourceFormat='humanml263-v1' if features is not None else 'legacy-positions-v1',coordinateVersion='humanml-x-reflection-v1',hasRootOrientation=features is not None,
         coordinates='body-right/up/forward; meters; HumanML22; X reflected from HumanML',
-        parents=PARENTS, frames=[{'positions': [{'x': float(x), 'y': float(y), 'z': float(z)}
-                                                for x, y, z in frame]} for frame in positions],
+        parents=PARENTS, frames=[dict({'positions': [{'x': float(x), 'y': float(y), 'z': float(z)}
+                                                for x, y, z in frame]},**({} if features is None else {'contacts':features[i,-4:].tolist(),'rotation6d':features[i,67:193].tolist(),'rootRotation':dict(zip('xyzw',map(float,roots[i])))})) for i,frame in enumerate(positions)],
         timings=timings or {}))
 
 

@@ -1,0 +1,71 @@
+{
+    "passed": true,
+    "resetPosition": 0.0,
+    "resetAngle": 0.0,
+    "rows": [
+        {
+            "sample": "forward",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 7.300048565639372e-8,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "lean_forward",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 0.0,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "left_arm",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 0.0,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "neutral",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 0.0,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "right_arm",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 0.0,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "root_translation",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 7.300048565639372e-8,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "shallow_squat",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 1.4901161193847657e-8,
+            "repeatAngle": 0.0
+        },
+        {
+            "sample": "yaw_left",
+            "passed": true,
+            "directionError": 0.02797645516693592,
+            "boneLengthChange": 0.0,
+            "repeatPosition": 1.2287812012345967e-7,
+            "repeatAngle": 0.0
+        }
+    ]
+}

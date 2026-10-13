@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "character": "Toki",
+  "description": "Initial Toki envelope from 2026-10-11 rig inspection; visible-envelope and posture validation required, not cloth physics",
+  "blendSeconds": 0.35, "clearance": 0.008, "armRadius": 0.025,
+  "sourceNeutralNeck": {"x":0.001,"y":0.758,"z":0.652},
+  "maximumArmCorrection": 0.12, "headSwing": 45, "headYaw": 65,
+  "footLockSpeed": 0.025, "footMaxCorrection": 0.035,
+  "correctionIterations": 5, "smoothingRadius": 2,
+  "envelopes": [
+    {"name":"head/hair","bone":15,"offset":{"x":0,"y":0.073,"z":0},"radii":{"x":0.132,"y":0.16,"z":0.12}},
+    {"name":"torso","bone":9,"offset":{"x":0,"y":-0.025,"z":0.013},"radii":{"x":0.075,"y":0.103,"z":0.061}},
+    {"name":"skirt/pelvis","bone":0,"offset":{"x":0,"y":-0.015,"z":0.005},"radii":{"x":0.115,"y":0.068,"z":0.085}}
+  ]
+}

@@ -13,7 +13,7 @@ def build(root):
             if not folder.is_dir() or not (folder/'result.json').exists():continue
             videos=sorted(p for p in folder.glob('frames-*.mp4') if p.stat().st_size>0)
             if not videos:continue
-            plays=sorted(folder.glob('playback-*.json'))
+            plays=sorted([*folder.glob('playback-*.json'),*folder.glob('inspections/*/playback-*.json')],key=lambda p:p.name)
             report=json.loads(plays[-1].read_text(encoding='utf8')) if plays else {}
             samples[suite+'/'+folder.name]=dict(video=videos[-1].relative_to(root).as_posix(),
                 result=(folder/'result.json').relative_to(root).as_posix(),diagnostics=report.get('diagnostics',[]))

@@ -1,0 +1,178 @@
+{
+  "source": "F:\\Project\\MotionExperiments\\Evidence\\TokiFoundation\\20261012\\frozen-regressions\\backbend-last-groove\\segments\\004",
+  "warmupExcluded": 1,
+  "generatedFrames": 100,
+  "generationIncluded": false,
+  "stats": {
+    "decodeMs": {
+      "n": 30,
+      "p50": 0.759249902330339,
+      "p95": 0.8739099837839601,
+      "maximum": 0.9816000238060951
+    },
+    "coordinateMs": {
+      "n": 30,
+      "p50": 0.11570006608963013,
+      "p95": 0.12147011002525687,
+      "maximum": 0.12450013309717178
+    },
+    "exportWithDiskMs": {
+      "n": 30,
+      "p50": 34.40975002013147,
+      "p95": 37.908064981456846,
+      "maximum": 38.21839997544885
+    }
+  },
+  "measurements": [
+    {
+      "decodeMs": 0.8094999939203262,
+      "coordinateMs": 0.11610006913542747,
+      "exportWithDiskMs": 37.54699998535216
+    },
+    {
+      "decodeMs": 0.9153999853879213,
+      "coordinateMs": 0.11819996871054173,
+      "exportWithDiskMs": 37.59899991564453
+    },
+    {
+      "decodeMs": 0.7663001306355,
+      "coordinateMs": 0.11530006304383278,
+      "exportWithDiskMs": 33.826799830421805
+    },
+    {
+      "decodeMs": 0.7384999189525843,
+      "coordinateMs": 0.12450013309717178,
+      "exportWithDiskMs": 34.35229999013245
+    },
+    {
+      "decodeMs": 0.744599848985672,
+      "coordinateMs": 0.1137999352067709,
+      "exportWithDiskMs": 34.26230000331998
+    },
+    {
+      "decodeMs": 0.7592998445034027,
+      "coordinateMs": 0.11810008436441422,
+      "exportWithDiskMs": 34.38610001467168
+    },
+    {
+      "decodeMs": 0.7673001382499933,
+      "coordinateMs": 0.11869985610246658,
+      "exportWithDiskMs": 34.0680000372231
+    },
+    {
+      "decodeMs": 0.8084999863058329,
+      "coordinateMs": 0.11509982869029045,
+      "exportWithDiskMs": 34.12319999188185
+    },
+    {
+      "decodeMs": 0.7541000377386808,
+      "coordinateMs": 0.11619995348155499,
+      "exportWithDiskMs": 34.80630018748343
+    },
+    {
+      "decodeMs": 0.768700148910284,
+      "coordinateMs": 0.11879997327923775,
+      "exportWithDiskMs": 34.2548000626266
+    },
+    {
+      "decodeMs": 0.7440999615937471,
+      "coordinateMs": 0.112100038677454,
+      "exportWithDiskMs": 37.04679990187287
+    },
+    {
+      "decodeMs": 0.7939999923110008,
+      "coordinateMs": 0.11459994129836559,
+      "exportWithDiskMs": 37.639199988916516
+    },
+    {
+      "decodeMs": 0.7732000667601824,
+      "coordinateMs": 0.11359993368387222,
+      "exportWithDiskMs": 37.87819994613528
+    },
+    {
+      "decodeMs": 0.8231999818235636,
+      "coordinateMs": 0.11879997327923775,
+      "exportWithDiskMs": 37.93250001035631
+    },
+    {
+      "decodeMs": 0.7734999526292086,
+      "coordinateMs": 0.11899997480213642,
+      "exportWithDiskMs": 34.76330009289086
+    },
+    {
+      "decodeMs": 0.7460000924766064,
+      "coordinateMs": 0.11519994586706161,
+      "exportWithDiskMs": 33.024400006979704
+    },
+    {
+      "decodeMs": 0.7193998899310827,
+      "coordinateMs": 0.1105000264942646,
+      "exportWithDiskMs": 33.84630009531975
+    },
+    {
+      "decodeMs": 0.7272998336702585,
+      "coordinateMs": 0.11160015128552914,
+      "exportWithDiskMs": 34.322299994528294
+    },
+    {
+      "decodeMs": 0.7385998032987118,
+      "coordinateMs": 0.1126001589000225,
+      "exportWithDiskMs": 34.01079983450472
+    },
+    {
+      "decodeMs": 0.7551000453531742,
+      "coordinateMs": 0.11339993216097355,
+      "exportWithDiskMs": 34.808500204235315
+    },
+    {
+      "decodeMs": 0.7893000729382038,
+      "coordinateMs": 0.11619995348155499,
+      "exportWithDiskMs": 34.81290000490844
+    },
+    {
+      "decodeMs": 0.7591999601572752,
+      "coordinateMs": 0.11410005390644073,
+      "exportWithDiskMs": 34.433400025591254
+    },
+    {
+      "decodeMs": 0.7460999768227339,
+      "coordinateMs": 0.12019998393952847,
+      "exportWithDiskMs": 33.33409992046654
+    },
+    {
+      "decodeMs": 0.7460999768227339,
+      "coordinateMs": 0.11170003563165665,
+      "exportWithDiskMs": 34.43509992212057
+    },
+    {
+      "decodeMs": 0.7368999067693949,
+      "coordinateMs": 0.1221001148223877,
+      "exportWithDiskMs": 32.94180007651448
+    },
+    {
+      "decodeMs": 0.7254001684486866,
+      "coordinateMs": 0.11159991845488548,
+      "exportWithDiskMs": 34.58609990775585
+    },
+    {
+      "decodeMs": 0.9816000238060951,
+      "coordinateMs": 0.11460017412900925,
+      "exportWithDiskMs": 33.38159993290901
+    },
+    {
+      "decodeMs": 0.7450999692082405,
+      "coordinateMs": 0.11739996261894703,
+      "exportWithDiskMs": 34.7382000181824
+    },
+    {
+      "decodeMs": 0.7686000317335129,
+      "coordinateMs": 0.12070010416209698,
+      "exportWithDiskMs": 34.37349991872907
+    },
+    {
+      "decodeMs": 0.7680000271648169,
+      "coordinateMs": 0.11859997175633907,
+      "exportWithDiskMs": 38.21839997544885
+    }
+  ]
+}

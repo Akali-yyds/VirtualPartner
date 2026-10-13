@@ -34,7 +34,7 @@ namespace VirtualPartner.Editor
                         double submitted=Time.realtimeSinceStartupAsDouble;d.Load(folder);double loaded=Time.realtimeSinceStartupAsDouble;
                         d.waitForAudio=false;d.Play(submitted);
                         while(d.Playing)yield return null;
-                        var reports=Directory.GetFiles(folder,"playback-*.json");Array.Sort(reports,StringComparer.Ordinal);
+                        var reports=Directory.GetFiles(d.OutputDirectory,"playback-*.json");Array.Sort(reports,StringComparer.Ordinal);
                         File.Copy(reports[reports.Length-1],Path.Combine(folder,"realtime-playback.json"),true);
                         File.WriteAllText(Path.Combine(folder,"unity-timing.json"),JsonUtility.ToJson(new Timing{loadSeconds=loaded-submitted,firstBodyMotionSeconds=d.FirstMotionSeconds},true));
                         d.ResetPose();yield return new WaitForSeconds(.6f);
